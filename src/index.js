@@ -5,13 +5,13 @@ game.name = 'VoxelSrv'
 game.version = '0.0.1'
 
 // Worldname
-game.world = 'hello'
+game.world = 'temp'
 
 // Used in worldgen
-game.seed = 123
+game.seed = Math.random() //123
 
 // Players gamemode 0 - Survival, 1 - Creative
-game.mode = 0
+game.mode = 1
 
 import Engine from 'noa-engine'
 import 'babylonjs'
