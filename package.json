@@ -1,0 +1,40 @@
+{
+  "name": "noa-examples",
+  "version": "0.0.3",
+  "description": "Starter examples of game worlds using the noa voxel engine",
+  "scripts": {
+    "start": "cd src/ && webpack-dev-server",
+    "build": "rm docs/*.js; cd src && webpack --env.production"
+  },
+  "keywords": [
+    "noa-engine",
+    "noa",
+    "voxel",
+    "game",
+    "engine",
+    "example"
+  ],
+  "author": "Andy Hall",
+  "license": "ISC",
+  "dependencies": {
+    "@babylonjs/core": "^4.0.3",
+    "@babylonjs/inspector": "^4.0.3",
+    "babylonjs": "^4.1.0",
+    "babylonjs-loaders": "^4.1.0",
+    "fractal-noise": "^1.0.0",
+    "mesh-particle-system": "^0.9.0",
+    "murmur-numbers": "0.0.1",
+    "ndarray": "^1.0.19",
+    "ndhash": "^0.1.0",
+    "noa-engine": "github:andyhall/noa#develop",
+    "open-simplex-noise": "^2.3.1",
+    "simplex-noise": "^2.4.0",
+    "voxel-crunch": "^0.2.1"
+  },
+  "devDependencies": {
+    "webpack": "^4.41.5",
+    "webpack-cli": "^3.3.10",
+    "webpack-dev-server": "^3.10.1",
+    "worker-loader": "^2.0.0"
+  }
+}
