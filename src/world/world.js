@@ -77,9 +77,9 @@ function WorldGen() {
 		var dz = chunk.shape[2]
 		for (var i = 0; i < dx; ++i) {
 			for (var k = 0; k < dz; ++k) {
+			var gen //= getBiomeMap(x + i, y + j, z + k)
+			var height = getHeightMap(x + i, y + j, z + k, 80, gen)
 				for (var j = 0; j < dy; ++j) {
-					var gen = getBiomeMap(x + i, y + j, z + k)
-					var height = getHeightMap(x + i, y + j, z + k, 80, gen)
 					var id = decideBlock(x + i, y + j, z + k, height, gen)
 					if (id) chunk.set(i, j, k, id)
 					if (id == blockIDs.grass && hash(x + i, y + j, z + k) < 0.05) chunk.set(i, j+1, k, (hash(x + i, z + k) >= 0.5) ? blockIDs.yellow_flower : blockIDs.red_flower)
@@ -94,7 +94,7 @@ function WorldGen() {
 	// helpers
 	// worldgen - return a heightmap for a given [x,z]
 	function getHeightMap(x, y, z, gen) {
-		var scale = 20 + ( (gen['hight'] != undefined) ? gen['hight'] : 0 )
+		var scale = 80
 		//var cave = Math.round(caveNoise(x/50, y/50, z/50))*50
 		var height = Math.round(heightNoise(x/15, z/15)*heightNoise(x/50, z/50)*scale)+10
 		return height
@@ -114,7 +114,7 @@ function WorldGen() {
 	function decideBlock(x, y, z, height, gen) {
 		var hash2 = hash(x,z)
 		var hash3 = hash(x, y, z)
-		if (y > 1000 || y < -1000 ) {
+		if (y > 576 || y < -576 ) {
 			return blockIDs.barrier
 		} else if (y < -990) {
 			return stoneBlock(y, hash3)
