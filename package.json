@@ -1,7 +1,7 @@
 {
-  "name": "noa-examples",
-  "version": "0.0.3",
-  "description": "Starter examples of game worlds using the noa voxel engine",
+  "name": "VoxelSrv",
+  "version": "0.0.1",
+  "description": "Simple voxel game",
   "scripts": {
     "start": "cd src/ && webpack-dev-server",
     "build": "rm docs/*.js; cd src && webpack --env.production"
