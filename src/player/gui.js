@@ -45,7 +45,7 @@ function setupHotbarGUI() {
 		for (var x = 0; x < 9; x++) {
 			if (x == sel && !hotbar[x].classList.contains('hotbar_selected')) hotbar[x].classList.add('hotbar_selected')
 			else if (x != sel && hotbar[x].classList.contains('hotbar_selected'))  hotbar[x].classList.remove('hotbar_selected')
-			hotbar[x].innerHTML = (inv[x].id != undefined) ? '<img class="img-fluid item_icon" src="./textures/' + 
+			hotbar[x].innerHTML = (inv[x].id != undefined) ? '<img class="img-fluid item_icon" src="textures/' + 
 				game.blockdata[inv[x].id].textures[0] + '.png"><span class="item_count">' + inv[x].count + '</span>' : ''
 		}
 	});
