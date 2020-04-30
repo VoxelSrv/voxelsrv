@@ -1,3 +1,6 @@
+import { getMusicVolume, setMusicVolume } from './audio'
+import { getInventory, inventoryAdd, inventoryRemove } from './player'
+import { openCommandPrompt } from '../world/commands'
 
 
 import '@babylonjs/core/Debug/debugLayer'
@@ -12,28 +15,23 @@ var MPS = require('mesh-particle-system');
 
 
 export function setupInteractions(noa) {
-
 	// on left mouse, set targeted block to be air
 	noa.inputs.down.on('fire', function () {
 		if (noa.targetedBlock && !game.unbreakableBlocks.includes(noa.targetedBlock.blockID)) {
 			var block = noa.targetedBlock.blockID
 			noa.setBlock(0, noa.targetedBlock.position)
-			if (game.mode == 0) {
-				inventory[block] = inventory[block] + 1
-			}
+			inventoryAdd(1, block, 1, {})
 		}
 	})
 
 
 	// place block on alt-fire (RMB/E)
 	noa.inputs.down.on('alt-fire', function () {
-		if (noa.targetedBlock && !game.illegalBlocks.includes(pickedID)) {
-			if (inventory[pickedID]) {
-				noa.addBlock(pickedID, noa.targetedBlock.adjacent)
-				if (game.mode == 0) {
-					inventory[pickedID] = inventory[pickedID] - 1
-				}
-			}
+		var inv = getInventory(1)
+		var block = inv.main[inv.selected].id
+		if (noa.targetedBlock && block != undefined && !game.illegalBlocks.includes(block)) {
+			noa.addBlock(block, noa.targetedBlock.adjacent)
+			inventoryRemove(1, block, 1)
 		}
 	})
 
@@ -52,6 +50,11 @@ export function setupInteractions(noa) {
 	})
 	var paused = false
 
+	noa.inputs.bind('muteMusic', 'O')
+	noa.inputs.down.on('muteMusic', function () {
+		if (getMusicVolume() != 0) setMusicVolume(0)
+		else setMusicVolume(0.15)
+	})
 
 	// 3rd person view
 	noa.inputs.bind('thirdprsn', 'M')
@@ -61,20 +64,24 @@ export function setupInteractions(noa) {
 	})
 
 
+	// Command prompt
+	noa.inputs.bind('cmd', 'T')
+	noa.inputs.down.on('cmd', function () {
+		openCommandPrompt()
+	})
+
+
 
 	// each tick, consume any scroll events and use them to zoom camera
-	noa.on('tick', function (dt) {
+	noa.on('tick', async function (dt) {
 		var scroll = noa.inputs.state.scrolly
 		if (scroll !== 0) {
+			var pickedID = getInventory(1).selected
 			var change = (scroll > 0) ? 1 : -1
 			pickedID = pickedID + change
-			var maxnum = Object.keys(game.blocks).length
-			if (pickedID > maxnum) pickedID = 1
-			if (pickedID <= 0) pickedID = maxnum
-			while (game.illegalBlocks.includes(pickedID)) {
-				pickedID = pickedID + change
-				if (pickedID > maxnum) pickedID = 1
-			}
+			if (pickedID >= 9) pickedID = 0
+			else if (pickedID < 0) pickedID = 8
+			getInventory(1).selected = pickedID
 			
 
 		}

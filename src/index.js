@@ -2,7 +2,7 @@ import { initGame } from './game'
 
 global.game = {}
 game.name = 'VoxelSrv'
-game.version = '0.0.2'
+game.version = '0.0.3'
 
 // Worldname
 game.world = 'temp'

@@ -1,12 +1,20 @@
 import {Howl, Howler} from 'howler'
 
-export function initMusic() {
-
-	var sound = new Howl({
+	var music = new Howl({
 		volume: 0.15,
+		loop: true,
 		src: ['audio/drops.mp3']
 	})
-	sound.volume
-	sound.play()
+
+export function initMusic() {
+	music.play()
+}
+
+export function setMusicVolume(value) {
+	music.volume(value)
+}
+
+export function getMusicVolume() {
+	return music.volume()
 
 }
