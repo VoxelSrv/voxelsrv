@@ -1,0 +1,48 @@
+.hotbar_selected {
+	background-color: #66666699 !important;
+	bottom:15px;
+}
+
+.hotbar_item {
+	z-index:2;
+	display: inline-block;
+	color:white;
+	background-color:rgba(0,0,0,0.5);
+	height:56px;
+	width:56px;
+	font-size:20px;
+	text-align:center; 
+	margin: 2px;
+	min-width:2em;
+	padding:4px;
+}
+
+.item_count {
+	position:absolute;
+	bottom:5px;
+	margin-left:auto;
+	font-family:'lato';
+	font-weight: bold;
+}
+
+.item_icon {
+	image-rendering: pixelated;
+   	height:48px;
+	width:48px;
+	display: block;
+	margin: auto auto;
+}
+
+#game_chatbox {
+	position:absolute;
+	bottom:5px;
+	left:5px;
+	z-index:1;
+	color:white;
+	text-shadow: 1px 1px black;
+	background-color:rgba(0,0,0,0.2);
+	font-size:20px;
+	margin:4px;
+	max-height:500px;
+
+}

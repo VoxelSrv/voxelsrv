@@ -1,7 +1,7 @@
 /* global BABYLON */
 
 import Engine from 'noa-engine'
-import 'babylonjs'
+import * as BABYLON from '@babylonjs/core/Legacy/legacy'
 import 'babylonjs-loaders'
 import { initRegistration, getBlockNames } from './registration'
 import { initWorldGen } from './world/menager'
@@ -24,11 +24,11 @@ export function initGame() {
 		inverseX: false,
 		sensitivityX: 15,
 		sensitivityY: 15,
-		chunkSize: 24,
+		chunkSize: 16,
 		chunkAddDistance: 5.5,
 		chunkRemoveDistance: 5.0,
 		blockTestDistance: 10,
-		tickRate: 40,
+		tickRate: 60,
 		texturePath: 'textures/',
 		playerStart: [0.5, 40, 0.5],
 		playerHeight: 1.85,
@@ -43,18 +43,14 @@ export function initGame() {
 		AOmultipliers: [0.93, 0.8, 0.5],
 		reverseAOmultiplier: 1.0,
 		preserveDrawingBuffer: true,
-		gravity: [0, -18, 0]
+		gravity: [0, -16, 0]
 	})
 	noa.setMaxListeners(100)
 
 	var scene = noa.rendering.getScene()
 
-
-
-	global.pickedID = 1
-	global.inventory = {}
-
 	// this registers all the blocks and materials
+	game.blockdata = {}
 	game.blocks = initRegistration(noa)
 	var block = game.blocks
 	game.blockNames = getBlockNames(game.blocks)

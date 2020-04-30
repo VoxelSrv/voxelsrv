@@ -7,6 +7,9 @@ export function setupPlayerEntity(noa) {
 	// get the player entity's ID and other info (aabb, size)
 	var eid = noa.playerEntity
 	var dat = noa.entities.getPositionData(eid)
+
+	// Setting player's model
+	
 	var w = dat.width
 	var h = dat.height
 
@@ -25,28 +28,83 @@ export function setupPlayerEntity(noa) {
 		offset: offset
 	})
 
+	// Gamemode and players settings
+
+	var move = noa.entities.getMovement(eid)
+
 	if (game.mode == 0) {
-		noa.entities._storage.movement.hash[eid].airJumps = 0
-		for (var id = 1; id <= Object.keys(game.blocks).length; id++) {
-			global.inventory[id] = 0
-		}
+		move.airJumps = 0
+
 	} else {
-		for (var id = 1; id <= Object.keys(game.blocks).length; id++) {
-			global.inventory[id] = Infinity
+
+	}
+
+	move.maxSpeed = 10
+	move.jumpForce = 8
+	var invspace = {}
+	for (var x = 0; x < 18; x++) {
+		invspace[x] = {}
+	}
+
+	noa.ents.createComponent({
+		name: 'inventory',
+		state: {main: {}, selected: 0}
+	})
+	noa.ents.addComponent(eid, 'inventory', {main: invspace})
+
+	var inventory = noa.ents.getState(eid, 'inventory')
+
+}
+
+export function inventoryAdd(eid, item, count, data) {
+	var inventory = noa.ents.getState(eid, 'inventory')
+	var items = Object.entries(inventory.main)
+	for (var [slot, data] of items) {
+		if (data.id == item && (data.count+count) < 100) {
+			inventory.main[slot] = {id: item, count: count+data.count, data: data}
+			return true
 		}
 	}
-	noa.entities._storage.movement.hash[eid].maxSpeed = 10
-
-
-
-	// make a Babylon.js mesh and scale it, etc.
-	var hand = Mesh.CreateBox('hand', 2, noa.rendering.getScene())
-
-	var axis = BABYLON.Vector3(0, 1, 0)
-	noa.on('tick', function(){noa.camera.getCameraRotation
-		playerMesh.rotation.y = noa.camera.heading
-		if (inventory[pickedID] < 0 || inventory[pickedID] == undefined) inventory[pickedID] = 99
-	});
-
-	
+	for (var [slot, data] of items) {
+		if (data.id == undefined) {
+			inventory.main[slot] = {id: item, count: count, data: data}
+			return true
+		}
+	}
+	return false	
 }
+
+export function inventoryRemove(eid, item, count) {
+	var inventory = noa.ents.getState(eid, 'inventory')
+	var items = Object.entries(inventory.main)
+	for (var [slot, data] of items) {
+		if (data.id == item) {
+			var newcount = data.count-count
+			if (newcount > 0) inventory.main[slot] = {id: item, count: newcount, data: data.data}
+			else inventory.main[slot] = {}
+			return true
+		}
+	}
+	return false
+}
+
+export function inventorySet(eid, slot, item, count, data) {
+	var inventory = noa.ents.getState(eid, 'inventory')
+	inventory.main[slot] = {id: item, count: count, data: data}
+	return false
+}
+
+export function inventoryHasItem(eid, slot, item, count, data) {
+	var inventory = noa.ents.getState(eid, 'inventory')
+	inventory.main[slot] = {id: item, count: count, data: data}
+	return false
+}
+
+export function getInventory(eid) {
+	var inventory = noa.ents.getState(eid, 'inventory')
+	return inventory
+}
+
+
+
+

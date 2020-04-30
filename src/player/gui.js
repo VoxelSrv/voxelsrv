@@ -2,65 +2,78 @@ import Container from 'noa-engine'
 import { Texture } from '@babylonjs/core/Materials/Textures'
 import { Mesh } from '@babylonjs/core/Meshes/mesh'
 import { Vector3, Matrix } from '@babylonjs/core/Maths/math'
+import { getInventory } from './player'
 
 
 export function setupGUI(noa) {
-	setupBlockGUI()
+	setupHotbarGUI()
 	setupInfoGUI()
 	setupSkybox()
-	//setupHand()
+	setupHand()
 	setupCross()
-
+	setupChatBox()
 	noa.on('tick', function(){
-		var i = (inventory[pickedID] > 0) ? inventory[pickedID] : 0
-		updateBlockGUI(game.blockNames[pickedID] + ' ' + '(' + pickedID + ') | ' + i )
 		updatePos()
 	});
 }
 
-export function updateBlockGUI(id) {
-	document.getElementById('game_selectedblock').innerHTML = id
-}
 
-function setupBlockGUI() {
+function setupHotbarGUI() {
 	var div = document.createElement('div')
-	div.id = 'game_selectedblock'
-	var style = 'position:absolute; bottom:5px; left:5px; z-index:0;'
-	style += 'color:white; background-color:rgba(0,0,0,0.5);'
-	style += 'font-size:40px; text-align:center; padding:6px;'
-	style += 'min-width:2em; margin:4px;'
+	div.id = 'game_hotbar'
+	var style = 'position:absolute; bottom:5px; left:50%; z-index:0;'
+	style += 'color:white; height:auto; width:auto;'
+	style += 'font-size:40px; text-align:center; padding:3px;'
+	style += 'min-width:2em; transform: translateX(-50%);'
 	div.style = style
 	document.body.appendChild(div)
-	updateBlockGUI(1)
+	var hotbar = {}
+	for (var x = 0; x < 9; x++) {
+
+		hotbar[x] = document.createElement('div')
+		hotbar[x].id = 'game_hotbar_item'
+		hotbar[x].classList.add('align-bottom')
+		hotbar[x].classList.add('hotbar_item')
+		div.appendChild(hotbar[x])
+	}
+
+	noa.on('tick', async function(){
+		var eid = noa.playerEntity
+		var inventory = getInventory(1)
+		var inv =  inventory.main
+		var sel = inventory.selected
+		for (var x = 0; x < 9; x++) {
+			if (x == sel && !hotbar[x].classList.contains('hotbar_selected')) hotbar[x].classList.add('hotbar_selected')
+			else if (x != sel && hotbar[x].classList.contains('hotbar_selected'))  hotbar[x].classList.remove('hotbar_selected')
+			hotbar[x].innerHTML = (inv[x].id != undefined) ? '<img class="img-fluid item_icon" src="/textures/' + 
+				game.blockdata[inv[x].id].textures[0] + '.png"><span class="item_count">' + inv[x].count + '</span>' : ''
+		}
+	});
 }
 
 
 function setupHand() {
 	var scene = noa.rendering.getScene()
 	var eid = noa.playerEntity
-	global.hand = BABYLON.MeshBuilder.CreateBox("hand", {size:0.2}, scene)
+	var hand = BABYLON.MeshBuilder.CreateBox("hand", {size:0.1}, scene)
 	var handMaterial = new BABYLON.StandardMaterial("hand", scene)
 	hand.material = handMaterial
-
+	hand.parent = scene.activeCamera
+	hand.rotation.y = -Math.PI/8
 	noa.rendering.addMeshToScene(hand, false)
-	noa.on('beforeRender', function(){
-		var dat = noa.entities.getPositionData(eid)
-		var pos = noa.camera._localGetPosition()
-		var dirPos = noa.camera.getDirection()
-		var pitch = noa.camera['pitch']
-		var yaw = noa.camera['yaw']
-		hand.position = new BABYLON.Vector3(pos[0] * Math.sin(yaw), pos[1], pos[2] * Math.cos(yaw));
-		hand.rotation.y += .03;
-		
-		var	mat = noa.registry.getBlockFaceMaterial(pickedID, 0)
+	noa.on('tick', function() {
+		var inventory = getInventory(1)
+		var inv =  inventory.main
+		var sel = inventory.selected
 		try {
-			var txt = noa.registry.getMaterialTexture(mat)
-		} catch(error) {var txt = null}
-		handMaterial.ambientTexture = new BABYLON.Texture(txt, scene)
-		handMaterial.ambientTexture.hasAlpha = true
-		//handMaterial.ambientTexture.noMipmap = true
-
-
+			var txt = 'textures/' + game.blockdata[inv[sel].id].textures[0] + '.png'
+			hand.position = new BABYLON.Vector3(0.08, -0.08, 0.08);
+		} catch {
+			var txt = null
+			hand.position = new BABYLON.Vector3(99.08, 99.08, 99.08);
+		}
+		var mat = new BABYLON.Texture(txt, scene, false, true, BABYLON.Texture.NEAREST_SAMPLINGMODE)
+		handMaterial.ambientTexture = mat
 	})
 }
 
@@ -72,6 +85,14 @@ function setupInfoGUI() {
 	style += 'font-size:28px; margin:4px;'
 	div.style = style
 	div.innerHTML = game.name + ' ' + game.version +'<br>Noa: ' + noa.version + '<br>World: ' + noa.worldName + '<br><span id="player_pos"></span>' 
+	document.body.appendChild(div)
+}
+
+
+function setupChatBox() {
+	var div = document.createElement('div')
+	div.id = 'game_chatbox'
+	div.classList.add('col-3')
 	document.body.appendChild(div)
 }
 
