@@ -134,8 +134,8 @@ function WorldGen() {
 			return (y < -1 && y > -40) ? blockIDs.water : 0
 		}
 		function stoneBlock(y, rnd) {
-			if (y < 50 && rnd < 0.05) return blockIDs.coal
-			else if (y < 40 && rnd > 0.98) return blockIDs.iron
+			if (y < 50 && rnd < 0.05) return blockIDs.coal_ore
+			else if (y < 40 && rnd > 0.98) return blockIDs.iron_ore
 			else return blockIDs.stone
 		}
 	}
