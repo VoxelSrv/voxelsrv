@@ -3,7 +3,8 @@
 import Engine from 'noa-engine'
 import * as BABYLON from '@babylonjs/core/Legacy/legacy'
 import 'babylonjs-loaders'
-import { initRegistration, getBlockNames } from './registration'
+import { initBlocks, getBlockNames } from './world/blocks'
+import { initItems } from './world/items'
 import { initWorldGen } from './world/menager'
 import './world/commands'
 import { initPhysics } from './world/physics'
@@ -50,14 +51,13 @@ export function initGame() {
 	var scene = noa.rendering.getScene()
 
 	// this registers all the blocks and materials
+	game.itemdata = {}
+	game.items = initItems(noa)
 	game.blockdata = {}
-	game.blocks = initRegistration(noa)
+	game.blocks = initBlocks(noa)
+
 	var block = game.blocks
 	game.blockNames = getBlockNames(game.blocks)
-
-	game.illegalBlocks = [block.water, block.barrier]
-	game.unbreakableBlocks = [block.barrier]
-	game.plantsBlocks = [block.red_flower, block.yellow_flower, block.grass_plant]
 
 	// this sets up worldgen
 	initWorldGen(noa)

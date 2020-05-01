@@ -1,5 +1,5 @@
 .hotbar_selected {
-	background-color: #66666699 !important;
+	background-color: #d1000077 !important;
 	bottom:15px;
 }
 
@@ -8,21 +8,24 @@
 	display: inline-block;
 	color:white;
 	background-color:rgba(0,0,0,0.5);
-	height:56px;
-	width:56px;
+	/*image-rendering: pixelated;
+	background: url(./textures/gui/hotbar.png);
+	background-size: cover;*/
+	height:64px;
+	width:64px;
 	font-size:20px;
 	text-align:center; 
 	margin: 2px;
-	min-width:2em;
-	padding:4px;
+	padding:8px;
 }
 
 .item_count {
-	position:absolute;
-	bottom:5px;
-	margin-left:auto;
+	position: relative;
+	bottom:19px;
+	right:-5px;
 	font-family:'lato';
 	font-weight: bold;
+	text-shadow: black 1px 1px;
 }
 
 .item_icon {
@@ -46,3 +49,4 @@
 	max-height:500px;
 
 }
+

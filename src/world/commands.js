@@ -4,10 +4,12 @@ import { inventoryAdd, inventorySet, getInventory, inventoryRemove} from '../pla
 window.executeCommand=function(command) {
 	var arg = command.split(' ')
 	arg.shift()
-	if (command.startsWith('setblock')) return setBlock([parseInt(arg[0], 10), parseInt(arg[1], 10), parseInt(arg[2], 10)], parseInt(arg[3], 10))
-	else if (command.startsWith('tp')) return teleport([parseInt(arg[0], 10), parseInt(arg[1], 10), parseInt(arg[2], 10)])
+	if (command.startsWith('setblock ')) return setBlock([parseInt(arg[0], 10), parseInt(arg[1], 10), parseInt(arg[2], 10)], parseInt(arg[3], 10))
+	else if (command.startsWith('tp ')) return teleport([parseInt(arg[0], 10), parseInt(arg[1], 10), parseInt(arg[2], 10)])
 	else if (command.startsWith('getInventory')) return getInventory(1)
-	else if (command.startsWith('give')) return inventoryAdd(1, arg[0], parseInt(arg[1]), arg[2])
+	else if (command.startsWith('giveall')) return giveall()
+	else if (command.startsWith('clearinv')) return clearinv()
+	else if (command.startsWith('give ')) return (inventoryAdd(1, arg[0], parseInt(arg[1]), arg[2])) ? "Item added to player's inventory!" : "Can't add item to player"
 	return "This command doesn't exist!"
 }
 
@@ -21,6 +23,22 @@ function setBlock(block, id) {
 function teleport(loc) {
 	noa.entities.setPosition(1, [loc[0], loc[1], loc[2]])
 	return 'Teleported player to ' + loc[0] + ' ' + loc[1] + ' ' + loc[2]
+}
+
+function giveall() {
+	var items = Object.values(game.items)
+	for (var x = 1; x < items.length+1; x++) {
+		inventoryAdd(1, x, 999)
+	}
+	return 'Gived items to player!'
+}
+
+function clearinv() {
+	var items = Object.values(game.items)
+	for (var x = 1; x < items.length+1; x++) {
+		inventoryRemove(1, x, 9999)
+	}
+	return "Cleared player's inventory"
 }
 
 export function openCommandPrompt() {

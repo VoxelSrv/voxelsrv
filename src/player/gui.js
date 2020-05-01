@@ -9,7 +9,7 @@ export function setupGUI(noa) {
 	setupHotbarGUI()
 	setupInfoGUI()
 	setupSkybox()
-	setupHand()
+	//setupHand()
 	setupCross()
 	setupChatBox()
 	noa.on('tick', function(){
@@ -19,16 +19,18 @@ export function setupGUI(noa) {
 
 
 function setupHotbarGUI() {
+	game.hotbarsize = 27
+
 	var div = document.createElement('div')
 	div.id = 'game_hotbar'
-	var style = 'position:absolute; bottom:5px; left:50%; z-index:0;'
+	var style = 'position:fixed; bottom:5px; left:50%; z-index:0;'
 	style += 'color:white; height:auto; width:auto;'
 	style += 'font-size:40px; text-align:center; padding:3px;'
 	style += 'min-width:2em; transform: translateX(-50%);'
 	div.style = style
 	document.body.appendChild(div)
 	var hotbar = {}
-	for (var x = 0; x < 9; x++) {
+	for (var x = 0; x < game.hotbarsize; x++) {
 
 		hotbar[x] = document.createElement('div')
 		hotbar[x].id = 'game_hotbar_item'
@@ -42,11 +44,13 @@ function setupHotbarGUI() {
 		var inventory = getInventory(1)
 		var inv =  inventory.main
 		var sel = inventory.selected
-		for (var x = 0; x < 9; x++) {
+		for (var x = 0; x < game.hotbarsize; x++) {
+
 			if (x == sel && !hotbar[x].classList.contains('hotbar_selected')) hotbar[x].classList.add('hotbar_selected')
 			else if (x != sel && hotbar[x].classList.contains('hotbar_selected'))  hotbar[x].classList.remove('hotbar_selected')
 			hotbar[x].innerHTML = (inv[x].id != undefined) ? '<img class="img-fluid item_icon" src="textures/' + 
-				game.blockdata[inv[x].id].textures[0] + '.png"><span class="item_count">' + inv[x].count + '</span>' : ''
+				game.itemdata[inv[x].id].texture + '.png"><div class="item_count float-right">' +
+				((inv[x].count > 1) ?  inv[x].count : '') + '</div>' : ''
 		}
 	});
 }
@@ -66,7 +70,7 @@ function setupHand() {
 		var inv =  inventory.main
 		var sel = inventory.selected
 		try {
-			var txt = 'textures/' + game.blockdata[inv[sel].id].textures[0] + '.png'
+			var txt = 'textures/' + game.itemdata[inv[sel].id].texture + '.png'
 			hand.position = new BABYLON.Vector3(0.08, -0.08, 0.08);
 		} catch {
 			var txt = null
