@@ -15,32 +15,31 @@ export function initItems(noa) {
 	var block = game.blocks
 	// block types registration
 	var itemIDs = {}
-	var _id = 1
 
-	itemIDs.stone = createItem(_id++, 'stone', 0, 'block/stone', {stack: 64})
-	itemIDs.dirt = createItem(_id++, 'dirt', 0, 'block/dirt', {stack: 64})
-	itemIDs.grass = createItem(_id++, 'grass', 0, 'block/grass_side', {stack: 64})
-	itemIDs.grass_snow = createItem(_id++, 'grass_snow', 0, 'block/grass_snow', {stack: 64})
-	itemIDs.cobblestone = createItem(_id++, 'cobblestone', 0, 'block/cobblestone', {stack: 64})
-	itemIDs.log = createItem(_id++, 'log', 0, 'block/log', {stack: 64})
-	itemIDs.sand = createItem(_id++, 'sand', 0, 'block/sand', {stack: 64})
-	itemIDs.leaves = createItem(_id++, 'leaves', 0, 'block/leaves', {stack: 64})
+	itemIDs.stone = createItem('stone', 'Stone', 0, 'block/stone', {stack: 64})
+	itemIDs.dirt = createItem('dirt', 'Dirt', 0, 'block/dirt', {stack: 64})
+	itemIDs.grass = createItem('grass', 'Grass block', 0, 'block/grass_side', {stack: 64})
+	itemIDs.grass_snow = createItem('grass_snow', 'Snowy grass block', 0, 'block/grass_snow', {stack: 64})
+	itemIDs.cobblestone = createItem('cobblestone', 'Cobblestone', 0, 'block/cobblestone', {stack: 64})
+	itemIDs.log = createItem('log', 'Log', 0, 'block/log', {stack: 64})
+	itemIDs.sand = createItem('sand', 'Sand', 0, 'block/sand', {stack: 64})
+	itemIDs.leaves = createItem('leaves', 'Leaves', 0, 'block/leaves', {stack: 64})
 
-	itemIDs.red_flower = createItem(_id++, 'red_flower', 0, 'block/red_flower', {stack: 64})
-	itemIDs.grass_plant = createItem(_id++, 'grass_plant', 0, 'block/grass_plant', {stack: 64})
-	itemIDs.yellow_flower = createItem(_id++, 'yellow_flower', 0, 'block/yellow_flower', {stack: 64})
+	itemIDs.red_flower = createItem('red_flower', 'Poppy', 0, 'block/red_flower', {stack: 64})
+	itemIDs.grass_plant = createItem('grass_plant', 'Grass', 0, 'block/grass_plant', {stack: 64})
+	itemIDs.yellow_flower = createItem('yellow_flower', 'Dandelion', 0, 'block/yellow_flower', {stack: 64})
 
-	itemIDs.bricks = createItem(_id++, 'bricks', 0, 'block/bricks', {stack: 64})
-	itemIDs.planks = createItem(_id++, 'planks', 0, 'block/planks', {stack: 64})
-	itemIDs.glass = createItem(_id++, 'glass', 0, 'block/glass', {stack: 64})
-	itemIDs.bookshelf = createItem(_id++, 'bookshelf', 0, 'block/bookshelf', {stack: 64})
-	itemIDs.snow = createItem(_id++, 'snow', 0, 'block/snow', {stack: 64})
-	itemIDs.coal_ore = createItem(_id++, 'coal_ore', 0, 'block/coal_ore', {stack: 64})
-	itemIDs.iron_ore = createItem(_id++, 'iron_ore', 0, 'block/iron_ore', {stack: 64})
+	itemIDs.bricks = createItem('bricks', 'Bricks', 0, 'block/bricks', {stack: 64})
+	itemIDs.planks = createItem('planks', 'Planks', 0, 'block/planks', {stack: 64})
+	itemIDs.glass = createItem('glass', 'Glass', 0, 'block/glass', {stack: 64})
+	itemIDs.bookshelf = createItem('bookshelf', 'Bookshelf', 0, 'block/bookshelf', {stack: 64})
+	itemIDs.snow = createItem('snow', 'Snow block', 0, 'block/snow', {stack: 64})
+	itemIDs.coal_ore = createItem('coal_ore', 'Coal ore', 0, 'block/coal_ore', {stack: 64})
+	itemIDs.iron_ore = createItem('iron_ore', 'Iron ore', 0, 'block/iron_ore', {stack: 64})
 
-	itemIDs.iron_pickaxe = createItem(_id++, 'iron_pickaxe', 1, 'item/iron_pickaxe', {stack: 1})
+	itemIDs.iron_pickaxe = createItem('iron_pickaxe', 'Iron pickaxe', 1, 'item/iron_pickaxe', {stack: 1})
 
-	itemIDs.coal = createItem(_id++, 'coal', 1, 'item/coal', {stack: 64})
+	itemIDs.coal = createItem('coal', 'Coal', 1, 'item/coal', {stack: 64})
 
 	return itemIDs
 	

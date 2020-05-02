@@ -27,18 +27,18 @@ function teleport(loc) {
 
 function giveall() {
 	var items = Object.values(game.items)
-	for (var x = 1; x < items.length+1; x++) {
-		inventoryAdd(1, x, 999)
-	}
+	items.forEach(exec) 
+	function exec(item) { inventoryAdd(1, item, 999) }
 	return 'Gived items to player!'
 }
 
 function clearinv() {
 	var items = Object.values(game.items)
-	for (var x = 1; x < items.length+1; x++) {
-		inventoryRemove(1, x, 9999)
-	}
+	items.forEach(exec)
+
 	return "Cleared player's inventory"
+
+	function exec(item) {inventoryRemove(1, item, 9999)}
 }
 
 export function openCommandPrompt() {

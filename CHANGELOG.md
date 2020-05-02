@@ -1,3 +1,8 @@
+# 0.0.5
+- World is now genereting 60 blocks higher
+- Changed lowest possible y to 0
+- Added basic inventory (I to open)
+- "Debug" info is now smaller
 # 0.0.4
 - Max stack size is now set per item
 - Added support for items
