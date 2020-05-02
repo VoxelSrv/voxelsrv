@@ -1,8 +1,10 @@
 /* global BABYLON */
 
 import Engine from 'noa-engine'
+
 import * as BABYLON from '@babylonjs/core/Legacy/legacy'
 import 'babylonjs-loaders'
+var glvec3 = require("gl-vec3");
 import { initBlocks, getBlockNames } from './world/blocks'
 import { initItems } from './world/items'
 import { initWorldGen } from './world/menager'
@@ -12,6 +14,7 @@ import { setupPlayerEntity } from './player/player'
 import { setupInteractions } from './player/actions'
 import { setupGUI } from './player/gui'
 import { initMusic } from './player/audio'
+
 
 
 
@@ -25,13 +28,13 @@ export function initGame() {
 		inverseX: false,
 		sensitivityX: 15,
 		sensitivityY: 15,
-		chunkSize: 16,
+		chunkSize: 24,
 		chunkAddDistance: 5.5,
 		chunkRemoveDistance: 5.0,
 		blockTestDistance: 10,
 		tickRate: 60,
 		texturePath: 'textures/',
-		playerStart: [0.5, 40, 0.5],
+		playerStart: [0.5, 100, 0.5],
 		playerHeight: 1.85,
 		playerWidth: 0.5,
 		playerAutoStep: false,
@@ -78,5 +81,8 @@ export function initGame() {
 	initMusic()
 
 
+	window.onbeforeunload = function(){
+		return 'Are you sure you want to leave (or you just tried to spint)? '
+	}
 }
 

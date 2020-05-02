@@ -7,10 +7,7 @@
 	z-index:2;
 	display: inline-block;
 	color:white;
-	background-color:rgba(0,0,0,0.5);
-	/*image-rendering: pixelated;
-	background: url(./textures/gui/hotbar.png);
-	background-size: cover;*/
+	background-color: #00000066;
 	height:64px;
 	width:64px;
 	font-size:20px;
@@ -19,6 +16,69 @@
 	padding:8px;
 }
 
+.inventory_item {
+	z-index:2;
+	display: inline-block;
+	color:white;
+	background-color: #00000088;
+	height:64px;
+	width:64px;
+	font-size:20px;
+	text-align:center; 
+	margin: 2px;
+	padding:8px;
+}
+
+.inventory_temp {
+	position: fixed;
+	z-index:3;
+	color:white;
+	height:64px;
+	width:64px;
+	font-size:20px;
+	text-align:center; 
+	padding:8px;
+	pointer-events: none;
+}
+
+.inventory_item:hover {
+	background-color: #33333388;
+}
+
+.inventory_item_bin {
+	z-index:2;
+	display: inline-block;
+	color:white;
+	background-color: #eeeeee88;
+	height:64px;
+	width:64px;
+	font-size:20px;
+	text-align:center; 
+	margin: 2px;
+	padding:8px;
+}
+
+.inventory_item_bin:hover {
+	background-color: #ffffff88;
+}
+.inventory_item_hotbar {
+	z-index:2;
+	display: inline-block;
+	color:white;
+	background-color: #d1000088;
+	height:64px;
+	width:64px;
+	font-size:20px;
+	text-align:center; 
+	margin: 2px;
+	padding:8px;
+}
+
+.inventory_item_hotbar:hover {
+	background-color: #d1444488;
+}
+
+
 .item_count {
 	position: relative;
 	bottom:19px;
@@ -26,6 +86,7 @@
 	font-family:'lato';
 	font-weight: bold;
 	text-shadow: black 1px 1px;
+	pointer-events: none;
 }
 
 .item_icon {
@@ -34,6 +95,7 @@
 	width:48px;
 	display: block;
 	margin: auto auto;
+	pointer-events: none;
 }
 
 #game_chatbox {
@@ -42,11 +104,15 @@
 	left:5px;
 	z-index:1;
 	color:white;
+	font-family:'lato';
 	text-shadow: 1px 1px black;
 	background-color:rgba(0,0,0,0.2);
 	font-size:20px;
 	margin:4px;
 	max-height:500px;
+}
 
+#game_version {
+	font-family:'lato';
 }
 

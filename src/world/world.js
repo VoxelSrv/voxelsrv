@@ -96,7 +96,7 @@ function WorldGen() {
 	function getHeightMap(x, y, z, gen) {
 		var scale = 80
 		//var cave = Math.round(caveNoise(x/50, y/50, z/50))*50
-		var height = Math.round(heightNoise(x/15, z/15)*heightNoise(x/50, z/50)*scale)+10
+		var height = Math.round(heightNoise(x/15, z/15)*heightNoise(x/50, z/50)*scale)+80
 		return height
 				
 	}
@@ -114,28 +114,28 @@ function WorldGen() {
 	function decideBlock(x, y, z, height, gen) {
 		var hash2 = hash(x,z)
 		var hash3 = hash(x, y, z)
-		if (y > 576 || y < -576 ) {
+		if (y > 576 || y < 0 ) {
 			return blockIDs.barrier
 		} else if (y < -990) {
 			return stoneBlock(y, hash3)
 		} else if (y+3 < height) {
 			return stoneBlock(y, hash3)
-		} else if (y > 38-hash2*3 && (y == height || y+1 == height)) {
+		} else if (y > 108-hash2*3 && (y == height || y+1 == height)) {
 			return blockIDs.snow
-		} else if (y > 30-hash2*3 && y <= height) {
+		} else if (y > 100-hash2*3 && y <= height) {
 			return stoneBlock(y, hash3)
-		} else if (y < height && y > -40) {
-			if (y < 0 ) return blockIDs.sand
+		} else if (y < height) {
+			if (y < 71 ) return blockIDs.sand
 			return blockIDs.dirt
-		} else if (y == height && y > -40) {
-			if (y < 1) return blockIDs.sand
+		} else if (y == height) {
+			if (y < 71) return blockIDs.sand
 			return blockIDs.grass
 		} else {
-			return (y < -1 && y > -40) ? blockIDs.water : 0
+			return (y < 70 ) ? blockIDs.water : 0
 		}
 		function stoneBlock(y, rnd) {
-			if (y < 50 && rnd < 0.05) return blockIDs.coal_ore
-			else if (y < 40 && rnd > 0.98) return blockIDs.iron_ore
+			if (y < 130 && rnd < 0.05) return blockIDs.coal_ore
+			else if (y < 120 && rnd > 0.98) return blockIDs.iron_ore
 			else return blockIDs.stone
 		}
 	}
@@ -154,7 +154,7 @@ function WorldGen() {
 	//*
 	function tree(chunk, xoff, yoff, zoff, height, i, k) {
 		// no trees at/near water level
-		if (height <= 3) return
+		if (height <= 71) return
 		// leave if chunk is above/below tree height
 		var js = chunk.shape[1]
 		var treelo = height

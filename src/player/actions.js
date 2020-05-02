@@ -1,6 +1,7 @@
 import { getMusicVolume, setMusicVolume } from './audio'
 import { getInventory, inventoryAdd, inventoryRemove } from './player'
 import { openCommandPrompt } from '../world/commands'
+import { openInventory } from './gui'
 
 
 import '@babylonjs/core/Debug/debugLayer'
@@ -17,7 +18,7 @@ var MPS = require('mesh-particle-system');
 export function setupInteractions(noa) {
 	// on left mouse, set targeted block to be air
 	noa.inputs.down.on('fire', function () {
-		if (noa.targetedBlock && !game.blockdata[noa.targetedBlock.blockID].unbreakable) {
+		if (noa.targetedBlock && !game.blockdata[noa.targetedBlock.blockID].data.unbreakable) {
 			var block = noa.targetedBlock.blockID
 			var item = game.blockdata[block].data.drop
 			noa.setBlock(0, noa.targetedBlock.position)
@@ -31,8 +32,8 @@ export function setupInteractions(noa) {
 		var inv = getInventory(1)
 		var item = inv.main[inv.selected].id
 		if (item != undefined && game.itemdata[item].type == 0) {
-			var block = game.blocks[game.itemdata[item].name]
-			if (noa.targetedBlock && block != undefined && !game.blockdata[block].illegal) {
+			var block = game.blocks[item]
+			if (noa.targetedBlock && block != undefined && !game.blockdata[block].data.illegal) {
 				var pos = noa.targetedBlock.adjacent
 				var x = noa.addBlock(block, pos)
 				if (x == block) inventoryRemove(1, item, 1)
@@ -43,7 +44,7 @@ export function setupInteractions(noa) {
 
 	// pick block on middle fire (MMB/Q)
 	noa.inputs.down.on('mid-fire', function () {
-		//if (noa.targetedBlock && !game.blockdata[noa.targetedBlock.blockID].illegal) pickedID = noa.targetedBlock.blockID
+		//if (noa.targetedBlock && !game.blockdata[noa.targetedBlock.blockID].data.illegal) pickedID = noa.targetedBlock.blockID
 	})
 
 
@@ -66,6 +67,23 @@ export function setupInteractions(noa) {
 	noa.inputs.down.on('thirdprsn', function () {
 		if (noa.camera.zoomDistance == 15) noa.camera.zoomDistance = 0
 		else if (noa.camera.zoomDistance == 0) noa.camera.zoomDistance = 15
+	})
+
+	// Inventory
+	noa.inputs.bind('inventory', 'I')
+	noa.inputs.down.on('inventory', function () {	
+		var inv = document.getElementById('game_screen')
+		if (inv != undefined) {
+			noa.container.canvas.requestPointerLock()
+			document.body.removeChild(inv)
+			noa.setPaused(false)
+		}
+		else {
+			document.exitPointerLock()
+			noa.setPaused(true)
+			openInventory()
+
+		}
 	})
 
 

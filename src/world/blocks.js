@@ -28,7 +28,7 @@ export function initBlocks(noa) {
 	blockIDs.leaves = createBlock(_id++, 'leaves', 0, ['block/leaves'], {opaque: false}, {drop: item.leaves})
 
 	noa.registry.registerMaterial('water', [0.5, 0.5, 0.8, 0.7], null, true)
-	blockIDs.water = createBlock(_id++, 'water', 0, ['block/water'], {material: 'water', fluid: true, fluidDensity: 5.0, viscosity: 10.5 }, {} )
+	blockIDs.water = createBlock(_id++, 'water', 0, ['block/water'], {material: 'water', fluid: true, fluidDensity: 20.0, viscosity: 20.5 }, {} )
 
 	blockIDs.red_flower = createBlock(_id++, 'red_flower', 1, ['block/red_flower'], {solid: false, opaque: false}, {drop: item.red_flower})
 	blockIDs.grass_plant = createBlock(_id++, 'grass_plant', 1, ['block/grass_plant'], {solid: false, opaque: false}, {drop: item.grass_plant})
@@ -36,7 +36,7 @@ export function initBlocks(noa) {
 
 	blockIDs.bricks = createBlock(_id++, 'bricks', 0, ['block/bricks'], {}, {drop: item.bricks})
 	blockIDs.planks = createBlock(_id++, 'planks', 0, ['block/planks'], {}, {drop: item.planks})
-	blockIDs.glass = createBlock(_id++, 'glass', 0, ['block/glass'], {}, {drop: item.glass})
+	blockIDs.glass = createBlock(_id++, 'glass', 0, ['block/glass'], {opaque: false}, {drop: item.glass})
 	blockIDs.bookshelf = createBlock(_id++, 'bookshelf', 0, ['block/planks', 'block/bookshelf'], {}, {drop: item.bookshelf})
 
 	noa.registry.registerMaterial('barrier', [0.0, 0.0, 0.0, 0.2], null, true)
@@ -125,4 +125,8 @@ function makePlantSpriteMesh(scene, url, name) {
 
 	return BABYLON.Mesh.MergeMeshes([mesh, clone], true)
 }
+
+
+
+
 
