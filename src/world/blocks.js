@@ -18,13 +18,13 @@ export function initBlocks(noa) {
 	var blockIDs = {}
 	var _id = 1
 
-	blockIDs.stone = createBlock(_id++, 'stone', 0, ['block/stone'], {}, {drop: item.cobblestone})
-	blockIDs.dirt = createBlock(_id++, 'dirt', 0, ['block/dirt'], {}, {drop: item.dirt})
-	blockIDs.grass = createBlock(_id++, 'grass', 0, ['block/grass_top', 'block/dirt', 'block/grass_side'], {}, {drop: item.dirt})
-	blockIDs.grass_snow = createBlock(_id++, 'grass_snow', 0, ['block/snow', 'block/dirt', 'block/grass_snow'], {}, {drop: item.dirt})
-	blockIDs.cobblestone = createBlock(_id++, 'cobblestone', 0, ['block/cobblestone'], {}, {drop: item.cobblestone})
-	blockIDs.log = createBlock(_id++, 'log', 0, ['block/log_top', 'block/log'], {}, {drop: item.log})
-	blockIDs.sand = createBlock(_id++, 'sand', 0, ['block/sand'], {}, {drop: item.sand})
+	blockIDs.stone = createBlock(_id++, 'stone', 0, ['block/stone'], {}, {drop: item.cobblestone, hardness: 6, tool: 'pickaxe', power: 1})
+	blockIDs.dirt = createBlock(_id++, 'dirt', 0, ['block/dirt'], {}, {drop: item.dirt, hardness: 3, tool: 'shovel'})
+	blockIDs.grass = createBlock(_id++, 'grass', 0, ['block/grass_top', 'block/dirt', 'block/grass_side'], {}, {drop: item.dirt, hardness: 3, tool: 'shovel'})
+	blockIDs.grass_snow = createBlock(_id++, 'grass_snow', 0, ['block/snow', 'block/dirt', 'block/grass_snow'], {}, {drop: item.dirt, hardness: 3, tool: 'shovel'})
+	blockIDs.cobblestone = createBlock(_id++, 'cobblestone', 0, ['block/cobblestone'], {}, {drop: item.cobblestone, hardness: 6, tool: 'pickaxe', power: 1})
+	blockIDs.log = createBlock(_id++, 'log', 0, ['block/log_top', 'block/log'], {}, {drop: item.log, hardness: 5, tool: 'axe'})
+	blockIDs.sand = createBlock(_id++, 'sand', 0, ['block/sand'], {}, {drop: item.sand, hardness: 6, tool: 'shovel'})
 	blockIDs.leaves = createBlock(_id++, 'leaves', 0, ['block/leaves'], {opaque: false}, {drop: item.leaves})
 
 	noa.registry.registerMaterial('water', [0.5, 0.5, 0.8, 0.7], null, true)
@@ -34,17 +34,18 @@ export function initBlocks(noa) {
 	blockIDs.grass_plant = createBlock(_id++, 'grass_plant', 1, ['block/grass_plant'], {solid: false, opaque: false}, {drop: item.grass_plant})
 	blockIDs.yellow_flower = createBlock(_id++, 'yellow_flower', 1, ['block/yellow_flower'], {solid: false, opaque: false}, {drop: item.yellow_flower})
 
-	blockIDs.bricks = createBlock(_id++, 'bricks', 0, ['block/bricks'], {}, {drop: item.bricks})
-	blockIDs.planks = createBlock(_id++, 'planks', 0, ['block/planks'], {}, {drop: item.planks})
-	blockIDs.glass = createBlock(_id++, 'glass', 0, ['block/glass'], {opaque: false}, {drop: item.glass})
-	blockIDs.bookshelf = createBlock(_id++, 'bookshelf', 0, ['block/planks', 'block/bookshelf'], {}, {drop: item.bookshelf})
+	blockIDs.bricks = createBlock(_id++, 'bricks', 0, ['block/bricks'], {}, {drop: item.bricks, hardness: 6, tool: 'pickaxe', power: 1})
+	blockIDs.planks = createBlock(_id++, 'planks', 0, ['block/planks'], {}, {drop: item.planks, hardness: 4, tool: 'axe'})
+	blockIDs.glass = createBlock(_id++, 'glass', 0, ['block/glass'], {opaque: false}, {drop: item.glass,  hardness: 2, tool: 'pickaxe'})
+	blockIDs.bookshelf = createBlock(_id++, 'bookshelf', 0, ['block/planks', 'block/bookshelf'], {}, {drop: item.bookshelf, hardness: 6, tool: 'axe'})
 
 	noa.registry.registerMaterial('barrier', [0.0, 0.0, 0.0, 0.2], null, true)
 	blockIDs.barrier = createBlock(_id++, 'barrier', 0, [], {material: 'barrier'}, {illegal: true, unbreakable: true})
 
-	blockIDs.snow = createBlock(_id++, 'snow', 0, ['block/snow'], {}, {drop: item.snow})
-	blockIDs.coal_ore = createBlock(_id++, 'coa_ore', 0, ['block/coal_ore'], {}, {drop: item.coal})
-	blockIDs.iron_ore = createBlock(_id++, 'iron_ore', 0, ['block/iron_ore'], {}, {drop: item.iron_ore})
+	blockIDs.snow = createBlock(_id++, 'snow', 0, ['block/snow'], {}, {drop: item.snow, hardness: 2, tool: 'shovel'})
+	blockIDs.coal_ore = createBlock(_id++, 'coa_ore', 0, ['block/coal_ore'], {}, {drop: item.coal, hardness: 8, tool: 'pickaxe', power: 1})
+	blockIDs.iron_ore = createBlock(_id++, 'iron_ore', 0, ['block/iron_ore'], {}, {drop: item.iron_ore, hardness: 12, tool: 'pickaxe', power: 2})
+	blockIDs.cactus = createBlock(_id++, 'cactus', 0, ['block/cactus_top', 'block/cactus_side'], {opaque: false}, {drop: item.cactus, hardness: 3, tool: 'axe'})
 
 
 	return blockIDs
@@ -52,12 +53,14 @@ export function initBlocks(noa) {
 	function createBlock(id, name, type, texture, options, data) {
 		if (type == 0) {
 			var mat = []
+			if (options.opaque == false) var txtTransparent = true
+			else txtTransparent = false
 			if (texture.length == 1 && options.material == undefined) {
-				noa.registry.registerMaterial(name, [0, 0, 0], texture[0] + '.png', true)
+				noa.registry.registerMaterial(name, [0, 0, 0], texture[0] + '.png', txtTransparent)
 				mat = name
 			} else if (options.material == undefined){
 				for (var x = 0; x < texture.length; x++) {
-					noa.registry.registerMaterial(name + x, [0, 0, 0], texture[x] + '.png', true)
+					noa.registry.registerMaterial(name + x, [0, 0, 0], texture[x] + '.png', txtTransparent)
 					mat.push(name + x)
 				}
 			} else { mat = options.material}

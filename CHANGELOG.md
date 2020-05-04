@@ -1,3 +1,7 @@
+# 0.0.6
+- Rewritten world generation
+- Added biomes
+- Some another small changes
 # 0.0.5
 - World is now genereting 60 blocks higher
 - Changed lowest possible y to 0

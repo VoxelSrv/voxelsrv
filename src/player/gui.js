@@ -2,9 +2,12 @@ import Container from 'noa-engine'
 import { Texture } from '@babylonjs/core/Materials/Textures'
 import { Mesh } from '@babylonjs/core/Meshes/mesh'
 import { Vector3, Matrix } from '@babylonjs/core/Maths/math'
+import { SkyMaterial } from "@babylonjs/materials"
 import { getInventory, inventoryLeftClick, inventoryRightClick } from './player'
+import { getItemName } from '../world/items'
 
 
+// Setups every gui element
 export function setupGUI(noa) {
 	setupHotbarGUI()
 	setupInfoGUI()
@@ -12,11 +15,10 @@ export function setupGUI(noa) {
 	//setupHand()
 	setupCross()
 	setupChatBox()
-	noa.on('tick', function(){
-		updatePos()
-	});
 }
 
+
+// Starts hotbar
 
 function setupHotbarGUI() {
 	var eid = noa.playerEntity
@@ -24,27 +26,22 @@ function setupHotbarGUI() {
 	game.hotbarsize = 9
 
 	var div = document.createElement('table')
+	div.classList.add('hotbar')
 	div.id = 'game_hotbar'
-	var style = 'position:fixed; bottom:5px; left:50%; z-index:0;'
-	style += 'color:white; height:auto; width:auto;'
-	style += 'font-size:40px; text-align:center; padding:3px;'
-	style += 'min-width:2em; transform: translateX(-50%);'
-	div.style = style
 	document.body.appendChild(div)
 	var row = document.createElement('tr')
 
 	var hotbar = {}
-	for (var x = 0; x < game.hotbarsize; x++) {
+	for (var x = 0; x < game.hotbarsize; x++) { //Create hotbar items
 		hotbar[x] = document.createElement('th')
 		hotbar[x].id = x
 		hotbar[x].addEventListener( 'click', function(){ getInventory(1).selected = parseInt(this.id) } )
-		hotbar[x].classList.add('align-bottom')
 		hotbar[x].classList.add('hotbar_item')
 		row.appendChild(hotbar[x])
 	}
 	div.appendChild(row)
 
-	noa.on('tick', async function(){
+	noa.on('tick', async function(){ //Hotbar updates
 		var inv =  inventory.main
 		var sel = inventory.selected
 		for (var x = 0; x < game.hotbarsize; x++) {
@@ -55,7 +52,7 @@ function setupHotbarGUI() {
 	});
 }
 
-
+// Creates player's hand
 function setupHand() {
 	var scene = noa.rendering.getScene()
 	var eid = noa.playerEntity
@@ -65,7 +62,7 @@ function setupHand() {
 	hand.parent = scene.activeCamera
 	hand.rotation.y = -Math.PI/8
 	noa.rendering.addMeshToScene(hand, false)
-	noa.on('tick', function() {
+	noa.on('tick', function() { //Updates Player's hand
 		var inventory = getInventory(1)
 		var inv =  inventory.main
 		var sel = inventory.selected
@@ -81,33 +78,63 @@ function setupHand() {
 	})
 }
 
+// Setups "debug" informations
 function setupInfoGUI() {
-	var div = document.createElement('div')
+	var eid = noa.playerEntity
+	var dat = noa.entities.getPositionData(eid)
+	var inv = getInventory(eid).main
+	var sel = getInventory(eid).selected
+
+	var div = document.createElement('div') // Main div
 	div.id = 'game_version'
 	var style = 'position:absolute; top:5; left:5; z-index:0;'
 	style += 'color:white; text-shadow: 1px 1px black;'
 	style += 'font-size:20px; margin:4px;'
 	div.style = style
-	div.innerHTML = game.name + ' ' + game.version +'<br>Noa: ' + noa.version + '<br>World: ' + noa.worldName + '<br><span id="player_pos"></span>' 
 	document.body.appendChild(div)
+
+	var version = document.createElement('span') // Version
+	version.innerHTML = game.name + ' ' + game.version +'<br>Noa: ' + noa.version
+	div.appendChild(version)
+
+	var world = document.createElement('span') //World
+	world.innerHTML = '<br>World: ' + noa.worldName
+	div.appendChild(world)
+
+	var pos = document.createElement('span') //Coordinates
+	pos.innerHTML = '<br>X: ' + Math.round(dat.position[0]) + ' Y: ' + Math.round(dat.position[1]) + ' Z: ' + Math.round(dat.position[2])
+	div.appendChild(pos)
+
+	var chunk = document.createElement('span') //ChunkID
+	chunk.innerHTML = '<br>Chunk: 0|0|0'
+	div.appendChild(chunk)
+
+	var tool = document.createElement('span') //Selected item
+	tool.innerHTML = '<br>Tool: Empty'
+	div.appendChild(tool)
+
+	noa.on('tick', function() {
+		inv = getInventory(eid).main
+		sel = getInventory(eid).selected
+		pos.innerHTML = '<br>X: ' + Math.round(dat.position[0]) + ' Y: ' + Math.round(dat.position[1]) + ' Z: ' + Math.round(dat.position[2])
+		if (inv[sel].id != undefined) tool.innerHTML = '<br>Tool: ' + getItemName(inv[sel].id) + ' [' + inv[sel].id + '] x' + inv[sel].count
+		else tool.innerHTML = '<br>Tool: Empty'
+		try {
+			chunk.innerHTML = '<br>Chunk: ' + noa.world._getChunkByCoords(dat.position[0], dat.position[1], dat.position[2]).id
+		} catch { chunk.innerHTML = '<br>Chunk: ???' }
+	})
 }
 
 
-function setupChatBox() {
+function setupChatBox() { // A chatbox
 	var div = document.createElement('div')
 	div.id = 'game_chatbox'
 	div.classList.add('col-3')
 	document.body.appendChild(div)
 }
 
-function updatePos() {
-	var eid = noa.playerEntity
-	var dat = noa.entities.getPositionData(eid)
-	document.getElementById('player_pos').innerHTML = 'X: ' + Math.round(dat.position[0]) + ' Y: ' + Math.round(dat.position[1]) + ' Z: ' + Math.round(dat.position[2])
-}
 
-
-function setupCross() {
+function setupCross() { //More like point in a middle of screen
 	var div = document.createElement('div')
 	div.id = 'game_cross'
 	var style = 'position:absolute; top:50%; left:50%; z-index:0;'
@@ -117,12 +144,14 @@ function setupCross() {
 	document.body.appendChild(div)
 }
 
-function setupSkybox() {
+function setupSkybox() { // The box in the sky
 	var scene = noa.rendering.getScene()
 
 	var skybox = BABYLON.MeshBuilder.CreateBox("skybox", {size:1000.0}, scene)
 	var skyboxMaterial = new BABYLON.StandardMaterial("skybox", scene)
 	skyboxMaterial.backFaceCulling = false
+	skyboxMaterial.disableLighting = true
+	skyboxMaterial.luminance = 1
 	skyboxMaterial.reflectionTexture = new BABYLON.CubeTexture("textures/skybox/skybox", scene)
 	skyboxMaterial.reflectionTexture.coordinatesMode = BABYLON.Texture.SKYBOX_MODE
 	skyboxMaterial.diffuseColor = new BABYLON.Color3(0, 0, 0);
@@ -140,13 +169,13 @@ function setupSkybox() {
 	});
 }
 
-export function openInventory() {
+export function openInventory() { // Opens inventory
 	var inventory = noa.ents.getState(1, 'inventory')
 	var items = Object.entries(inventory.main)
 	var inv = inventory.main
 	inventory.bin = {}
 
-	var screen = document.createElement('div')
+	var screen = document.createElement('div') // Main screen (blocks integration with canvas)
 	screen.id = 'game_screen'
 	var style = 'position: absolute; top: 0; right: 0; bottom: 0; left: 0; z-index:1;'
 	style += 'color:white; height:auto; width:auto; background-color: #00000055;'
@@ -157,20 +186,20 @@ export function openInventory() {
 
 	
 
-	var invGui = document.createElement('table')
+	var invGui = document.createElement('table') // Inventory table
 	invGui.id = 'game_inventory'
 	var style = 'position:fixed; bottom:50%; left:50%; z-index:2;'
 	style += 'color:white; height:auto; width:auto;'
-	style += 'font-size:40px; text-align:center; padding:3px;'
+	style += 'font-size:40px; padding:3px;'
 	style += 'min-width:2em; transform: translate(-50%, 50%);'
 	invGui.style = style
 	screen.appendChild(invGui)
 	var hotbar = {}
 	var slot = 9
 
-	var bin = document.createElement('th')
+	var bin = document.createElement('th') // Bin slot
 	bin.id = -1
-	bin.classList.add('align-bottom')
+	bin.classList.add('float-left')
 	bin.classList.add('inventory_item_bin')
 	bin.addEventListener( 'click', function(){ inventoryLeftClick( parseInt(-1) ); updateInventory() } )
 	bin.addEventListener( 'contextmenu', function(){ inventoryRightClick( parseInt(-1) ); updateInventory(); return false } )
@@ -178,7 +207,7 @@ export function openInventory() {
 
 	invGui.appendChild(bin)
 
-	var tempslot = document.createElement('div')
+	var tempslot = document.createElement('div') // Item at cursor
 	tempslot.id = 'tempslot'
 	tempslot.classList.add('align-bottom')
 	tempslot.classList.add('inventory_temp')
@@ -187,7 +216,7 @@ export function openInventory() {
 	screen.appendChild(tempslot)
 
 
-	for (var x = 0; x < (items.length/9)-1; x++) {
+	for (var x = 0; x < (items.length/9)-1; x++) { // Inventory slots (backpack)
 		var row = document.createElement('tr')
 		invGui.appendChild(row)
 		for (var y = 0; y < 9; y++) {
@@ -195,7 +224,6 @@ export function openInventory() {
 			hotbar[slot].id = slot
 			hotbar[slot].addEventListener( 'click', function(){ inventoryLeftClick( parseInt(this.id) ); updateInventory() } )
 			hotbar[slot].addEventListener( 'contextmenu', function(){ inventoryRightClick( parseInt(this.id) ); updateInventory(); return false  } )
-			hotbar[slot].classList.add('align-bottom')
 			hotbar[slot].classList.add('inventory_item')
 			hotbar[slot].innerHTML = renderItem(inv[slot])
 			row.appendChild(hotbar[slot])
@@ -206,10 +234,9 @@ export function openInventory() {
 	var row_hotbar = document.createElement('tr')
 	invGui.appendChild(row_hotbar)
 	
-	for (var x = 0; x < 9; x++) {
+	for (var x = 0; x < 9; x++) { // Inventory slots (hotbar)
 		hotbar[x] = document.createElement('th')
 		hotbar[x].id = x
-		hotbar[x].classList.add('align-bottom')
 		hotbar[x].classList.add('inventory_item_hotbar')
 		hotbar[x].addEventListener( 'click', function(){ inventoryLeftClick( parseInt(this.id) ); updateInventory() } )
 		hotbar[x].addEventListener( 'contextmenu', function(){ inventoryRightClick( parseInt(this.id) ); updateInventory(); return false  } )
@@ -217,11 +244,11 @@ export function openInventory() {
 		row_hotbar.appendChild(hotbar[x])
 	}
 
-	window.addEventListener("mousemove", function(e){
+	window.addEventListener("mousemove", function(e){ //Moving items at cursor
 		tempslot.style.left = e.x + 'px'
 		tempslot.style.top = e.y + 'px'
 	});
-	function updateInventory() {
+	function updateInventory() { // Update slots
 		for (var x = 0; x < items.length; x++) {
 			hotbar[x].innerHTML = renderItem(inv[x])
 		}
@@ -232,7 +259,7 @@ export function openInventory() {
 }
 
 
-function renderItem(item) {
+function renderItem(item) { // Inventory item rendering
 	if (item.id == undefined) return ''
 
 	var count = ''

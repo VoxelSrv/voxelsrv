@@ -3,53 +3,52 @@ import { WaterMaterial } from '@babylonjs/materials/water/waterMaterial'
 import { Mesh } from '@babylonjs/core/Meshes/mesh'
 import { Vector3, Matrix } from '@babylonjs/core/Maths/math'
 
+import { getItemData, getItemMaxStack } from '../world/items'
+
 export function setupPlayerEntity(noa) {
-	// get the player entity's ID and other info (aabb, size)
 	var eid = noa.playerEntity
 	var dat = noa.entities.getPositionData(eid)
-
-	// Setting player's model
 	
 	var w = dat.width
 	var h = dat.height
 
-	// make a Babylon.js mesh and scale it, etc.
-	//var playerMesh = Mesh.CreateBox('player', 0.01, noa.rendering.getScene())
-
 	var eyeOffset = 0.9 * noa.ents.getPositionData(noa.playerEntity).height
 
-	// offset of mesh relative to the entity's "position" (center of its feet)
 	var offset = [0, h / 2, 0]
 
-	// a "mesh" component to the player entity
+	// Load and setup players model 
 
-	
 	BABYLON.SceneLoader.ImportMesh(["player"], "./models/", "player.gltf", scene, function (meshes, particleSystems, skeletons) {
-    	var mainMesh = meshes[0]
+    	var mainMesh = meshes[0] // Main mesh, needed to asign to entity
 		
 		var eyeOffset = 0.9 * noa.ents.getPositionData(noa.playerEntity).height
 		mainMesh.scaling = new BABYLON.Vector3(0.06, 0.06, 0.06);
 
-		// offset of mesh relative to the entity's "position" (center of its feet)
 		var offset = [0, 0, 0]
 
+		// Asing mesh
 		noa.entities.addComponent(eid, noa.entities.names.mesh, {
 			mesh: mainMesh,
 			offset: offset
 		})
+
+
+		// Add rest of meshes to scene
 		var extras = meshes.slice(1)
 		extras.forEach(function(mesh) {
 			noa.rendering.addMeshToScene(mesh)
 		})
 		var anim = {}
+		// Animations
 		anim.idle = scene.getAnimationGroupByName('idle')
 		anim.walk = scene.getAnimationGroupByName('walking')
-
-		noa.on('tick', function() {
+		
+		// Rendering
+		noa.on('beforeRender', function() {
 
 			extras.forEach(function(mesh) {
 				mesh.visibility = noa.camera.zoomDistance/5
-				mesh.rotation.y = noa.camera.heading
+				mesh.rotation.y = noa.camera.heading //Breaks animations #TODO
 			})
 			if (noa.entities.getState(eid, 'movement').running) {
 				anim.idle.stop()
@@ -67,19 +66,22 @@ export function setupPlayerEntity(noa) {
 
 	var move = noa.entities.getMovement(eid)
 
-	move.maxSpeed = 10
-	move.jumpForce = 8
+	move.maxSpeed = 7.5
+	move.jumpForce = 6
 	var invspace = {}
 	for (var x = 0; x < 36; x++) {
 		invspace[x] = {}
 	}
+
+	// Create inventory, move it to global entities js in future
 	noa.ents.createComponent({
 		name: 'inventory',
 		state: {main: {}, selected: 0, tempslot:{}}
 	})
 	noa.ents.addComponent(eid, 'inventory', {main: invspace})
 
-	
+	// Gamemode settings
+
 	if (game.mode == 0) {
 		move.airJumps = 0
 
@@ -88,12 +90,14 @@ export function setupPlayerEntity(noa) {
 	}
 }
 
+// Adding items to inventory
+
 export function inventoryAdd(eid, item, count, data) {
 	if (game.items[item] == undefined) return false
 	var inventory = noa.ents.getState(eid, 'inventory')
 	var items = Object.entries(inventory.main)
 	for (var [slot, data] of items) {
-		if (data.id == item && (data.count+count) < game.itemdata[item].data.stack+1) {
+		if (data.id == item && (data.count+count) < getItemMaxStack(item)+1) {
 			inventory.main[slot] = {id: item, count: count+data.count, data: data}
 			return true
 		}
@@ -106,6 +110,8 @@ export function inventoryAdd(eid, item, count, data) {
 	}
 	return false	
 }
+
+// Removing items from inventory
 
 export function inventoryRemove(eid, item, count) {
 	var inventory = noa.ents.getState(eid, 'inventory')
@@ -130,6 +136,8 @@ export function inventoryRemove(eid, item, count) {
 	return true
 }
 
+// Sets slot to item
+
 export function inventorySet(eid, slot, item, count, data) {
 	var inventory = noa.ents.getState(eid, 'inventory')
 	inventory.main[slot] = {id: item, count: count, data: data}
@@ -143,32 +151,37 @@ export function inventorySwitch(eid, x, y) {
 	inventory.main[y] = tempx
 }
 
+// Item movement on LeftClick in inventory
+
 export function inventoryLeftClick(x) {
 	var inventory = noa.ents.getState(1, 'inventory')
-	if (x >= 0) {
+	if (x >= 0) { // Normal slots
 		var tempY = {...inventory.tempslot}
 		var tempX = {...inventory.main[x]}
 		
+		// If tempslot and target slot have the same itemtype
 		if (tempY.id == tempX.id &&  tempY.id != undefined ) {
-			if ((tempX.count + tempY.count) <= game.itemdata[tempX.id].data.stack ) {
+			if ((tempX.count + tempY.count) <= getItemMaxStack(tempX.id) ) {
 				var tempZ = {...tempX}
 				tempZ.count = tempX.count + tempY.count
 				inventory.main[x] = tempZ
 				inventory.tempslot = {}
-			} else if ((tempX.count + tempY.count) > game.itemdata[tempX.id].data.stack ) {
+			} else if ((tempX.count + tempY.count) > getItemMaxStack(TempX.id) ) { 
 				var tempZ = {...tempX}
 				var tempW = {...tempY}
-				tempZ.count = game.itemdata[tempX.id].data.stack
-				tempW.count = tempX.count + tempY.count - game.itemdata[tempX.id].data.stack
+				tempZ.count = getItemMaxStack(TempX.id)
+				tempW.count = tempX.count + tempY.count - getItemMaxStack(TempX.id)
 				inventory.main[x] = tempZ
 				inventory.tempslot = tempW
 			}
-		} else {
+		}
+		// If target slot has diffrent itemtype	
+		else {
 			inventory.main[x] = tempY
 			inventory.tempslot = tempX
 		}
 	}
-	else if (x == -1){
+	else if (x == -1) { // Bin slot
 		var tempy = {...inventory.tempslot}
 		var tempx = {...inventory.bin}
 		if (tempy.id == undefined) {
@@ -182,12 +195,15 @@ export function inventoryLeftClick(x) {
 	}
 }
 
+// Inventory rightclick functionality
+
 export function inventoryRightClick(x) {
 	var inventory = noa.ents.getState(1, 'inventory')
+	// Normal slots
 	if (x >= 0) {
 		var tempY = {...inventory.tempslot}
 		var tempX = {...inventory.main[x]}
-		if (tempY.id == undefined) {
+		if (tempY.id == undefined) { // Tempslot slot is empty
 			var tempZ = {...tempX}
 			var tempW = {...tempX}
 			tempZ.count = Math.ceil(tempZ.count/2)
@@ -195,7 +211,7 @@ export function inventoryRightClick(x) {
 			if (tempW.count <= 0) tempW = {}
 			inventory.main[x] = {...tempZ}
 			inventory.tempslot = {...tempW}
-		} else if (tempX.id == undefined) {
+		} else if (tempX.id == undefined) { // Target is empty
 			var tempZ = {...tempY}
 			var tempW = {...tempY}
 			tempZ.count = 1
@@ -203,7 +219,7 @@ export function inventoryRightClick(x) {
 			if (tempW.count <= 0) tempW = {}
 			inventory.main[x] = {...tempZ}
 			inventory.tempslot = {...tempW}
-		} else if (tempX.id == tempY.id && tempX.count+1 <= game.itemdata[tempX.id].data.stack) {
+		} else if (tempX.id == tempY.id && tempX.count+1 <= getItemMaxStack(TempX.id)) { // The same itemtype
 			var tempZ = {...tempX}
 			var tempW = {...tempY}
 			tempZ.count = tempZ.count + 1
@@ -213,17 +229,25 @@ export function inventoryRightClick(x) {
 			inventory.tempslot = {...tempW}
 		}
 	}
+	// Bin slot (ignored for now)
 	else if (x == -1){
 
 	}
 }
 
+// Checking if player has item
 
-export function inventoryHasItem(eid, slot, item, count, data) {
+export function inventoryHasItem(eid, item, count) {
 	var inventory = noa.ents.getState(eid, 'inventory')
-	inventory.main[slot] = {id: item, count: count, data: data}
-	return false
+	var items = Object.entries(inventory.main)
+
+	for (var [slot, data] of items) {
+		if (data.id == item && data.count >= count) return slot
+	}
+	return -1
 }
+
+// Getting inventory object
 
 export function getInventory(eid) {
 	var inventory = noa.ents.getState(eid, 'inventory')
