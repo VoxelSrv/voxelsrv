@@ -16,7 +16,9 @@ export function initWorldGen(noa) {
 	worker.postMessage({
 		msg: 'init',
 		blocks: game.blocks,
-		seed: game.seed
+		seed: game.seed,
+		generator: game.generator
+
 	})
 
 	// game listener for when worldgen is requested (array is an ndarray)
@@ -48,6 +50,15 @@ export function initWorldGen(noa) {
 			var array = new ndarray(ev.data.data, ev.data.shape)
 			// send result to game for processing
 			noa.world.setChunkData(id, array)
+		} else if (ev.data.msg == 'remove') {
+			var splitID = ev.data.id.split("|")
+			noa.world.invalidateVoxelsInAABB({
+				base: [(splitID[0]-1)*24, (splitID[1]-1)*24, (splitID[2]-1)*24],
+				max: [(splitID[0]+1)*24, (splitID[1]+1)*24, (splitID[2]+1)*24]
+			
+			})
+		} else if (ev.data.msg == 'debug') {
+			console.log(ev.data.data)
 		}
 	})
 

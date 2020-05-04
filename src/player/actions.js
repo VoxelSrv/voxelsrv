@@ -1,5 +1,5 @@
 import { getMusicVolume, setMusicVolume } from './audio'
-import { getInventory, inventoryAdd, inventoryRemove } from './player'
+import { getInventory, inventoryAdd, inventoryRemove, inventoryHasItem, inventorySwitch} from './player'
 import { openCommandPrompt } from '../world/commands'
 import { openInventory } from './gui'
 
@@ -31,7 +31,7 @@ export function setupInteractions(noa) {
 	noa.inputs.down.on('alt-fire', function () {
 		var inv = getInventory(1)
 		var item = inv.main[inv.selected].id
-		if (item != undefined && game.itemdata[item].type == 0) {
+		if (item != undefined && game.itemdata[item].type == 'block') {
 			var block = game.blocks[item]
 			if (noa.targetedBlock && block != undefined && !game.blockdata[block].data.illegal) {
 				var pos = noa.targetedBlock.adjacent
@@ -44,33 +44,35 @@ export function setupInteractions(noa) {
 
 	// pick block on middle fire (MMB/Q)
 	noa.inputs.down.on('mid-fire', function () {
-		//if (noa.targetedBlock && !game.blockdata[noa.targetedBlock.blockID].data.illegal) pickedID = noa.targetedBlock.blockID
+		if (noa.targetedBlock && noa.targetedBlock.blockID != 0) {
+			var item = game.blockdata[noa.targetedBlock.blockID].name
+			var slot = inventoryHasItem(1, item, 1)
+			var sel = getInventory(1).selected
+			if (slot >= 0 && slot <= 8) getInventory(1).selected = slot
+			else if (slot > -1) inventorySwitch(1, slot, sel)
+		}
 	})
 
 
 	// pause (P)
-	noa.inputs.bind('pause', 'P')
 	noa.inputs.down.on('pause', function () {
 		paused = !paused
 		noa.setPaused(paused)
 	})
 	var paused = false
 
-	noa.inputs.bind('muteMusic', 'O')
 	noa.inputs.down.on('muteMusic', function () {
 		if (getMusicVolume() != 0) setMusicVolume(0)
 		else setMusicVolume(0.15)
 	})
 
 	// 3rd person view
-	noa.inputs.bind('thirdprsn', 'M')
 	noa.inputs.down.on('thirdprsn', function () {
 		if (noa.camera.zoomDistance == 15) noa.camera.zoomDistance = 0
 		else if (noa.camera.zoomDistance == 0) noa.camera.zoomDistance = 15
 	})
 
 	// Inventory
-	noa.inputs.bind('inventory', 'I')
 	noa.inputs.down.on('inventory', function () {	
 		var inv = document.getElementById('game_screen')
 		if (inv != undefined) {
@@ -88,7 +90,6 @@ export function setupInteractions(noa) {
 
 
 	// Command prompt
-	noa.inputs.bind('cmd', 'T')
 	noa.inputs.down.on('cmd', function () {
 		openCommandPrompt()
 	})

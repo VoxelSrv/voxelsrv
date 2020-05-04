@@ -1,6 +1,7 @@
 import { inventoryAdd, inventorySet, getInventory, inventoryRemove} from '../player/player'
+import { getItemMaxStack } from './items'
 
-
+// Command executor. Can be used in console
 window.executeCommand=function(command) {
 	var arg = command.split(' ')
 	arg.shift()
@@ -14,24 +15,27 @@ window.executeCommand=function(command) {
 }
 
 
-
+// Set block [x, y, z] to block with id id
 function setBlock(block, id) {
 	noa.setBlock(id, block[0], block[1], block[2])
 	return 'Block ' + block[0] + ' ' + block[1] + ' ' + block[2] + ' has been set to ' + game.blockNames[id]
 }
 
+// Teleports player
 function teleport(loc) {
 	noa.entities.setPosition(1, [loc[0], loc[1], loc[2]])
 	return 'Teleported player to ' + loc[0] + ' ' + loc[1] + ' ' + loc[2]
 }
 
+// Gives all items to player
 function giveall() {
 	var items = Object.values(game.items)
 	items.forEach(exec) 
-	function exec(item) { inventoryAdd(1, item, 999) }
+	function exec(item) { inventoryAdd(1, item, getItemMaxStack(item)) }
 	return 'Gived items to player!'
 }
 
+// Clears inventory
 function clearinv() {
 	var items = Object.values(game.items)
 	items.forEach(exec)
@@ -41,6 +45,7 @@ function clearinv() {
 	function exec(item) {inventoryRemove(1, item, 9999)}
 }
 
+// Opens command prompt
 export function openCommandPrompt() {
 	var command = prompt('Send command')
 	var output = executeCommand(command)

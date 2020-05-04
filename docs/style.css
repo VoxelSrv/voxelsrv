@@ -1,5 +1,8 @@
 .hotbar_selected {
-	background-color: #d1000077 !important;
+	background-image: url(./textures/gui/selected.png);
+	image-rendering: pixelated;
+	background-size: cover;
+	background-color: #55000077 !important;
 	bottom:15px;
 }
 
@@ -27,6 +30,8 @@
 	text-align:center; 
 	margin: 2px;
 	padding:8px;
+	transition: background-color 0.1s;
+
 }
 
 .inventory_temp {
@@ -56,6 +61,8 @@
 	text-align:center; 
 	margin: 2px;
 	padding:8px;
+	transition: background-color 0.1s;
+
 }
 
 .inventory_item_bin:hover {
@@ -65,24 +72,41 @@
 	z-index:2;
 	display: inline-block;
 	color:white;
-	background-color: #d1000088;
+	background-color: #61616188;
 	height:64px;
 	width:64px;
 	font-size:20px;
 	text-align:center; 
 	margin: 2px;
 	padding:8px;
+	transition: background-color 0.1s;
 }
 
 .inventory_item_hotbar:hover {
-	background-color: #d1444488;
+	background-color: #97979788;
 }
 
+.hotbar {
+	position:fixed;
+	bottom:5px;
+	left:50%;
+	z-index:0;
+	color:white;
+	height:auto;
+	width:auto;
+	font-size:40px;
+	text-align:center;
+	padding:3px;
+	min-width:2em;
+	transform: translateX(-50%);
+	transition: background-color 0.1s;
+
+}
 
 .item_count {
 	position: relative;
-	bottom:19px;
-	right:-5px;
+	bottom:21px;
+	right:-3px;
 	font-family:'lato';
 	font-weight: bold;
 	text-shadow: black 1px 1px;

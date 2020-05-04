@@ -1,6 +1,6 @@
 {
-  "name": "VoxelSrv",
-  "version": "0.0.5",
+  "name": "voxelsrv",
+  "version": "0.0.6",
   "description": "Simple voxel game",
   "scripts": {
     "start": "cd src/ && webpack-dev-server",
