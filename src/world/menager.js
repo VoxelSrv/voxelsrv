@@ -17,7 +17,8 @@ export function initWorldGen(noa) {
 		msg: 'init',
 		blocks: game.blocks,
 		seed: game.seed,
-		generator: game.generator
+		generator: game.generator,
+		chunksize: noa.world.chunkSize
 
 	})
 
@@ -50,13 +51,6 @@ export function initWorldGen(noa) {
 			var array = new ndarray(ev.data.data, ev.data.shape)
 			// send result to game for processing
 			noa.world.setChunkData(id, array)
-		} else if (ev.data.msg == 'remove') {
-			var splitID = ev.data.id.split("|")
-			noa.world.invalidateVoxelsInAABB({
-				base: [(splitID[0]-1)*24, (splitID[1]-1)*24, (splitID[2]-1)*24],
-				max: [(splitID[0]+1)*24, (splitID[1]+1)*24, (splitID[2]+1)*24]
-			
-			})
 		} else if (ev.data.msg == 'debug') {
 			console.log(ev.data.data)
 		}

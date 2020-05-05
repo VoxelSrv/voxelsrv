@@ -13,6 +13,20 @@ export function initItems(noa) {
 
 	//Format of createItem - id, name, type, texture, attributes
 
+	// Tools
+
+	itemIDs.iron_pickaxe = createItem('iron_pickaxe', 'Iron pickaxe', 'pickaxe', 'item/iron_pickaxe', {stack: 1, power: 3})
+
+	itemIDs.iron_axe = createItem('iron_axe', 'Iron axe', 'axe', 'item/iron_axe', {stack: 1, power: 3})
+
+	itemIDs.iron_shovel = createItem('iron_shovel', 'Iron shovel', 'shovel', 'item/iron_shovel', {stack: 1, power: 3})
+
+	// Resources
+
+	itemIDs.coal = createItem('coal', 'Coal', 'item', 'item/coal', {stack: 64})
+
+	// Blocks
+
 	itemIDs.stone = createItem('stone', 'Stone', 'block', 'block/stone', {stack: 64})
 	itemIDs.dirt = createItem('dirt', 'Dirt', 'block', 'block/dirt', {stack: 64})
 	itemIDs.grass = createItem('grass', 'Grass block', 'block', 'block/grass_side', {stack: 64})
@@ -34,11 +48,8 @@ export function initItems(noa) {
 	itemIDs.coal_ore = createItem('coal_ore', 'Coal ore', 'block', 'block/coal_ore', {stack: 64})
 	itemIDs.iron_ore = createItem('iron_ore', 'Iron ore', 'block', 'block/iron_ore', {stack: 64})
 
-	itemIDs.iron_pickaxe = createItem('iron_pickaxe', 'Iron pickaxe', 'pickaxe', 'item/iron_pickaxe', {stack: 1, power: 3})
-
-	itemIDs.coal = createItem('coal', 'Coal', 'item', 'item/coal', {stack: 64})
-
 	itemIDs.cactus = createItem('cactus', 'Cactus', 'block', 'block/cactus_side', {stack: 64})
+
 
 
 	return itemIDs
