@@ -1,5 +1,6 @@
 import { getMusicVolume, setMusicVolume } from './audio'
 import { getInventory, inventoryAdd, inventoryRemove, inventoryHasItem, inventorySwitch} from './player'
+import { startBreakingBlock, stopBreakingBlock } from './block-break'
 import { openCommandPrompt } from '../world/commands'
 import { openInventory } from './gui'
 
@@ -19,11 +20,16 @@ export function setupInteractions(noa) {
 	// on left mouse, set targeted block to be air
 	noa.inputs.down.on('fire', function () {
 		if (noa.targetedBlock && !game.blockdata[noa.targetedBlock.blockID].data.unbreakable) {
-			var block = noa.targetedBlock.blockID
+			startBreakingBlock(noa.targetedBlock.position, noa.targetedBlock.blockID)
+			/*var block = noa.targetedBlock.blockID
 			var item = game.blockdata[block].data.drop
 			noa.setBlock(0, noa.targetedBlock.position)
-			inventoryAdd(1, item, 1, {})
+			inventoryAdd(1, item, 1, {})*/
 		}
+	})
+
+	noa.inputs.up.on('fire', function () {
+		stopBreakingBlock()
 	})
 
 

@@ -1,3 +1,8 @@
+# 0.0.7
+- Changes to cactus model
+- Some changes to worldgen
+- Added Minecraft-like block breaking
+
 # 0.0.6
 - Rewritten world generation
 - Added biomes

@@ -45,7 +45,8 @@ export function initBlocks(noa) {
 	blockIDs.snow = createBlock(_id++, 'snow', 0, ['block/snow'], {}, {drop: item.snow, hardness: 2, tool: 'shovel'})
 	blockIDs.coal_ore = createBlock(_id++, 'coa_ore', 0, ['block/coal_ore'], {}, {drop: item.coal, hardness: 8, tool: 'pickaxe', power: 1})
 	blockIDs.iron_ore = createBlock(_id++, 'iron_ore', 0, ['block/iron_ore'], {}, {drop: item.iron_ore, hardness: 12, tool: 'pickaxe', power: 2})
-	blockIDs.cactus = createBlock(_id++, 'cactus', 0, ['block/cactus_top', 'block/cactus_side'], {opaque: false}, {drop: item.cactus, hardness: 3, tool: 'axe'})
+
+	blockIDs.cactus = createBlock(_id++, 'cactus', 2, ['block/cactus_top', 'block/cactus_side'], {opaque: false}, {drop: item.cactus, hardness: 3, tool: 'axe'})
 
 
 	return blockIDs
@@ -79,6 +80,20 @@ export function initBlocks(noa) {
 		} else if (type == 1) {
 			noa.registry.registerMaterial(name, [0, 0, 0], texture[0])
 			var mesh = makePlantSpriteMesh(scene, 'textures/' + texture[0] + '.png', name)
+			game.blockdata[id] = {
+				name: name,
+				mesh: mesh,
+				options: options,
+				textures: texture,
+				data: data,
+				type: 1
+			}
+			var finOpts = options
+			finOpts.blockMesh = mesh
+			noa.registry.registerBlock(id, finOpts)
+		} else if (type == 2) {
+			noa.registry.registerMaterial(name, [0, 0, 0], texture[0])
+			var mesh = makeCactusMesh(scene, ['textures/' + texture[0]  + '.png', 'textures/' + texture[1]  + '.png'], name)
 			game.blockdata[id] = {
 				name: name,
 				mesh: mesh,
@@ -127,6 +142,44 @@ function makePlantSpriteMesh(scene, url, name) {
 	clone.rotation.y += 1.62
 
 	return BABYLON.Mesh.MergeMeshes([mesh, clone], true)
+}
+
+
+function makeCactusMesh(scene, url, name) {
+	var mesh = {}
+	var mat = {}
+	for (var x = 0; x < 6; x++) {
+		var matname = name + '-' + x || 'sprite-mat'
+		mesh[x] = BABYLON.Mesh.CreatePlane('sprite-' + matname, 1, scene)
+		mat[x] = new BABYLON.StandardMaterial('sprite-mat-' + matname, scene)
+		mat[x].specularColor = new BABYLON.Color3(0, 0, 0)
+		mat[x].emissiveColor = new BABYLON.Color3(1, 1, 1)
+		mat[x].backFaceCulling = false
+		mat[x].diffuseTexture = new BABYLON.Texture( ((x < 4) ? url[1] : url [0]), scene,
+			true, true, BABYLON.Texture.NEAREST_SAMPLINGMODE)
+		mat[x].diffuseTexture.hasAlpha = true
+		mesh[x].material = mat[x]
+		var offset
+		if (x == 0) {offset = BABYLON.Matrix.Translation(0, 0.5, 0.435); mesh[x].rotation.y = 1.57}
+		else if (x == 1) {offset = BABYLON.Matrix.Translation(0, 0.5, -0.435); mesh[x].rotation.y = 1.57}
+		else if (x == 2) {offset = BABYLON.Matrix.Translation(0, 0.5, 0.435);}
+		else if (x == 3) {offset = BABYLON.Matrix.Translation(0, 0.5, -0.435);}
+		else if (x == 4) {offset = BABYLON.Matrix.Translation(0, 0, -1); mesh[x].rotation.x = 1.57}
+		else if (x == 5) {offset = BABYLON.Matrix.Translation(0, 0, 0); mesh[x].rotation.x = 1.57}
+
+		mesh[x].bakeTransformIntoVertices(offset)
+	}
+	
+	var newmesh = BABYLON.Mesh.MergeMeshes(Object.values(mesh), true, true, undefined, false, false)
+
+	//var multimat = new BABYLON.MultiMaterial("cactus", scene)
+	//multimat.subMaterials = Object.values(mat)
+
+	//newmesh.material = multimat
+	console.log(newmesh)
+
+	return newmesh
+
 }
 
 

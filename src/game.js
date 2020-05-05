@@ -10,6 +10,7 @@ import { initItems } from './world/items'
 import { initWorldGen } from './world/menager'
 import './world/commands'
 import { initPhysics } from './world/physics'
+import { initBlockBreak } from './player/block-break'
 import { setupPlayerEntity } from './player/player'
 import { setupInteractions } from './player/actions'
 import { setupGUI } from './player/gui'
@@ -21,7 +22,7 @@ import { initMusic } from './player/audio'
 export function initGame() {
 
 	// Start noa engine
-	var noa = new Engine({
+	global.noa = new Engine({
 		debug: true,
 		showFPS: true,
 		inverseY: false,
@@ -29,12 +30,12 @@ export function initGame() {
 		sensitivityX: 15, // Make it changeable?
 		sensitivityY: 15, // ^
 		chunkSize: 24, // Don't touch this
-		chunkAddDistance: 5.5, // Make it changeable?
-		chunkRemoveDistance: 5.0, // ^
-		blockTestDistance: 10, // Per Gamemode
+		chunkAddDistance: 7.5, // Make it changeable?
+		chunkRemoveDistance: 7.0, // ^
+		blockTestDistance: 8, // Per Gamemode?
 		tickRate: 60, // Maybe make it lower
 		texturePath: 'textures/',
-		playerStart: [0.5, 100, 0.5], // Make y changeable based on terrain/last player possition
+		playerStart: [0.5, 24, 0.5], // Make y changeable based on terrain/last player possition
 		playerHeight: 1.85,
 		playerWidth: 0.5,
 		playerAutoStep: false, // true for mobile?
@@ -47,7 +48,7 @@ export function initGame() {
 		AOmultipliers: [0.93, 0.8, 0.5],
 		reverseAOmultiplier: 1.0,
 		preserveDrawingBuffer: true,
-		gravity: [0, -16, 0],
+		gravity: [0, -14, 0],
 		bindings: {
 			"forward": ["W"],
 			"left": ["A"],
@@ -80,6 +81,9 @@ export function initGame() {
 
 	// this sets up worldgen
 	initWorldGen(noa)
+
+	// init blockbreaking
+	initBlockBreak(noa)
 
 	// adds a mesh to player
 	setupPlayerEntity(noa)

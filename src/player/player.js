@@ -32,7 +32,7 @@ export function setupPlayerEntity(noa) {
 			offset: offset
 		})
 
-
+		
 		// Add rest of meshes to scene
 		var extras = meshes.slice(1)
 		extras.forEach(function(mesh) {
@@ -66,8 +66,9 @@ export function setupPlayerEntity(noa) {
 
 	var move = noa.entities.getMovement(eid)
 
-	move.maxSpeed = 7.5
 	move.jumpForce = 6
+	move.jumpImpulse = 8.5
+	move.maxSpeed = 7.5
 	var invspace = {}
 	for (var x = 0; x < 36; x++) {
 		invspace[x] = {}
@@ -166,11 +167,11 @@ export function inventoryLeftClick(x) {
 				tempZ.count = tempX.count + tempY.count
 				inventory.main[x] = tempZ
 				inventory.tempslot = {}
-			} else if ((tempX.count + tempY.count) > getItemMaxStack(TempX.id) ) { 
+			} else if ((tempX.count + tempY.count) > getItemMaxStack(tempX.id) ) { 
 				var tempZ = {...tempX}
 				var tempW = {...tempY}
 				tempZ.count = getItemMaxStack(TempX.id)
-				tempW.count = tempX.count + tempY.count - getItemMaxStack(TempX.id)
+				tempW.count = tempX.count + tempY.count - getItemMaxStack(tempX.id)
 				inventory.main[x] = tempZ
 				inventory.tempslot = tempW
 			}
@@ -219,7 +220,7 @@ export function inventoryRightClick(x) {
 			if (tempW.count <= 0) tempW = {}
 			inventory.main[x] = {...tempZ}
 			inventory.tempslot = {...tempW}
-		} else if (tempX.id == tempY.id && tempX.count+1 <= getItemMaxStack(TempX.id)) { // The same itemtype
+		} else if (tempX.id == tempY.id && tempX.count+1 <= getItemMaxStack(tempX.id)) { // The same itemtype
 			var tempZ = {...tempX}
 			var tempW = {...tempY}
 			tempZ.count = tempZ.count + 1
@@ -252,6 +253,12 @@ export function inventoryHasItem(eid, item, count) {
 export function getInventory(eid) {
 	var inventory = noa.ents.getState(eid, 'inventory')
 	return inventory
+}
+
+export function getTool(eid) {
+	var inventory = noa.ents.getState(eid, 'inventory')
+	var sel = inventory.selected
+	return inventory.main[sel]
 }
 
 

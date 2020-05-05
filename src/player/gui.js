@@ -41,13 +41,15 @@ function setupHotbarGUI() {
 	}
 	div.appendChild(row)
 
+	var timer = 0
 	noa.on('tick', async function(){ //Hotbar updates
-		var inv =  inventory.main
+		
+		var inv = inventory.main
 		var sel = inventory.selected
 		for (var x = 0; x < game.hotbarsize; x++) {
 			if (x == sel && !hotbar[x].classList.contains('hotbar_selected')) hotbar[x].classList.add('hotbar_selected')
 			else if (x != sel && hotbar[x].classList.contains('hotbar_selected'))  hotbar[x].classList.remove('hotbar_selected')
-			hotbar[x].innerHTML = renderItem(inv[x])
+			hotbar[x].innerHTML = await renderItem(inv[x])
 		}
 	});
 }
@@ -169,7 +171,7 @@ function setupSkybox() { // The box in the sky
 	});
 }
 
-export function openInventory() { // Opens inventory
+export async function openInventory() { // Opens inventory
 	var inventory = noa.ents.getState(1, 'inventory')
 	var items = Object.entries(inventory.main)
 	var inv = inventory.main
@@ -203,7 +205,7 @@ export function openInventory() { // Opens inventory
 	bin.classList.add('inventory_item_bin')
 	bin.addEventListener( 'click', function(){ inventoryLeftClick( parseInt(-1) ); updateInventory() } )
 	bin.addEventListener( 'contextmenu', function(){ inventoryRightClick( parseInt(-1) ); updateInventory(); return false } )
-	bin.innerHTML = renderItem(inventory.bin)
+	bin.innerHTML = await renderItem(inventory.bin)
 
 	invGui.appendChild(bin)
 
@@ -211,7 +213,7 @@ export function openInventory() { // Opens inventory
 	tempslot.id = 'tempslot'
 	tempslot.classList.add('align-bottom')
 	tempslot.classList.add('inventory_temp')
-	tempslot.innerHTML = renderItem(inventory.tempslot)
+	tempslot.innerHTML = await renderItem(inventory.tempslot)
 
 	screen.appendChild(tempslot)
 
@@ -225,7 +227,7 @@ export function openInventory() { // Opens inventory
 			hotbar[slot].addEventListener( 'click', function(){ inventoryLeftClick( parseInt(this.id) ); updateInventory() } )
 			hotbar[slot].addEventListener( 'contextmenu', function(){ inventoryRightClick( parseInt(this.id) ); updateInventory(); return false  } )
 			hotbar[slot].classList.add('inventory_item')
-			hotbar[slot].innerHTML = renderItem(inv[slot])
+			hotbar[slot].innerHTML = await renderItem(inv[slot])
 			row.appendChild(hotbar[slot])
 			slot = slot + 1
 		}
@@ -240,7 +242,7 @@ export function openInventory() { // Opens inventory
 		hotbar[x].classList.add('inventory_item_hotbar')
 		hotbar[x].addEventListener( 'click', function(){ inventoryLeftClick( parseInt(this.id) ); updateInventory() } )
 		hotbar[x].addEventListener( 'contextmenu', function(){ inventoryRightClick( parseInt(this.id) ); updateInventory(); return false  } )
-		hotbar[x].innerHTML = renderItem(inv[x])
+		hotbar[x].innerHTML = await renderItem(inv[x])
 		row_hotbar.appendChild(hotbar[x])
 	}
 
@@ -248,18 +250,18 @@ export function openInventory() { // Opens inventory
 		tempslot.style.left = e.x + 'px'
 		tempslot.style.top = e.y + 'px'
 	});
-	function updateInventory() { // Update slots
+	async function updateInventory() { // Update slots
 		for (var x = 0; x < items.length; x++) {
-			hotbar[x].innerHTML = renderItem(inv[x])
+			hotbar[x].innerHTML = await renderItem(inv[x])
 		}
-		bin.innerHTML = renderItem(inventory.bin)
-		tempslot.innerHTML = renderItem(inventory.tempslot)
+		bin.innerHTML = await renderItem(inventory.bin)
+		tempslot.innerHTML = await renderItem(inventory.tempslot)
 	}
 
 }
 
 
-function renderItem(item) { // Inventory item rendering
+async function renderItem(item) { // Inventory item rendering
 	if (item.id == undefined) return ''
 
 	var count = ''
@@ -269,6 +271,6 @@ function renderItem(item) { // Inventory item rendering
 	try { var txt = game.itemdata[item.id].texture}
 	catch { var txt = 'error' }
 
-	return '<img draggable="false" class="img-fluid item_icon" src="textures/' + txt +'.png"><div class="item_count float-right">' + count + '</div>'
+	return '<div class="item_icon" style="background-image: url(textures/' + txt +'.png"></div><div class="item_count float-right">' + count + '</div>'
 }
 

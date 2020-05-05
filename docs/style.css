@@ -115,6 +115,7 @@
 
 .item_icon {
 	image-rendering: pixelated;
+	background-size: cover;
    	height:48px;
 	width:48px;
 	display: block;

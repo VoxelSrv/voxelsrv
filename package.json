@@ -1,6 +1,6 @@
 {
   "name": "voxelsrv",
-  "version": "0.0.6",
+  "version": "0.0.7",
   "description": "Simple voxel game",
   "scripts": {
     "start": "cd src/ && webpack-dev-server",
@@ -27,7 +27,8 @@
     "ndarray": "^1.0.19",
     "noa-engine": "github:andyhall/noa#develop",
     "open-simplex-noise": "^2.3.1",
-    "voxel-crunch": "^0.2.1"
+    "voxel-crunch": "^0.2.1",
+    "worley-noise": "^2.0.1"
   },
   "devDependencies": {
     "webpack": "^4.41.5",
