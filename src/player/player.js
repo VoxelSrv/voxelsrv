@@ -19,7 +19,8 @@ export function setupPlayerEntity(noa) {
 	// Load and setup players model 
 
 	BABYLON.SceneLoader.ImportMesh(["player"], "./models/", "player.gltf", scene, function (meshes, particleSystems, skeletons) {
-    	var mainMesh = meshes[0] // Main mesh, needed to asign to entity
+
+		var mainMesh = meshes[0] // Main mesh, needed to asign to entity
 		
 		var eyeOffset = 0.9 * noa.ents.getPositionData(noa.playerEntity).height
 		mainMesh.scaling = new BABYLON.Vector3(0.06, 0.06, 0.06);
@@ -43,23 +44,27 @@ export function setupPlayerEntity(noa) {
 		anim.idle = scene.getAnimationGroupByName('idle')
 		anim.walk = scene.getAnimationGroupByName('walking')
 		
+
 		// Rendering
 		noa.on('beforeRender', function() {
 
+			skeletons.forEach(function(bone) {
+				bone.rotate(BABYLON.Axis.Y, noa.camera.heading, BABYLON.Space.WORLD, meshes)
+			})
+
 			extras.forEach(function(mesh) {
 				mesh.visibility = noa.camera.zoomDistance/5
-				mesh.rotation.y = noa.camera.heading //Breaks animations #TODO
+				mesh.rotation.y = noa.camera.heading
 			})
-			if (noa.entities.getState(eid, 'movement').running) {
+			/*if (noa.entities.getState(eid, 'movement').running) {
 				anim.idle.stop()
 				anim.walk.play(true)
 				anim.walk
 			} else {
 				anim.idle.play(true)
 				anim.walk.stop()
-			}
+			}*/
 		})
-		console.log()
 	})
 
 	// Gamemode and players settings

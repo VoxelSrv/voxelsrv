@@ -30,7 +30,7 @@ export function initBlockBreak(noa) {
 	var mat = new BABYLON.StandardMaterial('highlightMat', scene)
 	mat.specularColor = new BABYLON.Color3(0, 0, 0)
 	mat.emissiveColor = new BABYLON.Color3(1, 1, 1)
-	mat.backFaceCulling = false
+	mat.backFaceCulling = true
     mat.diffuseTexture = null
     //mat.alpha = 0.8
     //mat.alphaMode = BABYLON.Engine.ALPHA_SUBTRACT
@@ -40,10 +40,14 @@ export function initBlockBreak(noa) {
 	var s = 0.5
 	var lines = BABYLON.Mesh.CreateBox("hightlightLines", 1.002, scene)
 
-	lines.color = new BABYLON.Color3(1, 1, 1)
     lines.parent = mesh
     lines.material = new BABYLON.StandardMaterial('highlightMat2', scene)
-    lines.material.wireframe = true
+	//lines.material.wireframe = true
+	lines.material.diffuseTexture = new BABYLON.Texture( './textures/break/sel.png', scene,
+	true, true, BABYLON.Texture.NEAREST_SAMPLINGMODE)
+	lines.material.diffuseTexture.hasAlpha = true
+	lines.material.backFaceCulling = true
+
 
 	noa.rendering.addMeshToScene(mesh)
 	noa.rendering.addMeshToScene(lines)
@@ -70,7 +74,7 @@ export function initBlockBreak(noa) {
                 } catch (e) {var blockpower = 0}
 
 				if (hardness == undefined) hardness = 1
-				if (type != 'item' && type == game.blockdata[blockID].data.tool) var hardtick = (hardness-(power*hardness)/5)*tps
+				if (type != 'item' && type == game.blockdata[blockID].data.tool) var hardtick = (hardness-(power+hardness)/5)*tps
 				else var hardtick = hardness * tps
 				var breakstage = Math.floor((timer/hardtick)*10)
 

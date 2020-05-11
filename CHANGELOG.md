@@ -1,3 +1,7 @@
+# 0.0.8
+- Optimalization
+- Small changes to worldgen
+
 # 0.0.7
 - Changes to cactus model
 - Some changes to worldgen
