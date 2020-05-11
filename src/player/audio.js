@@ -3,7 +3,7 @@ import {Howl, Howler} from 'howler'
 	var music = new Howl({
 		volume: 0.15,
 		loop: true,
-		src: ['audio/drops.mp3']
+		src: ['audio/silence.mp3', 'audio/drops.mp3']
 	})
 
 export function initMusic() {

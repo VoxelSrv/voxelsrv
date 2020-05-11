@@ -3,7 +3,7 @@ import { Texture } from '@babylonjs/core/Materials/Textures'
 import { Mesh } from '@babylonjs/core/Meshes/mesh'
 import { Vector3, Matrix } from '@babylonjs/core/Maths/math'
 import { SkyMaterial } from "@babylonjs/materials"
-import { getInventory, inventoryLeftClick, inventoryRightClick } from './player'
+import { getInventory, inventoryLeftClick, inventoryRightClick, getTool } from './player'
 import { getItemName } from '../world/items'
 
 
@@ -40,16 +40,19 @@ function setupHotbarGUI() {
 		row.appendChild(hotbar[x])
 	}
 	div.appendChild(row)
-
-	var timer = 0
+	var inv = {}
+	var sel = inventory.selected
 	noa.on('tick', async function(){ //Hotbar updates
-		
-		var inv = inventory.main
-		var sel = inventory.selected
-		for (var x = 0; x < game.hotbarsize; x++) {
-			if (x == sel && !hotbar[x].classList.contains('hotbar_selected')) hotbar[x].classList.add('hotbar_selected')
-			else if (x != sel && hotbar[x].classList.contains('hotbar_selected'))  hotbar[x].classList.remove('hotbar_selected')
-			hotbar[x].innerHTML = await renderItem(inv[x])
+		var newsel = inventory.selected
+		var newinv = Object.values(inventory.main)
+		if (newsel != sel || JSON.stringify(inv) != JSON.stringify(newinv) ) {
+			inv = Object.values(inventory.main)
+			sel = inventory.selected
+			for (var x = 0; x < game.hotbarsize; x++) {
+				if (x == sel && !hotbar[x].classList.contains('hotbar_selected')) hotbar[x].classList.add('hotbar_selected')
+				else if (x != sel && hotbar[x].classList.contains('hotbar_selected'))  hotbar[x].classList.remove('hotbar_selected')
+				hotbar[x].innerHTML = await renderItem(inv[x])
+			}
 		}
 	});
 }
@@ -84,8 +87,7 @@ function setupHand() {
 function setupInfoGUI() {
 	var eid = noa.playerEntity
 	var dat = noa.entities.getPositionData(eid)
-	var inv = getInventory(eid).main
-	var sel = getInventory(eid).selected
+	var playertool = getTool(eid)
 
 	var div = document.createElement('div') // Main div
 	div.id = 'game_version'
@@ -115,15 +117,22 @@ function setupInfoGUI() {
 	tool.innerHTML = '<br>Tool: Empty'
 	div.appendChild(tool)
 
+	var timer = 0
+
 	noa.on('tick', function() {
-		inv = getInventory(eid).main
-		sel = getInventory(eid).selected
-		pos.innerHTML = '<br>X: ' + Math.round(dat.position[0]) + ' Y: ' + Math.round(dat.position[1]) + ' Z: ' + Math.round(dat.position[2])
-		if (inv[sel].id != undefined) tool.innerHTML = '<br>Tool: ' + getItemName(inv[sel].id) + ' [' + inv[sel].id + '] x' + inv[sel].count
-		else tool.innerHTML = '<br>Tool: Empty'
-		try {
-			chunk.innerHTML = '<br>Chunk: ' + noa.world._getChunkByCoords(dat.position[0], dat.position[1], dat.position[2]).id
-		} catch { chunk.innerHTML = '<br>Chunk: ???' }
+		if (timer == 2) {
+			timer = 0
+			playertool = getTool(eid)
+			pos.innerHTML = '<br>X: ' + Math.round(dat.position[0]) + ' Y: ' + Math.round(dat.position[1]) + ' Z: ' + Math.round(dat.position[2])
+			if (playertool.id != undefined) tool.innerHTML = '<br>Tool: ' + getItemName(playertool.id) + ' [' + playertool.id + '] x' + playertool.count
+			else tool.innerHTML = '<br>Tool: Empty'
+			try {
+				chunk.innerHTML = '<br>Chunk: ' + noa.world._getChunkByCoords(dat.position[0], dat.position[1], dat.position[2]).id
+			} catch { chunk.innerHTML = '<br>Chunk: ???' }
+		}
+		else {
+			timer++
+		}
 	})
 }
 

@@ -21,10 +21,6 @@ export function setupInteractions(noa) {
 	noa.inputs.down.on('fire', function () {
 		if (noa.targetedBlock && !game.blockdata[noa.targetedBlock.blockID].data.unbreakable) {
 			startBreakingBlock(noa.targetedBlock.position, noa.targetedBlock.blockID)
-			/*var block = noa.targetedBlock.blockID
-			var item = game.blockdata[block].data.drop
-			noa.setBlock(0, noa.targetedBlock.position)
-			inventoryAdd(1, item, 1, {})*/
 		}
 	})
 
