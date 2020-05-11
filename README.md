@@ -10,3 +10,4 @@ VoxelSrv is a voxel game inspired by Minecraft (Alpha), where you can build, min
 - [Unity Resourcepack](https://github.com/CyanideX/Unity)
 - [Coterie Craft Frontier Resourcepack](https://www.curseforge.com/minecraft/texture-packs/coterie-craft-16x)
 - Drops by Oleg Sirenko
+- Art of silence by uniq
