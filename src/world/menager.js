@@ -8,38 +8,42 @@ import Worker from "worker-loader!./world"
 export function initWorldGen(noa) {
 	noa.worldName = game.world
 
-
-	  // set up worldgen web worker
+	var queue = []
+	// set up worldgen web worker
 	var worker = new Worker()
+	var init = false
 
 	// send block id values to worker
 	worker.postMessage({
 		msg: 'init',
 		blocks: game.blocks,
 		seed: game.seed,
-		generator: game.generator,
 		chunksize: noa.world.chunkSize
 
 	})
 
 	// game listener for when worldgen is requested (array is an ndarray)
 	noa.world.on('worldDataNeeded', function (id, array, x, y, z) {
-		worker.postMessage({
+		var msg = {
 			msg: 'generate',
 			data: array.data,
 			shape: array.shape,
 			id: id,
 			x: x, y: y, z: z,
-		})
+		}
+		if (init == false) queue.push(msg)
+		worker.postMessage(msg)
 	})
 
 	noa.world.on('chunkBeingRemoved', function (id, array, userData) {
-		worker.postMessage({
-			msg: 'savechunk',
-			data: array.data,
-			shape: array.shape,
-			id: id
-		})
+		if (init == true) {
+			worker.postMessage({
+				msg: 'savechunk',
+				data: array.data,
+				shape: array.shape,
+				id: id
+			})
+		}
 	})
 
 
@@ -53,6 +57,13 @@ export function initWorldGen(noa) {
 			noa.world.setChunkData(id, array)
 		} else if (ev.data.msg == 'debug') {
 			console.log(ev.data.data)
+		} else if (ev.data.msg == 'initialized') {
+			init = true
+			console.log('Worldgen started')
+			queue.forEach(function(msg){
+				worker.postMessage(msg)
+			})
+			queue = []
 		}
 	})
 

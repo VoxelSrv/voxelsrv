@@ -1,3 +1,6 @@
+# 0.0.9
+- Changed (again) worldgen
+
 # 0.0.8
 - Optimalization
 - Small changes to worldgen
