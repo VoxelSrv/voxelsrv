@@ -33,7 +33,6 @@ export function initBlocks(noa) {
 	blockIDs.red_flower = createBlock(_id++, 'red_flower', 1, ['block/red_flower'], {solid: false, opaque: false}, {drop: item.red_flower})
 	blockIDs.grass_plant = createBlock(_id++, 'grass_plant', 1, ['block/grass_plant'], {solid: false, opaque: false}, {drop: item.grass_plant})
 	blockIDs.yellow_flower = createBlock(_id++, 'yellow_flower', 1, ['block/yellow_flower'], {solid: false, opaque: false}, {drop: item.yellow_flower})
-
 	blockIDs.bricks = createBlock(_id++, 'bricks', 0, ['block/bricks'], {}, {drop: item.bricks, hardness: 3, tool: 'pickaxe', power: 1})
 	blockIDs.planks = createBlock(_id++, 'planks', 0, ['block/planks'], {}, {drop: item.planks, hardness: 3, tool: 'axe'})
 	blockIDs.glass = createBlock(_id++, 'glass', 0, ['block/glass'], {opaque: false}, {drop: item.glass,  hardness: 2, tool: 'pickaxe'})
@@ -45,10 +44,10 @@ export function initBlocks(noa) {
 	blockIDs.snow = createBlock(_id++, 'snow', 0, ['block/snow'], {}, {drop: item.snow, hardness: 2, tool: 'shovel'})
 	blockIDs.coal_ore = createBlock(_id++, 'coa_ore', 0, ['block/coal_ore'], {}, {drop: item.coal, hardness: 4.5, tool: 'pickaxe', power: 1})
 	blockIDs.iron_ore = createBlock(_id++, 'iron_ore', 0, ['block/iron_ore'], {}, {drop: item.iron_ore, hardness: 5.5, tool: 'pickaxe', power: 2})
-
 	blockIDs.cactus = createBlock(_id++, 'cactus', 2, ['block/cactus_top', 'block/cactus_side'], {opaque: false}, {drop: item.cactus, hardness: 3, tool: 'axe'})
-
 	blockIDs.deadbush = createBlock(_id++, 'deadbush', 1, ['block/deadbush'], {solid: false, opaque: false}, {drop: item.deadbush})
+	blockIDs.gravel = createBlock(_id++, 'gravel', 0, ['block/gravel'], {}, {drop: item.gravel, hardness: 2.5, tool: 'shovel'})
+
 
 	return blockIDs
 	
@@ -134,6 +133,7 @@ function makePlantSpriteMesh(scene, url, name) {
 	mat.emissiveColor = new BABYLON.Color3(1, 1, 1)
 	mat.backFaceCulling = false
 	mat.diffuseTexture = tex
+	mat.diffuseTexture.vOffset = 0.99	
 	mesh.material = mat
 	mesh.rotation.y += 0.81
 

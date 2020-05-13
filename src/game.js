@@ -29,13 +29,13 @@ export function initGame() {
 		inverseX: false,
 		sensitivityX: 15, // Make it changeable?
 		sensitivityY: 15, // ^
-		chunkSize: 24, // Don't touch this
-		chunkAddDistance: 7.5, // Make it changeable?
-		chunkRemoveDistance: 7.0, // ^
+		chunkSize: 20, // Don't touch this
+		chunkAddDistance: 10.5, // Make it changeable?
+		chunkRemoveDistance: 10.0, // ^
 		blockTestDistance: 8, // Per Gamemode?
 		tickRate: 60, // Maybe make it lower
 		texturePath: 'textures/',
-		playerStart: [0.5, 24, 0.5], // Make y changeable based on terrain/last player possition
+		playerStart: [0.5, 50, 0.5], // Make y changeable based on terrain/last player possition
 		playerHeight: 1.85,
 		playerWidth: 0.5,
 		playerAutoStep: false, // true for mobile?

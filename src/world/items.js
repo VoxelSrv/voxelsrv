@@ -51,6 +51,8 @@ export function initItems(noa) {
 	itemIDs.iron_ore = createItem('iron_ore', 'Iron ore', 'block', 'block/iron_ore', {stack: 64})
 
 	itemIDs.cactus = createItem('cactus', 'Cactus', 'block', 'block/cactus_side', {stack: 64})
+	itemIDs.cactus = createItem('cactus', 'Cactus', 'block', 'block/cactus_side', {stack: 64})
+
 
 
 
