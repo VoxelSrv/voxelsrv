@@ -1,3 +1,7 @@
+# 0.0.10
+- Changes to worldgen
+- Blocks in inventory are now 3D
+
 # 0.0.9
 - Changed (again) worldgen
 

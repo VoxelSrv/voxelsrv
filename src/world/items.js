@@ -36,10 +36,10 @@ export function initItems(noa) {
 	itemIDs.sand = createItem('sand', 'Sand', 'block', 'block/sand', {stack: 64})
 	itemIDs.leaves = createItem('leaves', 'Leaves', 'block', 'block/leaves', {stack: 64})
 
-	itemIDs.red_flower = createItem('red_flower', 'Poppy', 'block', 'block/red_flower', {stack: 64})
-	itemIDs.grass_plant = createItem('grass_plant', 'Grass', 'block', 'block/grass_plant', {stack: 64})
-	itemIDs.yellow_flower = createItem('yellow_flower', 'Dandelion', 'block', 'block/yellow_flower', {stack: 64})
-	itemIDs.deadbush = createItem('deadbush', 'Dead bush', 'block', 'block/deadbush', {stack: 64})
+	itemIDs.red_flower = createItem('red_flower', 'Poppy', 'block-flat', 'block/red_flower', {stack: 64})
+	itemIDs.grass_plant = createItem('grass_plant', 'Grass', 'block-flat', 'block/grass_plant', {stack: 64})
+	itemIDs.yellow_flower = createItem('yellow_flower', 'Dandelion', 'block-flat', 'block/yellow_flower', {stack: 64})
+	itemIDs.deadbush = createItem('deadbush', 'Dead bush', 'block-flat', 'block/deadbush', {stack: 64})
 
 
 	itemIDs.bricks = createItem('bricks', 'Bricks', 'block', 'block/bricks', {stack: 64})

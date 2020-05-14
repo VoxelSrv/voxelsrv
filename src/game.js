@@ -30,8 +30,8 @@ export function initGame() {
 		sensitivityX: 15, // Make it changeable?
 		sensitivityY: 15, // ^
 		chunkSize: 20, // Don't touch this
-		chunkAddDistance: 10.5, // Make it changeable?
-		chunkRemoveDistance: 10.0, // ^
+		chunkAddDistance: 6.5, // Make it changeable?
+		chunkRemoveDistance: 6.0, // ^
 		blockTestDistance: 8, // Per Gamemode?
 		tickRate: 60, // Maybe make it lower
 		texturePath: 'textures/',
