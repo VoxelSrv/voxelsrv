@@ -277,9 +277,36 @@ async function renderItem(item) { // Inventory item rendering
 	if (item.count == Infinity) count = 'Inf'
 	else if (item.count != 1) count = item.count
 
-	try { var txt = game.itemdata[item.id].texture}
-	catch { var txt = 'error' }
+	if (game.itemdata[item.id].type == 'block') {
+		var block = game.blocks[item.id]
+		var txt = game.blockdata[block].textures
 
-	return '<div class="item_icon" style="background-image: url(textures/' + txt +'.png"></div><div class="item_count float-right">' + count + '</div>'
+		try { 
+			var txtLeft = txt[txt.length - 1]
+			var txtRight = txt[txt.length - 1]
+			var txtTop = txt[0]
+		}
+		catch { 
+			var txtLeft = 'error'
+			var txtRight = 'error' 
+			var txtTop = 'error' 
+
+
+		}
+		
+		var x = '<div class="item_icon">' +
+					'<div class="cube">' +
+						'<div class="cube_face cube_face-right" style="background-image: url(textures/' + txtRight +'.png"></div>' +
+						'<div class="cube_face cube_face-left" style="background-image: url(textures/' + txtLeft +'.png"></div>' +
+						'<div class="cube_face cube_face-top" style="background-image: url(textures/' + txtTop +'.png"></div>' +
+					'</div>' + 
+				'</div>' + 
+				'<div class="item_count float-right">' + count + '</div>'
+		return x
+	} else {
+		try { var txt = game.itemdata[item.id].texture}
+		catch { var txt = 'error' }
+		return '<div class="item_icon" style="background-image: url(textures/' + txt +'.png"></div><div class="item_count float-right">' + count + '</div>'
+	}
 }
 

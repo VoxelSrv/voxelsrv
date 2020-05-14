@@ -177,8 +177,6 @@ function makeCactusMesh(scene, url, name) {
 	//multimat.subMaterials = Object.values(mat)
 
 	//newmesh.material = multimat
-	console.log(newmesh)
-
 	return newmesh
 
 }

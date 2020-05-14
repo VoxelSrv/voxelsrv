@@ -30,7 +30,7 @@ function chunkIsStored(id) {
 }
 
 // Saving chunk
-function saveChunk(id, arr, state, biometable) {
+async function saveChunk(id, arr, state, biometable) {
 	if (storage[id] == undefined) storage[id] = {}
 	storage[id].chunk = cruncher.encode(arr.data)
 	if (state) {
@@ -149,7 +149,7 @@ function WorldGen() {
 					var biome = getBiome((x + i), (z + k),temperature, mountaines, biomerng)
 					biometable.set(i, k, biome) 
 					for (var j = 0; j < dy; j++) {
-						var height = getHeight(x + i, y + j, z + k, mountaines)
+						var height = getHeightMap(x + i, y + j, z + k, mountaines)
 						var block = getBlock(y + j, height)
 						if (block != 0) chunk.set(i, j, k, block)
 					}
@@ -161,17 +161,6 @@ function WorldGen() {
 			if (y <= height) return blockIDs.stone
 			else if (y <= waterLevel) return blockIDs.water
 			else return 0
-		}
-
-		function getHeight(x, y, z, mountaines) {
-			var dim = (caveNoise(x/50, y/50, z/50)+0.42)*50
-			var dim2 = (caveNoise(x/20, y/20, z/20))*50
-			var layer1 = heightNoise(x/140, z/140)*mountaines*20
-			var layer2 = heightNoise(x/40, z/40)*20
-			var layer3 = heightNoise(x/10, z/10)*20
-
-			var noise = Math.floor((dim*35+dim2*10+layer1*20+layer2*10+layer3*5)/60) + 15
-			return noise
 		}
 
 		function getBiome(x, z, temperature, mountaines, biomerng) {
@@ -191,19 +180,20 @@ function WorldGen() {
 		
 		for (var i = 0; i < dx; i++) {
 			for (var k = 0; k < dz; k++) {
+				var m = biomeNoise2((x+i)/180, (z+k)/180)
 				var biome = biometable.get(i, k)
 				for (var j = 0; j < dy; j++) {
 					var rnd = (hash(x+i, y+j, z+k) < 0.2 ? 1 : 0) 
-					if (0 < y+j < 50 && getBlock(x+i, y+j, z+k) == 1 && getBlock(x+i, y+j+1, z+k) == 0 ) {
+					if (0 < y+j < 50 && getBlock(x+i, y+j, z+k, m) == 1 && getBlock(x+i, y+j+1, z+k, m) == 0 ) {
 						if (biome == 'plants' || biome == 'forest') chunk.set(i, j, k, blockIDs.grass)
 						else if (biome == 'iceland') chunk.set(i, j, k, blockIDs.grass_snow)
 						else if (biome == 'desert') chunk.set(i, j, k, blockIDs.sand)
 					}
-					else if (getBlock(x+i, y+j+1, z+k) != 0 && getBlock(x+i, y+j, z+k) != blockIDs.water && getBlock(x+i, y+j+3+rnd, z+k) == 0) {
+					else if (getBlock(x+i, y+j+1, z+k, m) != 0 && getBlock(x+i, y+j, z+k, m) != blockIDs.water && getBlock(x+i, y+j+3+rnd, z+k, m) == 0) {
 						if (biome == 'plants' || biome == 'forest' || biome == 'iceland') chunk.set(i, j, k, blockIDs.dirt)
 						else if (biome == 'desert') chunk.set(i, j, k, blockIDs.sand)
 					}
-					else if (getBlock(x+i, y+j+1, z+k) == blockIDs.water && getBlock(x+i, y+j, z+k) != 0 && getBlock(x+i, y+j, z+k) != blockIDs.water) {
+					else if (getBlock(x+i, y+j+1, z+k, m) == blockIDs.water && getBlock(x+i, y+j, z+k, m) != 0 && getBlock(x+i, y+j, z+k, m) != blockIDs.water) {
 						chunk.set(i, j, k, blockIDs.gravel)
 					}
 				}
@@ -211,20 +201,15 @@ function WorldGen() {
 		}
 		saveChunk(id, chunk, 'populate', biometable)
 
-		function getBlock(x, y, z) {
-			var mountaines = biomeNoise2((x)/180, (z)/180)
-			var dim = (caveNoise(x/50, y/50, z/50)+0.42)*50
-			var dim2 = (caveNoise(x/20, y/20, z/20))*50
-			var layer1 = heightNoise(x/140, z/140)*mountaines*20
-			var layer2 = heightNoise(x/40, z/40)*20
-			var layer3 = heightNoise(x/10, z/10)*20
-		
-			var noise = Math.floor((dim*35+dim2*10+layer1*20+layer2*10+layer3*5)/60) + 15
 
-			if (y <= noise) return blockIDs.stone
+		function getBlock(x, y, z, m) {
+			var r = getHeightMap(x, y, z, m)
+
+			if (y <= r) return blockIDs.stone
 			else if (y <= waterLevel) return blockIDs.water
 			else return 0
 		}
+
 	}
 
 
@@ -253,7 +238,9 @@ function WorldGen() {
 						tree(i, j, k, y+j)
 					} else if (getBlock(i, j, k) == blockIDs.grass && hash((x+i), (z+k), plantSeed) < 0.02 && biome == 'forest' ) {
 						tree(i, j, k, y+j)
-					} else if (getBlock(i, j, k) == blockIDs.sand && getBlock(i, j+1, k) == 0  && hash((x+i), (z+k), plantSeed*2) < 0.02 && biome == 'desert' ) {
+					} else if (getBlock(i, j, k) == blockIDs.sand && getBlock(i, j+1, k) == 0 && 
+							hash((x+i), (z+k), plantSeed*2) < 0.02 && biome == 'desert' && getBlock(i, j+1, k+1) == 0 &&
+							getBlock(i, j+1, k-1) == 0 && getBlock(i+1, j+1, k) == 0 && getBlock(i-1, j+1, k) == 0 ) {
 						var w = 1 + ((hash((x+i), (z+k), plantSeed) >= 0.5) ? 1 : 0)
 						for (var h = 0; h <= w; h++) {
 							setBlock(i, j+h+1, k, blockIDs.cactus)
@@ -307,7 +294,9 @@ function WorldGen() {
 
 				var tempID = splitID[0] + '|' + splitID[1] + '|' + splitID[2] + '|' + splitID[3]
 				var tempChunk = new ndarray( new Uint16Array(chunksize * chunksize * chunksize), [chunksize, chunksize, chunksize] )
+
 				if (chunkIsStored(tempID)) { var state = retrieveChunk(tempID, tempChunk) }
+
 				tempChunk.set(tempX, tempY, tempZ, block)
 				saveChunk(tempID, tempChunk)
 				toUpdate[tempID] = [tempChunk, state]
@@ -336,5 +325,14 @@ function WorldGen() {
 				}
 			}
 		}
+	}
+
+	function getHeightMap(x, y, z, mountaines) {
+		var dim = (caveNoise(x/50, y/50, z/50)+0.35)*50
+		var dim2 = (caveNoise(x/20, y/20, z/20))*50
+		var layer1 = heightNoise(x/140, z/140)*mountaines*20
+		var layer2 = heightNoise(x/40, z/40)*20
+		
+		return Math.floor((dim*30+dim2*20+layer1*20+layer2*10-3)/65) + 15
 	}
 }

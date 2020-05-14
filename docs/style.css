@@ -2,7 +2,7 @@
 	background-image: url(./textures/gui/selected.png);
 	image-rendering: pixelated;
 	background-size: cover;
-	background-color: #55000077 !important;
+	background-color: #55000088 !important;
 	bottom:15px;
 }
 
@@ -10,7 +10,7 @@
 	z-index:2;
 	display: inline-block;
 	color:white;
-	background-color: #00000066;
+	background-color: #00000088;
 	height:64px;
 	width:64px;
 	font-size:20px;
@@ -121,6 +121,33 @@
 	display: block;
 	margin: auto auto;
 	pointer-events: none;
+}
+
+.cube_face-top  { 
+	transform: rotatex(90deg) translateX(40.1px) translateY(24.4px) translateZ(48.8px);
+}
+.cube_face-left  { 
+	transform: rotatey(90deg) translateX(0px) translateY(-0.7px) translateZ(16.5px) translateX(15px);
+	filter: brightness(80%)
+}
+.cube_face-right {
+	filter: brightness(90%)
+}
+
+
+.cube_face {
+	background-size: cover;
+	position: absolute;
+	height:32px;
+	width:32px;
+	top: 25px;
+	right:25px;
+}
+.cube {
+	transform-style: preserve-3d;
+	transform: rotateX(-30deg) rotateY(-45deg) rotateZ(0deg);
+
+	
 }
 
 #game_chatbox {

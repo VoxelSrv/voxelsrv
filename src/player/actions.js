@@ -33,7 +33,7 @@ export function setupInteractions(noa) {
 	noa.inputs.down.on('alt-fire', function () {
 		var inv = getInventory(1)
 		var item = inv.main[inv.selected].id
-		if (item != undefined && game.itemdata[item].type == 'block') {
+		if (item != undefined && (game.itemdata[item].type == 'block' || game.itemdata[item].type == 'block-flat')) {
 			var block = game.blocks[item]
 			if (noa.targetedBlock && block != undefined && !game.blockdata[block].data.illegal) {
 				var pos = noa.targetedBlock.adjacent
