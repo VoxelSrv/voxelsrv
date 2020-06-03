@@ -8,9 +8,7 @@ import { Vector3, Matrix } from '@babylonjs/core/Maths/math'
 
 export function initItems(noa) {
 	var scene = noa.rendering.getScene()
-	if (game.items == undefined) {
-		game.items = {}
-	}
+	var block = game.blocks
 	var itemIDs = {}
 
 	//Format of createItem - id, name, type, texture, attributes
@@ -58,8 +56,10 @@ export function initItems(noa) {
 
 
 
-	function createItem(id, name, type, texture, data) { // Saving items to game.items
-		game.items[id] = {name: name, type: type, texture: texture, data: data}
+	return itemIDs
+	
+	function createItem(id, name, type, texture, data) { // Saving itemdata to game.itemdata
+		game.itemdata[id] = {name: name, type: type, texture: texture, data: data}
 		return id
 	}
 
@@ -68,30 +68,30 @@ export function initItems(noa) {
 
 // Get item's texture
 export function getItemTexture(item) {
-	if (game.items[item] != undefined && game.items[item].texture != undefined) return game.items[item].texture
+	if (game.itemdata[item].texture != undefined) return game.itemdata[item].texture
 	else return 'error'
 }
 
 //Get item's data (attributes))
 export function getItemData(item) {
-	if (game.items[item] != undefined && game.items[item].data != undefined) return game.items[item].data
+	if (game.itemdata[item].data != undefined) return game.itemdata[item].data
 	else return {}
 }
 
 // Get item's' max stack size
 export function getItemMaxStack(item) {
-	if (game.items[item] != undefined && game.items[item].data.stack > 0) return game.items[item].data.stack
+	if (game.itemdata[item].data.stack > 0) return game.itemdata[item].data.stack
 	else Infinity
 }
 
 // Get item's name
 export function getItemName(item) {
-	try { return game.items[item].name }
+	try { return game.itemdata[item].name }
 	catch { return false }
 }
 
 // Get item's type
 export function getItemType(item) {
-	if (game.items[item] != undefined && game.items[item].type != undefined) return game.items[item].type
+	if (game.itemdata[item].type != undefined) return game.itemdata[item].type
 	else 'item'
 }

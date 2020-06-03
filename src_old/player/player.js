@@ -17,7 +17,7 @@ export function setupPlayerEntity(noa) {
 	var offset = [0, h / 2, 0]
 
 	// Load and setup players model 
-	/*
+
 	BABYLON.SceneLoader.ImportMesh(["player"], "./models/", "player.gltf", scene, function (meshes, particleSystems, skeletons) {
 
 		var mainMesh = meshes[0] // Main mesh, needed to asign to entity
@@ -63,10 +63,10 @@ export function setupPlayerEntity(noa) {
 			} else {
 				anim.idle.play(true)
 				anim.walk.stop()
-			}
+			}*/
 		})
 	})
-	*/
+
 	// Gamemode and players settings
 
 	var move = noa.entities.getMovement(eid)
@@ -92,7 +92,7 @@ export function setupPlayerEntity(noa) {
 		move.airJumps = 0
 
 	} else {
-		//executeCommand('giveall')	
+		executeCommand('giveall')	
 	}
 }
 
