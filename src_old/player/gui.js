@@ -5,7 +5,6 @@ import { Vector3, Matrix } from '@babylonjs/core/Maths/math'
 import { SkyMaterial } from "@babylonjs/materials"
 import { getInventory, inventoryLeftClick, inventoryRightClick, getTool } from './player'
 import { getItemName } from '../world/items'
-import { setupChatbox } from '../gui/chat'
 
 
 // Setups every gui element
@@ -15,7 +14,7 @@ export function setupGUI(noa) {
 	setupSkybox()
 	//setupHand()
 	setupCross()
-	setupChatbox()
+	setupChatBox()
 }
 
 
@@ -73,7 +72,7 @@ function setupHand() {
 		var inv =  inventory.main
 		var sel = inventory.selected
 		try {
-			var txt = 'textures/' + game.items[inv[sel].id].texture + '.png'
+			var txt = 'textures/' + game.itemdata[inv[sel].id].texture + '.png'
 			hand.position = new BABYLON.Vector3(0.08, -0.08, 0.08);
 		} catch {
 			var txt = null
@@ -138,7 +137,12 @@ function setupInfoGUI() {
 }
 
 
-
+function setupChatBox() { // A chatbox
+	var div = document.createElement('div')
+	div.id = 'game_chatbox'
+	div.classList.add('col-3')
+	document.body.appendChild(div)
+}
 
 
 function setupCross() { //More like point in a middle of screen
@@ -273,7 +277,7 @@ async function renderItem(item) { // Inventory item rendering
 	if (item.count == Infinity) count = 'Inf'
 	else if (item.count != 1) count = item.count
 
-	if (game.items[item.id].type == 'block') {
+	if (game.itemdata[item.id].type == 'block') {
 		var block = game.blocks[item.id]
 		var txt = game.blockdata[block].textures
 
@@ -300,7 +304,7 @@ async function renderItem(item) { // Inventory item rendering
 				'<div class="item_count float-right">' + count + '</div>'
 		return x
 	} else {
-		try { var txt = game.items[item.id].texture}
+		try { var txt = game.itemdata[item.id].texture}
 		catch { var txt = 'error' }
 		return '<div class="item_icon" style="background-image: url(textures/' + txt +'.png"></div><div class="item_count float-right">' + count + '</div>'
 	}

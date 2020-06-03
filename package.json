@@ -27,6 +27,7 @@
     "ndarray": "^1.0.19",
     "noa-engine": "github:andyhall/noa#develop",
     "open-simplex-noise": "^2.3.1",
+    "socket.io-client": "^2.3.0",
     "voxel-crunch": "^0.2.1",
     "worley-noise": "^2.0.1"
   },

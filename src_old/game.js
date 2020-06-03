@@ -2,25 +2,24 @@
 
 import Engine from 'noa-engine'
 
+import * as BABYLON from '@babylonjs/core/Legacy/legacy'
+import 'babylonjs-loaders'
+var glvec3 = require("gl-vec3");
 import { initBlocks, getBlockNames } from './world/blocks'
 import { initItems } from './world/items'
+import { initWorldGen } from './world/menager'
+import './world/commands'
+import { initPhysics } from './world/physics'
 import { initBlockBreak } from './player/block-break'
 import { setupPlayerEntity } from './player/player'
 import { setupInteractions } from './player/actions'
 import { setupGUI } from './player/gui'
 import { initMusic } from './player/audio'
 
-import { initProtocol } from './protocol/main'
 
-import * as BABYLON from '@babylonjs/core/Legacy/legacy'
-import 'babylonjs-loaders'
-var glvec3 = require("gl-vec3");
 
-global.game = {}
-global.chunkList = []
 
-export function initGame(game2) {
-	game = game2
+export function initGame() {
 
 	// Start noa engine
 	global.noa = new Engine({
@@ -30,13 +29,13 @@ export function initGame(game2) {
 		inverseX: false,
 		sensitivityX: 15, // Make it changeable?
 		sensitivityY: 15, // ^
-		chunkSize: 24, // Don't touch this
+		chunkSize: 20, // Don't touch this
 		chunkAddDistance: 6.5, // Make it changeable?
 		chunkRemoveDistance: 6.0, // ^
 		blockTestDistance: 8, // Per Gamemode?
 		tickRate: 60, // Maybe make it lower
 		texturePath: 'textures/',
-		playerStart: [12, 50, 12], // Make y changeable based on terrain/last player possition
+		playerStart: [0.5, 50, 0.5], // Make y changeable based on terrain/last player possition
 		playerHeight: 1.85,
 		playerWidth: 0.5,
 		playerAutoStep: false, // true for mobile?
@@ -63,47 +62,60 @@ export function initGame(game2) {
 			"pause": ["P"],
 			"muteMusic": ["O"],
 			"thirdprsn": ["M"],
-			"cmd" :["<enter>"],
-			"chat" :["T"]
-
+			"cmd" :["T"]
 		}
 	})
 
-	noa.world.worldGenWhilePaused = false
+	noa.world.worldGenWhilePaused = true
 
 	var scene = noa.rendering.getScene()
 
-	initBlocks(noa)
-	initItems(noa)
+	// this registers all the blocks and materials
+	game.itemdata = {}
+	game.items = initItems(noa)
+	game.blockdata = {}
+	game.blocks = initBlocks(noa)
 
-	global.socket = new require('socket.io-client')(game.server)
-	initProtocol(game, socket, noa)
+	var block = game.blocks
+	game.blockNames = getBlockNames(game.blocks)
+
+	// this sets up worldgen
+	initWorldGen(noa)
 
 	// init blockbreaking
 	initBlockBreak(noa)
-	
+
 	// adds a mesh to player
 	setupPlayerEntity(noa)
-	
-	// GUI
-	setupGUI(noa)
-	
+
 	// does stuff on button presses
 	setupInteractions(noa)
-	
-	
+
+	// this sets up worldgen
+	initPhysics(noa)
+
+	// GUI
+	setupGUI(noa)
+
 	// Audio
 	initMusic()
 
-	//Protocol
 
-	
+	window.onbeforeunload = function(){
+		return 'Are you sure you want to leave (or you just tried to spint)? '
+	}
+	document.addEventListener('keydown', function(evt){
 
-	noa.world.on('worldDataNeeded', function (id, array, x, y, z) {
-		if (0 <= y/24 <= 4) {
-			chunkList.push([x/24, z/24])
+	// NOTE: ctrl key is sent here, but ctrl+W is not
+	if (evt.ctrlKey) {
+		var stopEvilCtrlW = function(e) {
+			return "Oopsies, Chrome!"
+			},  clearEvilCtrlW = function() {
+				window.removeEventListener('beforeunload', stopEvilCtrlW, false); 
+			};
+			setTimeout(clearEvilCtrlW, 1000)
+			window.addEventListener('beforeunload', stopEvilCtrlW, false)
 		}
-		console.log('datareq')
-	})
+	}, false)
 }
 

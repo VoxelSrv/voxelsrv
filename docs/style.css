@@ -152,7 +152,7 @@
 
 #game_chatbox {
 	position:absolute;
-	bottom:5px;
+	bottom:40px;
 	left:5px;
 	z-index:1;
 	color:white;
@@ -164,7 +164,24 @@
 	max-height:500px;
 }
 
+#game_chatinput {
+	position:absolute;
+	bottom:5px;
+	left:5px;
+	z-index:1;
+	color:white;
+	font-family:'lato';
+	text-shadow: 1px 1px black;
+	background-color:rgba(0,0,0,0.2);
+	font-size:20px;
+	margin:4px;
+	max-height:30px;
+}
+
 #game_version {
 	font-family:'lato';
 }
 
+.chat_line {
+	
+}

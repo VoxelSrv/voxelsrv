@@ -2,8 +2,7 @@ var glvec3 = require('gl-vec3')
 
 import { NormalBlendBlock } from "babylonjs"
 import { inventoryAdd, getTool } from "./player"
-import { getItemType, getitems } from "../world/items"
-import { sendPacket } from "../protocol/main"
+import { getItemType, getItemData } from "../world/items"
 
 
 
@@ -61,7 +60,7 @@ export function initBlockBreak(noa) {
         }
 		if (press) {
 			if (noa.targetedBlock && noa.targetedBlock.blockID == blockID && noa.targetedBlock.position == blockPos) {
-				var hardness = game.blocks[blockID].data.hardness
+				var hardness = game.blockdata[blockID].data.hardness
 				var tool = getTool(1).id
                 var type = getItemType(tool)
                 try {
@@ -71,11 +70,11 @@ export function initBlockBreak(noa) {
                     var power = tooldata.power
                 } catch (e) {}
                 try {
-                    var blockpower = game.blocks[blockID].data.power
+                    var blockpower = game.blockdata[blockID].data.power
                 } catch (e) {var blockpower = 0}
 
 				if (hardness == undefined) hardness = 1
-				if (type != 'item' && type == game.blocks[blockID].data.tool) var hardtick = (hardness-(power+hardness)/5)*tps
+				if (type != 'item' && type == game.blockdata[blockID].data.tool) var hardtick = (hardness-(power+hardness)/5)*tps
 				else var hardtick = hardness * tps
 				var breakstage = Math.floor((timer/hardtick)*10)
 
@@ -86,9 +85,9 @@ export function initBlockBreak(noa) {
                     noa.rendering._highlightMesh.material.diffuseTexture = breakTXT[0]
                     
 					var block = noa.targetedBlock.blockID
-					var item = game.blocks[block].data.drop
-					sendPacket('block-break', noa.targetedBlock.position)
-                    if (type != game.blocks[blockID].data.tool || blockpower > power) return
+					var item = game.blockdata[block].data.drop
+                    noa.setBlock(0, noa.targetedBlock.position)
+                    if (type != game.blockdata[blockID].data.tool || blockpower > power) return
 					inventoryAdd(1, item, 1, {})
                 }
                 timer++

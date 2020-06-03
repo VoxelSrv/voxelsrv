@@ -1,8 +1,8 @@
 import { getMusicVolume, setMusicVolume } from './audio'
 import { getInventory, inventoryAdd, inventoryRemove, inventoryHasItem, inventorySwitch} from './player'
 import { startBreakingBlock, stopBreakingBlock } from './block-break'
+import { openCommandPrompt } from '../world/commands'
 import { openInventory } from './gui'
-import { sendFromInput } from '../gui/chat'
 
 
 import '@babylonjs/core/Debug/debugLayer'
@@ -19,7 +19,7 @@ var MPS = require('mesh-particle-system');
 export function setupInteractions(noa) {
 	// on left mouse, set targeted block to be air
 	noa.inputs.down.on('fire', function () {
-		if (noa.targetedBlock && !game.blocks[noa.targetedBlock.blockID].data.unbreakable) {
+		if (noa.targetedBlock && !game.blockdata[noa.targetedBlock.blockID].data.unbreakable) {
 			startBreakingBlock(noa.targetedBlock.position, noa.targetedBlock.blockID)
 		}
 	})
@@ -33,9 +33,9 @@ export function setupInteractions(noa) {
 	noa.inputs.down.on('alt-fire', function () {
 		var inv = getInventory(1)
 		var item = inv.main[inv.selected].id
-		if (item != undefined && (game.items[item].type == 'block' || game.items[item].type == 'block-flat')) {
+		if (item != undefined && (game.itemdata[item].type == 'block' || game.itemdata[item].type == 'block-flat')) {
 			var block = game.blocks[item]
-			if (noa.targetedBlock && block != undefined && !game.blocks[block].data.illegal) {
+			if (noa.targetedBlock && block != undefined && !game.blockdata[block].data.illegal) {
 				var pos = noa.targetedBlock.adjacent
 				var x = noa.addBlock(block, pos)
 				if (x == block) inventoryRemove(1, item, 1)
@@ -47,7 +47,7 @@ export function setupInteractions(noa) {
 	// pick block on middle fire (MMB/Q)
 	noa.inputs.down.on('mid-fire', function () {
 		if (noa.targetedBlock && noa.targetedBlock.blockID != 0) {
-			var item = game.blocks[noa.targetedBlock.blockID].name
+			var item = game.blockdata[noa.targetedBlock.blockID].name
 			var slot = inventoryHasItem(1, item, 1)
 			var sel = getInventory(1).selected
 			if (slot >= 0 && slot <= 8) getInventory(1).selected = slot
@@ -55,6 +55,13 @@ export function setupInteractions(noa) {
 		}
 	})
 
+
+	// pause (P)
+	noa.inputs.down.on('pause', function () {
+		paused = !paused
+		noa.setPaused(paused)
+	})
+	var paused = false
 
 	noa.inputs.down.on('muteMusic', function () {
 		if (getMusicVolume() != 0) setMusicVolume(0)
@@ -85,24 +92,14 @@ export function setupInteractions(noa) {
 
 
 	// Command prompt
-	noa.inputs.down.on('cmd', function() {
-		sendFromInput()
+	noa.inputs.down.on('cmd', function () {
+		openCommandPrompt()
 	})
 
-	noa.inputs.down.on('chat', function() {
-		if (document.activeElement.tagName == 'BODY') document.getElementById('game_chatinput').focus()
-		else document.getElementById('noa-canvas').focus()
-		
-	})
 
-	setInterval(async function() {
-		if (document.activeElement.tagName != 'BODY') { noa.setPaused(true) }
-		else noa.setPaused(false)
-	}, 100)
 
 	// each tick, consume any scroll events and use them to zoom camera
 	noa.on('tick', async function (dt) {
-
 		var scroll = noa.inputs.state.scrolly
 		if (scroll !== 0) {
 			var pickedID = getInventory(1).selected
@@ -114,6 +111,20 @@ export function setupInteractions(noa) {
 			
 
 		}
+	})
+
+
+	// launch Babylon debug layer when pressing "Z"
+	var debug = false
+	var scene = noa.rendering.getScene()
+	noa.inputs.bind('debug', 'Z')
+	noa.inputs.down.on('debug', () => {
+		// inspector is very heavy, so load it via dynamic import
+		import('@babylonjs/inspector').then(data => {
+			debug = !debug
+			if (debug) scene.debugLayer.show()
+			else scene.debugLayer.hide()
+		})
 	})
 
 
