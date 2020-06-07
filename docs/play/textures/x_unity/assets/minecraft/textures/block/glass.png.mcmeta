@@ -1,0 +1,10 @@
+{
+      "animation": {},
+	  "ctm": {
+        "ctm_version": 1,
+        "type": "CTM",
+        "layer": "CUTOUT",
+        "textures": [ "blocks/glass_ctm" ],
+        "extra": { "connect_inside": true }
+    }
+}
