@@ -21,6 +21,8 @@ export function setupChatbox() {
 export function addTextInChat(text) {
 	var msg = document.createElement('div')
 	msg.classList.add('chat_line')
+	text = text.replace('<', '&lt;')
+	text = text.replace('>', '&gt;')
 	msg.innerHTML = text
 	chatbox.appendChild(msg)
 }

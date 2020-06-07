@@ -1,7 +1,7 @@
 var glvec3 = require('gl-vec3')
 
 import { NormalBlendBlock } from "babylonjs"
-import { inventoryAdd, getTool } from "./player"
+import { getTool } from "./player"
 import { getItemType, getitems } from "../world/items"
 import { sendPacket } from "../protocol/main"
 
@@ -84,13 +84,9 @@ export function initBlockBreak(noa) {
 				if (timer >= hardtick) {
                     timer = 0
                     noa.rendering._highlightMesh.material.diffuseTexture = breakTXT[0]
-                    
-					var block = noa.targetedBlock.blockID
-					var item = game.blocks[block].data.drop
+
 					sendPacket('block-break', noa.targetedBlock.position)
-                    if (type != game.blocks[blockID].data.tool || blockpower > power) return
-					inventoryAdd(1, item, 1, {})
-                }
+				}
                 timer++
 			} else if (noa.targetedBlock != undefined) {
 				timer = 0

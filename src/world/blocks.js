@@ -22,7 +22,7 @@ export function initBlocks(noa) {
 	var _id = 1
 
 	noa.registry.registerMaterial('water', [0.5, 0.5, 0.8, 0.7], null, true)
-	noa.registry.registerMaterial('barrier', [0.0, 0.0, 0.0, 0.2], null, true)
+	noa.registry.registerMaterial('barrier', [0.0, 0.0, 0.0, 0.0], null, true)
 
 	createBlock(_id++, 'stone', 0, ['block/stone'], {}, {drop: 'cobblestone', hardness: 4, tool: 'pickaxe', power: 1})
 	createBlock(_id++, 'dirt', 0, ['block/dirt'], {}, {drop: 'dirt', hardness: 2.5, tool: 'shovel'})
