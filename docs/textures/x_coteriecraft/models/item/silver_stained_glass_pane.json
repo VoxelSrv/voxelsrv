@@ -1,7 +1,0 @@
-{
-	"__comment": "Designed by HanFox with BDcraft Cubik PRO 0.96 Beta - http://bdcraft.net",
-	"parent": "item/bdc_glass_pane",
-	"textures": {
-		"texture": "blocks/glass_silver"
-	}
-}

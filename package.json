@@ -1,10 +1,10 @@
 {
   "name": "voxelsrv",
-  "version": "0.0.10",
+  "version": "0.1.0",
   "description": "Simple voxel game",
   "scripts": {
     "start": "cd src/ && webpack-dev-server",
-    "build": "rm docs/*.js; cd src && webpack --env.production"
+    "build": "rm docs/play*.js; cd src && webpack --env.production"
   },
   "keywords": [
     "noa-engine",
@@ -23,11 +23,10 @@
     "babylonjs-loaders": "^4.1.0",
     "deep-diff": "^1.0.2",
     "howler": "^2.2.0",
+    "markdown-it": "^11.0.0",
     "mesh-particle-system": "^0.9.0",
-    "murmur-numbers": "0.0.1",
     "ndarray": "^1.0.19",
     "noa-engine": "github:andyhall/noa#develop",
-    "open-simplex-noise": "^2.3.1",
     "socket.io-client": "^2.3.0",
     "voxel-crunch": "^0.2.1",
     "worley-noise": "^2.0.1"

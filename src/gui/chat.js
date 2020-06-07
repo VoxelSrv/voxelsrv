@@ -1,7 +1,9 @@
-import { sendPacket } from '../protocol/main'
+const md = require('markdown-it')()
+
 
 var chatbox
 var input
+var socket
 
 export function setupChatbox() {
 	chatbox = document.createElement('div')
@@ -18,18 +20,18 @@ export function setupChatbox() {
 }
 
 
-export function addTextInChat(text) {
+export function addToChat(text) {
 	var msg = document.createElement('div')
 	msg.classList.add('chat_line')
 	text = text.replace('<', '&lt;')
 	text = text.replace('>', '&gt;')
-	msg.innerHTML = text
+	msg.innerHTML = md.render(text)
 	chatbox.appendChild(msg)
 }
 
-export function sendFromInput() {
+export function sendFromInput(socket) {
 	var msg = input.value
-	sendPacket('chat-send', msg)
+	socket.emit('chat-send', msg)
 
 	input.value = ""
 }

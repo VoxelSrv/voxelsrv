@@ -1,0 +1,21 @@
+{
+	"__comment": "Designed by Eskimojo14 with Cubik Studio - http://bdcraft.net",
+	"textures": {
+		"top": "block/glass_pane_top",
+		"pane": "block/glass"
+	},
+	"elements": [
+		{
+			"from": [ 7, 0, 7 ],
+			"to": [ 9, 16, 9 ],
+			"shade": false,
+			"faces": {
+				"down": { "uv": [ 7, 14, 9, 16 ], "texture": "#top", "cullface": "down" },
+				"up": { "uv": [ 7, 0, 9, 2 ], "texture": "#top", "cullface": "up" },
+				"north": { "uv": [ 7, 0, 9, 16 ], "texture": "#top", "cullface": "north" },
+				"west": { "uv": [ 0, 0, 2, 16 ], "texture": "#pane" },
+				"east": { "uv": [ 14, 0, 16, 16 ], "texture": "#pane" }
+			}
+		}
+	]
+}
