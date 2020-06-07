@@ -7,7 +7,10 @@ It's still unfinished, maybe someday it will be playable.
 - [Discord](https://discord.gg/K9PdsDh)
 - [Changelog](https://github.com/Patbox/voxelsrv/blob/master/CHANGELOG.md)
 
-# [Play it here](https://patbox.github.io/voxelsrv/)
+Now I'm modifying it to support multiplayer and code started to look really messy. I will probably rewrite in the future.
+Server files, check this repo: https://github.com/Patbox/voxelsrv-server
+
+# [Play it here (0.0.10)](https://patbox.github.io/voxelsrv/)
 
 # Assets used in this project (graphics/sounds):
 - [Unity Resourcepack](https://github.com/CyanideX/Unity)
