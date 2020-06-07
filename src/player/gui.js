@@ -255,6 +255,7 @@ export async function openInventory() { // Opens inventory
 		tempslot.style.left = e.x + 'px'
 		tempslot.style.top = e.y + 'px'
 	});
+
 	async function updateInventory() { // Update slots
 		for (var x = 0; x < items.length; x++) {
 			hotbar[x].innerHTML = await renderItem(inv[x])
@@ -274,8 +275,8 @@ async function renderItem(item) { // Inventory item rendering
 	else if (item.count != 1) count = item.count
 
 	if (game.items[item.id].type == 'block') {
-		var block = game.blocks[item.id]
-		var txt = game.blockdata[block].textures
+		var block = game.blockIDs[item.id]
+		var txt = game.blocks[block].textures
 
 		try { 
 			var txtLeft = txt[txt.length - 1]

@@ -1,8 +1,15 @@
 import { setChunk } from "./world"
 import { addTextInChat } from "../gui/chat"
 var ndarray = require('ndarray')
+const cruncher = require('voxel-crunch')
+
 
 export function initProtocol(game, socket, noa) {
+
+	noa.world.on('worldDataNeeded', function (id, array, x, y, z) {
+
+	})
+
 	socket.on('login-request', function(data) {
 		socket.emit('login', {
 			username: game.username,
@@ -22,7 +29,8 @@ export function initProtocol(game, socket, noa) {
 		})
 
 		socket.on('chunkdata', function(data) {
-			var array = new ndarray(Object.values(data.chunk), [24, 120, 24])
+			var chunkdata = cruncher.decode(Object.values(data.chunk), new Uint16Array(24 * 120 * 24))
+			var array = new ndarray(chunkdata, [24, 120, 24])
 			setChunk(data.id, array, noa)
 		})
 
@@ -30,10 +38,17 @@ export function initProtocol(game, socket, noa) {
 			noa.setBlock(data.id, data.pos)
 		})
 
+		socket.on('inventory-update', function(data) {
+			noa.entities.getState(noa.playerEntity, 'inventory').main = data.main
+			noa.entities.getState(noa.playerEntity, 'inventory').tempslot = data.tempslot
+		})
+
+		var lastPos = JSON.stringify(noa.entities.getState(noa.playerEntity, 'position').position)
+
 		setInterval( async function() {
-			if (chunkList[0] != undefined) {
-				socket.emit('chunk-request', chunkList[0])
-				chunkList.shift()
+			var newPos = JSON.stringify(noa.entities.getState(noa.playerEntity, 'position').position)
+			if (lastPos != newPos) {
+				socket.emit('move', noa.entities.getState(noa.playerEntity, 'position').position)
 			}
 		}, 100)
 	})
@@ -42,4 +57,5 @@ export function initProtocol(game, socket, noa) {
 
 export function sendPacket(type, data) {
 	socket.emit(type, data)
+	console.log(type, data)
 }

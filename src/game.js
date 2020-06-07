@@ -15,6 +15,17 @@ import { initProtocol } from './protocol/main'
 import * as BABYLON from '@babylonjs/core/Legacy/legacy'
 import 'babylonjs-loaders'
 var glvec3 = require("gl-vec3");
+var ndarray = require('ndarray')
+
+var emptyChunk = new ndarray(new Uint16Array(24 * 24 * 24), [24, 24, 24])
+
+for(var x = 0; x < 24; x++) {
+	for(var y = 0; y < 24; y++) {
+		for(var z = 0; z < 24; z++) {
+			emptyChunk.set(x, y, z, 0)
+		}
+	}
+}
 
 global.game = {}
 global.chunkList = []
@@ -69,7 +80,7 @@ export function initGame(game2) {
 		}
 	})
 
-	noa.world.worldGenWhilePaused = false
+	noa.world.worldGenWhilePaused = true
 
 	var scene = noa.rendering.getScene()
 
@@ -95,15 +106,5 @@ export function initGame(game2) {
 	// Audio
 	initMusic()
 
-	//Protocol
-
-	
-
-	noa.world.on('worldDataNeeded', function (id, array, x, y, z) {
-		if (0 <= y/24 <= 4) {
-			chunkList.push([x/24, z/24])
-		}
-		console.log('datareq')
-	})
 }
 

@@ -3,6 +3,7 @@ import { getInventory, inventoryAdd, inventoryRemove, inventoryHasItem, inventor
 import { startBreakingBlock, stopBreakingBlock } from './block-break'
 import { openInventory } from './gui'
 import { sendFromInput } from '../gui/chat'
+import { sendPacket } from '../protocol/main'
 
 
 import '@babylonjs/core/Debug/debugLayer'
@@ -31,16 +32,8 @@ export function setupInteractions(noa) {
 
 	// place block on alt-fire (RMB/E)
 	noa.inputs.down.on('alt-fire', function () {
-		var inv = getInventory(1)
-		var item = inv.main[inv.selected].id
-		if (item != undefined && (game.items[item].type == 'block' || game.items[item].type == 'block-flat')) {
-			var block = game.blocks[item]
-			if (noa.targetedBlock && block != undefined && !game.blocks[block].data.illegal) {
-				var pos = noa.targetedBlock.adjacent
-				var x = noa.addBlock(block, pos)
-				if (x == block) inventoryRemove(1, item, 1)
-			}
-		}
+		var pos = noa.targetedBlock.adjacent
+		sendPacket('block-place', pos)
 	})
 
 
@@ -111,6 +104,7 @@ export function setupInteractions(noa) {
 			if (pickedID >= game.hotbarsize) pickedID = 0
 			else if (pickedID < 0) pickedID = game.hotbarsize-1
 			getInventory(1).selected = pickedID
+			sendPacket('selected', pickedID)
 			
 
 		}
