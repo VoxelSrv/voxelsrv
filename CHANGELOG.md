@@ -1,3 +1,13 @@
+# 0.1.0
+- Markdown in chat
+- Better Multiplayer support,
+- Rewrite/restructurisation of code
+- Added server list
+- Players can see other players (Todo: better model / nametags)
+
+# 0.0.11
+- Test Multiplayer support
+
 # 0.0.10
 - Changes to worldgen
 - Blocks in inventory are now 3D

@@ -1,4 +1,9 @@
-const md = require('markdown-it')()
+const md = new require('markdown-it')({
+	html: false,
+	linkify: false,
+	breaks: false,
+	typographer: true
+}).disable([ 'link' ])
 
 
 var chatbox
@@ -8,11 +13,12 @@ var socket
 export function setupChatbox() {
 	chatbox = document.createElement('div')
 	chatbox.id = 'game_chatbox'
-	chatbox.classList.add('col-3')
+	chatbox.classList.add('col-5')
 
 	input = document.createElement('input')
 	input.id = 'game_chatinput'
-	input.classList.add('col-3')
+	input.classList.add('col-5')
+	input.style.display = 'none'
 
 
 	document.body.appendChild(input)
@@ -26,7 +32,7 @@ export function addToChat(text) {
 	text = text.replace('<', '&lt;')
 	text = text.replace('>', '&gt;')
 	msg.innerHTML = md.render(text)
-	chatbox.appendChild(msg)
+	chatbox.insertBefore(msg, chatbox.firstElementChild)
 }
 
 export function sendFromInput(socket) {

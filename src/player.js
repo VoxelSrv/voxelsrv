@@ -39,26 +39,48 @@ export function setupControls(noa, socket) {
 	// Inventory
 	noa.inputs.down.on('inventory', function () {	
 		var inv = document.getElementById('game_inventory_screen')
-		if (inv.style.display == 'none') {
-			console.log(inv.style.display)
+		var input = document.getElementById('game_chatinput')
+
+		if (input.style.display != 'none') {}
+		else if (inv.style.display == 'none') {
 			document.exitPointerLock()
 			inv.style.display = 'initial'
-			//noa.inputs.disabled = true
+			noa.setPaused(true)
 		}
 		else {
 			noa.container.canvas.requestPointerLock()
 			inv.style.display = 'none'
-			noa.inputs.disabled = false
+			noa.setPaused(false)
 		}
 	})
 
 	// Command prompt
 	noa.inputs.down.on('cmd', function() {
-		sendFromInput(socket)
+		var input = document.getElementById('game_chatinput')
+		if (input.style.display != 'none') { 
+			sendFromInput(socket)
+			noa.container.canvas.requestPointerLock()
+			input.style.display = 'none'
+			noa.setPaused(false)
+		}
 	})
 
 	noa.inputs.down.on('chat', function() {
-
+		var input = document.getElementById('game_chatinput')
+		if (input.style.display == 'none') {
+			document.exitPointerLock()
+			input.style.display = 'initial'
+			input.focus()
+			noa.setPaused(true)
+			setInterval( function() {
+				if (document.activeElement.id != 'game_chatinput') {
+					input.style.display = 'none'
+					noa.setPaused(false)
+					return
+				} 
+			}, 500)
+			
+		}
 		
 	})
 
@@ -89,57 +111,6 @@ export function setupPlayer(noa) {
 	var eyeOffset = 0.9 * noa.ents.getPositionData(noa.playerEntity).height
 
 	var offset = [0, h / 2, 0]
-
-	// Load and setup players model 
-	
-	BABYLON.SceneLoader.ImportMesh(["player"], "./models/", "player.gltf", scene, function (meshes, particleSystems, skeletons) {
-
-		var mainMesh = meshes[0] // Main mesh, needed to asign to entity
-		
-		var eyeOffset = 0.9 * noa.ents.getPositionData(noa.playerEntity).height
-		mainMesh.scaling = new BABYLON.Vector3(0.06, 0.06, 0.06);
-
-		var offset = [0, 0, 0]
-
-		// Asing mesh
-		noa.entities.addComponent(eid, noa.entities.names.mesh, {
-			mesh: mainMesh,
-			offset: offset
-		})
-
-		
-		// Add rest of meshes to scene
-		var extras = meshes.slice(1)
-		extras.forEach(function(mesh) {
-			noa.rendering.addMeshToScene(mesh)
-		})
-		var anim = {}
-		// Animations
-		anim.idle = scene.getAnimationGroupByName('idle')
-		anim.walk = scene.getAnimationGroupByName('walking')
-		
-
-		// Rendering
-		noa.on('beforeRender', function() {
-
-			skeletons.forEach(function(bone) {
-				bone.rotate(BABYLON.Axis.Y, noa.camera.heading, BABYLON.Space.WORLD, meshes)
-			})
-
-			extras.forEach(function(mesh) {
-				mesh.visibility = noa.camera.zoomDistance/5
-				mesh.rotation.y = noa.camera.heading
-			})
-			if (noa.entities.getState(eid, 'movement').running) {
-				anim.idle.stop()
-				anim.walk.play(true)
-				anim.walk
-			} else {
-				anim.idle.play(true)
-				anim.walk.stop()
-			}
-		})
-	})
 	
 	// Gamemode and players settings
 

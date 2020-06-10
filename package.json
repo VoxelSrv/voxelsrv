@@ -4,7 +4,7 @@
   "description": "Simple voxel game",
   "scripts": {
     "start": "cd src/ && webpack-dev-server",
-    "build": "rm docs/play*.js; cd src && webpack --env.production"
+    "build": "rm docs/*.js; cd src && webpack --env.production"
   },
   "keywords": [
     "noa-engine",
