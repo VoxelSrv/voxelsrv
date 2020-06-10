@@ -1,6 +1,6 @@
 
 var path = require('path')
-var buildPath = path.resolve('..', 'docs', 'play')
+var buildPath = path.resolve('..', 'docs')
 
 
 

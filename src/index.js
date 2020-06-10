@@ -1,26 +1,33 @@
 const options = new URLSearchParams(window.location.search)
 
 var server = options.get('ip')
+if (window.server != undefined) server = window.server
+
 var username = options.get('username')
+if (window.username != undefined) username = window.username
+
+console.log('Username: ' + username, 'Server: ' + server)
 
 global.game = {
 	name: 'VoxelSRV',
 	version: '0.1.0'
 }
-
 const socket = new require('socket.io-client')(server)
 const cruncher = require('voxel-crunch')
 const ndarray = require('ndarray')
+var vec3 = require('gl-vec3')
 
 
 import Engine from 'noa-engine'
 import * as BABYLON from '@babylonjs/core/Legacy/legacy'
+import 'babylonjs-loaders'
 import { registerBlocks, registerItems } from './registry'
 import { setupGuis } from './gui/setup'
 import { updateInventory } from './gui/inventory'
 import { setChunk } from './world'
 import { setupPlayer, setupControls } from './player'
 import { addToChat } from './gui/chat'
+import { playSound } from './sound'
 
 const engineParams = {
 	debug: true,
@@ -35,7 +42,7 @@ const engineParams = {
 	blockTestDistance: 8, // Per Gamemode?
 	tickRate: 50, // Maybe make it lower
 	texturePath: 'textures/',
-	playerStart: [-18, 100, -105], // Make y changeable based on terrain/last player possition
+	playerStart: [0, 100, 0], // Make y changeable based on terrain/last player possition
 	playerHeight: 1.85,
 	playerWidth: 0.5,
 	playerAutoStep: false, // true for mobile?
@@ -68,7 +75,7 @@ const engineParams = {
 }
 
 
-socket.on('login-request', function(dataLogin) {
+socket.once('login-request', function(dataLogin) {
 	socket.emit('login', {
 		username: username,
 		protocol: 1
@@ -79,9 +86,21 @@ socket.on('login-request', function(dataLogin) {
 		return
 	})
 
+	var entityIgnore = 0
+	var entityList = {}
+
+	socket.on('entity-ignore', function(data) {
+		console.log('Ignoring player-entity: ' + data)
+		entityIgnore = data
+		if (entityList[data] != undefined) noa.ents.deleteEntity(entityList[data]); delete entityList[data]
+	})
+
 	socket.on('login-success', function() {
+		document.body.innerHTML = ""
 		var noa = new Engine(engineParams)
 		var moveState = noa.inputs.state
+		var lastPos = {}
+		var lastRot = 0
 
 		registerBlocks(noa, dataLogin.blocks, dataLogin.blockIDs)
 		registerItems(noa, dataLogin.items)
@@ -110,14 +129,74 @@ socket.on('login-request', function(dataLogin) {
 		socket.on('chat', function(data) { 
 			addToChat(data)
 			console.log('Chat: ' + data)
-		} )
+		})
 
-		socket.emit('move', noa.ents.getState(noa.playerEntity, 'position').position)
+		socket.on('entity-spawn', async function(data) {
+			if (entityIgnore != data.id) {
+				entityList[data.id] = noa.ents.add(Object.values(data.data.position), 1, 2, null, null, false, true)
+				
+				var mesh = BABYLON.MeshBuilder.CreateBox("player", {height: 1.85, width: 0.5, depth: 0.5}, scene)
 
-		noa.on('tick', function() {
-			if (moveState['forward'] || moveState['backward'] || moveState['left'] || moveState['right']) {
-				socket.emit('move', noa.ents.getState(noa.playerEntity, 'position').position)
+				noa.entities.addComponent(entityList[data.id], noa.entities.names.mesh, {
+					mesh: mesh,
+					offset: [0, 0.9, 0]
+				})
 			}
+		})
+
+		/*socket.on('entity-update', function(data) {
+			if (data.index == '')
+			noa.ents.getState()
+		})*/
+
+		socket.on('entity-despawn', function(data) {
+			if (entityList[data] != undefined) noa.ents.deleteEntity(entityList[data]); delete entityList[data]
+
+		})
+
+		socket.on('entity-move', function(data) {
+			if (entityList[data.id] != undefined) {
+				var pos = Object.values(data.data.pos)
+				noa.ents.getState(entityList[data.id], 'position').newPosition = data.data.pos
+				noa.ents.getState(entityList[data.id], 'position').rotation = data.data.rot
+			}
+		})
+
+		socket.on('sound-play', function(data) { playSound(data.sound, data.volume) } )
+
+		socket.emit('move', {pos: noa.ents.getState(noa.playerEntity, 'position').position, rot: noa.ents.getState(noa.playerEntity, 'position').position})
+		var timerPos = 0
+		
+		noa.on('tick', function() {
+			timerPos = timerPos + 1
+			if (timerPos == 2) {
+				timerPos = 0
+				var pos = noa.ents.getState(noa.playerEntity, 'position').position
+				var rot = noa.camera.heading
+				if (JSON.stringify(lastPos) != JSON.stringify(pos) || JSON.stringify(lastRot) != JSON.stringify(rot) ) {
+					lastPos = [...pos]
+					lastRot = JSON.parse( JSON.stringify(rot) )
+
+					socket.emit('move', {pos: pos, rot: rot})
+				}
+			}
+		})
+		noa.on('beforeRender', async function() {
+			Object.values(entityList).forEach(async function (id) {
+				var pos = noa.ents.getState(id, 'position').position
+				var newPos = noa.ents.getState(id, 'position').newPosition
+				if (newPos != undefined && pos != undefined) {
+					var move = vec3.create()	
+					vec3.lerp(move, pos, newPos, 0.2)			
+					//noa.ents.setPosition(id, [ pos[0] + move[0]/2, pos[1] + move[1]/2, pos[2] + move[2]/2])
+					var rot = JSON.parse( JSON.stringify(noa.ents.getState(id, noa.entities.names.mesh).mesh.rotation.y) )
+					var newRot = noa.ents.getState(id, 'position').rotation
+					noa.ents.setPosition(id, move)
+					noa.ents.getState(id, noa.entities.names.mesh).mesh.rotation.y = (2*rot + newRot)/4
+				}
+
+
+			})
 		})
 
 	})

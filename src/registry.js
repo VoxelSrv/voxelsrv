@@ -12,6 +12,10 @@ export function registerBlocks(noa, blockList, idList) {
 	blockIDs = idList
 	blocks = blockList
 
+	// Temponary
+	noa.registry.registerMaterial('water', [0.5, 0.5, 0.8, 0.7], null, true)
+	noa.registry.registerMaterial('barrier', [0.0, 0.0, 0.0, 0.0], null, true)
+
 	console.log('Blocks: ', blockIDs)
 	var entries = Object.entries(blockList)
 

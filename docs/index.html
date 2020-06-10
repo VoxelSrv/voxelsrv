@@ -21,7 +21,107 @@
 </head>
 
 <body oncontextmenu="return false;">
-	#Todo - Menu
+	<div class="container text-light" style="margin-top:20px; background-color: #11111198; padding: 20px;">
+		<div>
+			<div class="logo" style="display: inline-block;"></div>
+			<span class="align-top" style="font-family: 'silkscreen'; font-size: 96px; display: inline-block;">VoxelSrv</span>
+		</div>
+		<br>
+		<form id="start">
+			<div class="col-sm-3 " style="display: inline-block;">
+				<h4>Nickname</h4>	
+				<input id="nickname">
+			</div>
+			<div class="col-sm-3" style="display: inline-block;">
+				<h4>Server</h4>	
+				<input id="ip">
+			</div>
+			<div class="col-sm-3" style="display: inline-block;">
+				<input type='submit' value='Join game'>
+			</div>
+		</form>
+		
+		<table id="server-list" class="table table-bordered  col-md-6" style="margin-top:20px; background-color: #eeeeee;">
+			<thead class="thead-dark">
+				<tr>
+					<th scope="col">Address</th>
+					<th scope="col">Name</th>
+					<th scope="col">Motd</th>
+					<th scope="col"></th>
+				</tr>
+			</thead>
+			<tbody id="servers" class="table-hover">
+
+			</tbody>
+		</table>
+
+		<br>
+
+		<footer>
+			<a href="https://github.com/Patbox/voxelsrv" class="text-light">Github (client)</a> / 
+			<a href="https://github.com/Patbox/voxelsrv-server" class="text-light">Github (server)</a> / 
+			<a href="https://discord.com/invite/K9PdsDh" class="text-light">Discord</a>
+			<span class="float-right">Look of this page is temporary.</span>
+		</footer>
+
+	</div>
 </body>
 
+	<script>
+
+		document.getElementById('start').addEventListener('submit', function(e) {
+			e.preventDefault()
+			startGame()
+
+		})
+
+		var table = document.getElementById("servers")
+		var x = 0
+
+		fetch('http://pb4.eu:9000').then(response => response.json())
+		.then(function(data) {
+			var array = Object.values(data)
+			array.forEach( function(item) {
+				var row = table.insertRow(x)
+				x = x + 1
+
+                var cell1 = row.insertCell(0)
+                var cell2 = row.insertCell(1)
+				var cell3 = row.insertCell(2)
+				var cell4 = row.insertCell(3)
+
+
+                cell1.innerHTML = item.ip
+                cell2.innerHTML = item.name
+				cell3.innerHTML = item.motd
+
+				var button = document.createElement('button')
+				button.innerHTML = 'Select'
+				button.classList.add("btn")
+				button.classList.add("btn-outline-secondary")
+				button.classList.add("btn-sm")
+				cell4.appendChild(button)
+				button.onclick = function(){ document.getElementById("ip").value = item.ip }
+
+			})
+			
+		})
+
+		function startGame() {
+			window.username = document.getElementById('nickname').value
+			window.server =  document.getElementById('ip').value
+
+			document.body.innerHTML = ''
+
+			var script = document.createElement('script')
+			script.src = "babylon.js"
+
+			var script2 = document.createElement('script')
+			script2.src = "bundle.js"
+
+			document.body.appendChild(script)
+			document.body.appendChild(script2)
+
+		}
+	</script>
 </html>
