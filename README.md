@@ -10,7 +10,7 @@ It's still unfinished, maybe someday it will be playable.
 Now I'm modifying it to support multiplayer and code started to look really messy. I will probably rewrite in the future.
 Server files, check this repo: https://github.com/Patbox/voxelsrv-server
 
-# [Play it here](https://patbox.github.io/voxelsrv/)
+# [Play it here](http://voxelsrv.pb4.eu)
 
 # Assets used in this project (graphics/sounds):
 - [Unity Resourcepack](https://github.com/CyanideX/Unity)
