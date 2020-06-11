@@ -30,11 +30,11 @@
 		<form id="start">
 			<div class="col-sm-3 " style="display: inline-block;">
 				<h4>Nickname</h4>	
-				<input id="nickname">
+				<input id="nickname" required>
 			</div>
 			<div class="col-sm-3" style="display: inline-block;">
 				<h4>Server</h4>	
-				<input id="ip">
+				<input id="ip" required>
 			</div>
 			<div class="col-sm-3" style="display: inline-block;">
 				<input type='submit' value='Join game'>
@@ -108,9 +108,12 @@
 		})
 
 		function startGame() {
-			window.username = document.getElementById('nickname').value
-			window.server =  document.getElementById('ip').value
+			window.location.search = '?username=' + document.getElementById('nickname').value + '&ip=' + document.getElementById('ip').value
+		}
 
+		var x = new URLSearchParams(window.location.search)
+
+		if (x.get('ip') && x.get('username')) {
 			document.body.innerHTML = ''
 
 			var script = document.createElement('script')
@@ -121,7 +124,6 @@
 
 			document.body.appendChild(script)
 			document.body.appendChild(script2)
-
 		}
 	</script>
 </html>
