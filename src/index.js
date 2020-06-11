@@ -1,10 +1,8 @@
 const options = new URLSearchParams(window.location.search)
 
 var server = options.get('ip')
-if (window.server != undefined) server = window.server
 
 var username = options.get('username')
-if (window.username != undefined) username = window.username
 
 console.log('Username: ' + username, 'Server: ' + server)
 
@@ -12,11 +10,12 @@ global.game = {
 	name: 'VoxelSRV',
 	version: '0.1.0'
 }
-const socket = new require('socket.io-client')(server)
+const io = require('socket.io-client')
 const cruncher = require('voxel-crunch')
 const ndarray = require('ndarray')
 var vec3 = require('gl-vec3')
 
+const socket = new io('ws://' + server)
 
 import Engine from 'noa-engine'
 import * as BABYLON from '@babylonjs/core/Legacy/legacy'
