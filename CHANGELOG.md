@@ -1,3 +1,8 @@
+# 0.1.1
+- Changed default fov
+- Added block picking
+- Small other changes
+
 # 0.1.0
 - Markdown in chat
 - Better Multiplayer support,
