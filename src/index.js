@@ -8,7 +8,7 @@ console.log('Username: ' + username, 'Server: ' + server)
 
 global.game = {
 	name: 'VoxelSRV',
-	version: '0.1.0'
+	version: '0.1.1'
 }
 const io = require('socket.io-client')
 const cruncher = require('voxel-crunch')
@@ -27,6 +27,7 @@ import { setChunk } from './world'
 import { setupPlayer, setupControls } from './player'
 import { addToChat } from './gui/chat'
 import { playSound } from './sound'
+import { Socket } from 'socket.io-client'
 
 const engineParams = {
 	debug: true,
@@ -74,7 +75,7 @@ const engineParams = {
 }
 
 
-socket.once('login-request', function(dataLogin) {
+socket.on('login-request', function(dataLogin) {
 	socket.emit('login', {
 		username: username,
 		protocol: 1
@@ -163,8 +164,10 @@ socket.once('login-request', function(dataLogin) {
 
 		socket.on('sound-play', function(data) { playSound(data.sound, data.volume) } )
 
+
 		socket.emit('move', {pos: noa.ents.getState(noa.playerEntity, 'position').position, rot: noa.ents.getState(noa.playerEntity, 'position').position})
 		var timerPos = 0
+
 		
 		noa.on('tick', function() {
 			timerPos = timerPos + 1
@@ -201,3 +204,6 @@ socket.once('login-request', function(dataLogin) {
 	})
 })
 
+socket.once('disconnect', function() {
+	document.body.innerHTML = '<div class="">' 
+} )

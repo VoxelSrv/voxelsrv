@@ -1,4 +1,5 @@
 import { sendFromInput } from "./gui/chat"
+import { protocol } from "socket.io-client"
 
 export function setupControls(noa, socket) {
 	var eid = noa.playerEntity
@@ -27,6 +28,14 @@ export function setupControls(noa, socket) {
 	// pick block on middle fire (MMB/Q)
 	noa.inputs.down.on('mid-fire', function () {
 		if (noa.targetedBlock && noa.targetedBlock.blockID != 0) {
+			var item = blocks[noa.targetedBlock.blockID].name
+			var slot = inventoryHasItem(noa.playerEntity, item, 1)
+			var sel = noa.ents.getState(eid, 'inventory').selected
+			if (slot != -1 && slot < 9) {
+				socket.emit('inventory-click', { type: 'select', slot: slot })
+				noa.ents.getState(eid, 'inventory').selected = slot
+			}
+			else if (slot != -1) socket.emit('inventory-click', { type: 'switch', slot: slot, slot2: sel })
 		}
 	})
 
@@ -93,7 +102,7 @@ export function setupControls(noa, socket) {
 			pickedID = pickedID + change
 			if (pickedID >= game.hotbarsize) pickedID = 0
 			else if (pickedID < 0) pickedID = 8
-			socket.emit('selected', pickedID)
+			socket.emit('inventory-click', {slot: pickedID, type: 'select'} )
 			noa.ents.getState(noa.playerEntity, 'inventory').selected = pickedID
 		}
 	})
@@ -111,6 +120,8 @@ export function setupPlayer(noa) {
 	var eyeOffset = 0.9 * noa.ents.getPositionData(noa.playerEntity).height
 
 	var offset = [0, h / 2, 0]
+
+	noa.rendering.getScene().cameras[0].fov = 1
 	
 	// Gamemode and players settings
 
@@ -137,4 +148,16 @@ export function setupPlayer(noa) {
 		move.airJumps = 0
 
 	}
+}
+
+
+
+function inventoryHasItem(eid, item, count) {
+	var inventory = noa.ents.getState(eid, 'inventory')
+	var items = Object.entries(inventory.main)
+
+	for (var [slot, data] of items) {
+		if (data.id == item && data.count >= count) return slot
+	}
+	return -1
 }
