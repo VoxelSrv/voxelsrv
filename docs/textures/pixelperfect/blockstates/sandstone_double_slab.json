@@ -1,0 +1,10 @@
+{
+    "variants": {
+        "normal": [
+			{ "model": "sandstone_normal" },
+			{ "model": "sandstone/normal/normal/1" },
+			{ "model": "sandstone/normal/normal/2" }
+		],
+        "all": { "model": "sandstone_all" }
+    }
+}

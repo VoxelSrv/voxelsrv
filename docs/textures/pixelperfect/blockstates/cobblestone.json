@@ -1,0 +1,9 @@
+{
+    "variants": {
+        "normal": [
+			{ "model": "cobblestone" },
+			{ "model": "cobblestone/1" },
+			{ "model": "cobblestone/2" }
+		]
+    }
+}

@@ -24,36 +24,39 @@
 	<div class="container text-light" style="margin-top:20px; background-color: #11111198; padding: 20px;">
 		<div>
 			<div class="logo" style="display: inline-block;"></div>
-			<span class="align-top" style="font-family: 'silkscreen'; font-size: 96px; display: inline-block;">VoxelSrv</span>
+			<span class="align-top" style="font-family: 'silkscreen'; font-size: 64px; display: inline-block;">VoxelSrv</span>
 		</div>
 		<br>
-		<form id="start">
-			<div class="col-sm-3 " style="display: inline-block;">
-				<h4>Nickname</h4>	
-				<input id="nickname" required>
-			</div>
-			<div class="col-sm-3" style="display: inline-block;">
-				<h4>Server</h4>	
-				<input id="ip" required>
-			</div>
-			<div class="col-sm-3" style="display: inline-block;">
-				<input type='submit' value='Join game'>
-			</div>
-		</form>
-		
-		<table id="server-list" class="table table-bordered  col-md-6" style="margin-top:20px; background-color: #eeeeee;">
-			<thead class="thead-dark">
-				<tr>
-					<th scope="col">Address</th>
-					<th scope="col">Name</th>
-					<th scope="col">Motd</th>
-					<th scope="col"></th>
-				</tr>
-			</thead>
-			<tbody id="servers" class="table-hover">
+		<div class="align-top" style="margin-bottom: 60px;">
+			<form id="start">
+				<div style="display: inline-block;">
+					<h4>Nickname</h4>	
+					<input id="nickname" required>
+				</div>
+				<div style="display: inline-block;">
+					<h4>Server</h4>	
+					<input id="ip" required>
+				</div>
+				<div style="display: inline-block;">
+					<input type='submit' value='Join game'>
+				</div>
+			</form>
+		</div>
+		<div style="">
+			<table id="server-list" class="text-align: center; col-md-8 table table-bordered table-sm" style="background-color: #eeeeee;">
+				<thead class="thead-dark">
+					<tr>
+						<th scope="col">Address</th>
+						<th scope="col">Name</th>
+						<th scope="col">Motd</th>
+						<th scope="col"></th>
+					</tr>
+				</thead>
+				<tbody id="servers" class="table-hover">
 
-			</tbody>
-		</table>
+				</tbody>
+			</table>
+		</div>
 
 		<br>
 
