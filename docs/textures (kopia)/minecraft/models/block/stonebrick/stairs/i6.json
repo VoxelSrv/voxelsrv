@@ -1,0 +1,8 @@
+{
+    "parent": "block/inner_stairs",
+    "textures": {
+        "bottom": "blocks/stonebrick6",
+        "top": "blocks/stonebrick6",
+        "side": "blocks/stonebrick6"
+    }
+}

@@ -198,7 +198,7 @@
   }
 
 body {
-	background-image: url("./textures/block/planks.png");
+	background-image: url("./textures/block/planks_birch.png");
 	background-size: 80px;
 	image-rendering: pixelated;
 
@@ -207,8 +207,8 @@ body {
 .logo {
 	image-rendering: pixelated;
 	background-image: url("./textures/logo.png");
-	height: 128px;
-	width: 128px;
+	height: 96px;
+	width: 96px;
 	background-size: cover;
 	border-radius: 100%;
 }

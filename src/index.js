@@ -8,7 +8,7 @@ console.log('Username: ' + username, 'Server: ' + server)
 
 global.game = {
 	name: 'VoxelSRV',
-	version: '0.1.1'
+	version: '0.1.2'
 }
 const io = require('socket.io-client')
 const cruncher = require('voxel-crunch')
@@ -95,8 +95,10 @@ socket.on('login-request', function(dataLogin) {
 		if (entityList[data] != undefined) noa.ents.deleteEntity(entityList[data]); delete entityList[data]
 	})
 
-	socket.on('login-success', function() {
+	socket.on('login-success', function(logindata) {
 		document.body.innerHTML = ""
+
+		if (logindata.pos != undefined) engineParams.playerStart = logindata.pos
 		var noa = new Engine(engineParams)
 		var moveState = noa.inputs.state
 		var lastPos = {}

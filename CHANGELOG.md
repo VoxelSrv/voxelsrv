@@ -1,3 +1,8 @@
+# 0.1.2
+- Changed base textures to Pixel Perfection by XSSheep
+- Added support for custom start location
+- Small changes to main menu
+
 # 0.1.1
 - Changed default fov
 - Added block picking
