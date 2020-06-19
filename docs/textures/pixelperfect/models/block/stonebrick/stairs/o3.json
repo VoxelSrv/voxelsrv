@@ -1,8 +1,0 @@
-{
-    "parent": "block/outer_stairs",
-    "textures": {
-        "bottom": "blocks/stonebrick3",
-        "top": "blocks/stonebrick3",
-        "side": "blocks/stonebrick3"
-    }
-}

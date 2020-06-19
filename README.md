@@ -13,6 +13,6 @@ Server files, check this repo: https://github.com/Patbox/voxelsrv-server
 # [Play it here](http://voxelsrv.pb4.eu)
 
 # Assets used in this project (graphics/sounds):
-- Pixel Perfection by XSSheep
+- Pixel Perfection Community  Edition (https://github.com/Athemis/PixelPerfectionCE)
 - Art of silence by uniq
 - Some remixes by bulby

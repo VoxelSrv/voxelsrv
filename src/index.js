@@ -110,7 +110,7 @@ socket.on('login-request', function(dataLogin) {
 		setupControls(noa, socket)
 		setupPlayer(noa)
 
-		setupGuis(noa, server, socket)
+		setupGuis(noa, server, socket, logindata)
 		
 		socket.on('chunkdata', function(data) {
 			var chunkdata = cruncher.decode(Object.values(data.chunk), new Uint16Array(24 * 120 * 24))
@@ -125,7 +125,9 @@ socket.on('login-request', function(dataLogin) {
 		socket.on('inventory-update', function(data) {
 			noa.ents.getState(noa.playerEntity, 'inventory').main = data.main
 			noa.ents.getState(noa.playerEntity, 'inventory').tempslot = data.tempslot
-			updateInventory()
+			noa.ents.getState(noa.playerEntity, 'inventory').maxslot = data.maxslot
+
+			updateInventory(logindata.invsize)
 		})
 
 		socket.on('chat', function(data) { 

@@ -44,7 +44,7 @@ export async function setupInventory(noa, socket) { // Opens inventory
 	var items = Object.entries(inventory.main)
 	var inv = inventory.main
 	inventory.bin = {}
-
+	
 	var screen = document.createElement('div') // Main screen (blocks integration with canvas)
 	inventoryscreen = screen
 	screen.id = 'game_inventory_screen'
@@ -118,8 +118,9 @@ export async function updateInventory() { // Update slots
 	if (inventoryscreen.style.display != 'none') {
 		var inventory = noa.ents.getState(noa.playerEntity, 'inventory')
 		var inv = inventory.main
+		console.log(inventory)
 
-		for (var x = 0; x < 36; x++) {
+		for (var x = 0; x < Object.entries(inv).length; x++) {
 			invslot[x].innerHTML = await renderItem(inv[x])
 		}
 		tempslot.innerHTML = await renderItem(inventory.tempslot)
