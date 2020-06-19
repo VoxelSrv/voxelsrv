@@ -13,7 +13,7 @@ export function playSound(sound, volume) {
 
 
 	sounds[id] = new Howl({
-		src: ['./audio/' + sound + '.mp3'],
+		src: ['./audio/' + sound],
 		volume: safeVolume
 	})
 

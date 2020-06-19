@@ -4,10 +4,10 @@ import { setupChatbox } from './chat'
 import { setupHand } from './hand'
 
 
-export function setupGuis(noa, server, socket) {
+export function setupGuis(noa, server, socket, data) {
 	setupInfo(noa, server)
 	setupCross()
-	setupHotbar(noa)
+	setupHotbar()
 	setupInventory(noa, socket)
 	setupChatbox()
 	//setupHand(noa)

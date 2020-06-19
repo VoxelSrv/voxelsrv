@@ -1,8 +1,0 @@
-{
-    "variants": {
-        "normal": [
-			{ "model": "granite" },
-			{ "model": "granite/1" }
-		]
-    }
-}

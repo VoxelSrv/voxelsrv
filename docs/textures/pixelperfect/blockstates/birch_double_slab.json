@@ -1,9 +1,0 @@
-{
-    "variants": {
-        "normal": [
-			{ "model": "birch_planks" },
-			{ "model": "planks/birch/1" },
-			{ "model": "planks/birch/2" }
-		]
-    }
-}
