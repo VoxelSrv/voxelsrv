@@ -68,6 +68,13 @@ export async function setupInventory(noa, socket) { // Opens inventory
 	var hotbar = {}
 	var slot = 9
 
+	var backpack = document.createElement('table') // Backpack Inventory
+	backpack.style = 'max-height: 410px; display: block; overflow-y: scroll;'
+
+	invGui.appendChild(backpack)
+
+
+
 	tempslot = document.createElement('div') // Item at cursor
 	tempslot.id = 'tempslot'
 	tempslot.classList.add('align-bottom')
@@ -79,7 +86,7 @@ export async function setupInventory(noa, socket) { // Opens inventory
 
 	for (var x = 0; x < (items.length/9)-1; x++) { // Inventory slots (backpack)
 		var row = document.createElement('tr')
-		invGui.appendChild(row)
+		backpack.appendChild(row)
 		for (var y = 0; y < 9; y++) {
 			invslot[slot] = document.createElement('th')
 			invslot[slot].id = slot
@@ -118,7 +125,6 @@ export async function updateInventory() { // Update slots
 	if (inventoryscreen.style.display != 'none') {
 		var inventory = noa.ents.getState(noa.playerEntity, 'inventory')
 		var inv = inventory.main
-		console.log(inventory)
 
 		for (var x = 0; x < Object.entries(inv).length; x++) {
 			invslot[x].innerHTML = await renderItem(inv[x])

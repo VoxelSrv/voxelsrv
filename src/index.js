@@ -8,7 +8,7 @@ console.log('Username: ' + username, 'Server: ' + server)
 
 global.game = {
 	name: 'VoxelSRV',
-	version: '0.1.2'
+	version: '0.1.3'
 }
 const io = require('socket.io-client')
 const cruncher = require('voxel-crunch')
@@ -95,10 +95,10 @@ socket.on('login-request', function(dataLogin) {
 		if (entityList[data] != undefined) noa.ents.deleteEntity(entityList[data]); delete entityList[data]
 	})
 
-	socket.on('login-success', function(logindata) {
+	socket.on('login-success', function(dataPlayer) {
 		document.body.innerHTML = ""
 
-		if (logindata.pos != undefined) engineParams.playerStart = logindata.pos
+		if (dataPlayer.pos != undefined) engineParams.playerStart = dataPlayer.pos
 		var noa = new Engine(engineParams)
 		var moveState = noa.inputs.state
 		var lastPos = {}
@@ -108,9 +108,9 @@ socket.on('login-request', function(dataLogin) {
 		registerItems(noa, dataLogin.items)
 
 		setupControls(noa, socket)
-		setupPlayer(noa)
+		setupPlayer(noa, dataPlayer.inv)
 
-		setupGuis(noa, server, socket, logindata)
+		setupGuis(noa, server, socket, dataPlayer)
 		
 		socket.on('chunkdata', function(data) {
 			var chunkdata = cruncher.decode(Object.values(data.chunk), new Uint16Array(24 * 120 * 24))
@@ -125,9 +125,7 @@ socket.on('login-request', function(dataLogin) {
 		socket.on('inventory-update', function(data) {
 			noa.ents.getState(noa.playerEntity, 'inventory').main = data.main
 			noa.ents.getState(noa.playerEntity, 'inventory').tempslot = data.tempslot
-			noa.ents.getState(noa.playerEntity, 'inventory').maxslot = data.maxslot
-
-			updateInventory(logindata.invsize)
+			updateInventory()
 		})
 
 		socket.on('chat', function(data) { 
