@@ -1,3 +1,6 @@
+# 0.1.3
+- Inventory can now have diffrent size ( need to use this formula: x*9-1 )
+
 # 0.1.2
 - Changed base textures to Pixel Perfection by XSSheep
 - Added support for custom start location

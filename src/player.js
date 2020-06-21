@@ -41,8 +41,8 @@ export function setupControls(noa, socket) {
 
 	// 3rd person view
 	noa.inputs.down.on('thirdprsn', function () {
-		if (noa.camera.zoomDistance == 15) noa.camera.zoomDistance = 0
-		else if (noa.camera.zoomDistance == 0) noa.camera.zoomDistance = 15
+		//if (noa.camera.zoomDistance == 15) noa.camera.zoomDistance = 0
+		//else if (noa.camera.zoomDistance == 0) noa.camera.zoomDistance = 15
 	})
 
 	// Inventory
@@ -54,12 +54,10 @@ export function setupControls(noa, socket) {
 		else if (inv.style.display == 'none') {
 			document.exitPointerLock()
 			inv.style.display = 'initial'
-			noa.setPaused(true)
 		}
 		else {
 			noa.container.canvas.requestPointerLock()
 			inv.style.display = 'none'
-			noa.setPaused(false)
 		}
 	})
 
@@ -80,11 +78,9 @@ export function setupControls(noa, socket) {
 			document.exitPointerLock()
 			input.style.display = 'initial'
 			input.focus()
-			noa.setPaused(true)
 			setInterval( function() {
 				if (document.activeElement.id != 'game_chatinput') {
 					input.style.display = 'none'
-					noa.setPaused(false)
 					return
 				} 
 			}, 500)
@@ -110,7 +106,7 @@ export function setupControls(noa, socket) {
 }
 
 
-export function setupPlayer(noa) {
+export function setupPlayer(noa, invData) {
 	var eid = noa.playerEntity
 	var dat = noa.entities.getPositionData(eid)
 	
@@ -130,17 +126,22 @@ export function setupPlayer(noa) {
 	move.jumpForce = 6
 	move.jumpImpulse = 8.5
 	move.maxSpeed = 7.5
-	var invspace = {}
-	for (var x = 0; x < 36; x++) {
-		invspace[x] = {}
-	}
+
 
 	// Create inventory, move it to global entities js in future
 	noa.ents.createComponent({
 		name: 'inventory',
 		state: {main: {}, selected: 0, tempslot:{}}
 	})
-	noa.ents.addComponent(eid, 'inventory', {main: invspace})
+	if (invData != undefined) noa.ents.addComponent(eid, 'inventory', invData)
+	else {
+		var invspace = {}
+		for (var x = 0; x < 36; x++) {
+			invspace[x] = {}
+		}
+		noa.ents.addComponent(eid, 'inventory', {main: invspace})
+
+	}
 
 	// Gamemode settings
 
