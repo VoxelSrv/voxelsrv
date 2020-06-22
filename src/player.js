@@ -3,6 +3,15 @@ import { protocol } from "socket.io-client"
 
 export function setupControls(noa, socket) {
 	var eid = noa.playerEntity
+
+	noa.blockTargetIdCheck = function(id) {
+		if (blocks[id] != undefined) {
+			if (blocks[id].fluid == true) return false
+			return true
+		}
+		else return false
+	}
+
 	// on left mouse, set targeted block to be air
 	noa.inputs.down.on('fire', function () {
 		if (noa.targetedBlock) {
@@ -20,7 +29,7 @@ export function setupControls(noa, socket) {
 	noa.inputs.down.on('alt-fire', function () {
 		if (noa.targetedBlock != undefined) {
 			var pos = noa.targetedBlock.adjacent
-			socket.emit('block-place', pos)
+			if (noa.ents.isTerrainBlocked(pos[0], pos[1], pos[2]) == false) socket.emit('block-place', pos)
 		}
 	})
 

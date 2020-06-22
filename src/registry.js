@@ -1,3 +1,5 @@
+import { MaxBlock } from "babylonjs"
+
 global.blockIDs = {}
 global.blocks = {}
 global.items = {}
@@ -20,7 +22,7 @@ export function registerBlocks(noa, blockList, idList) {
 	var entries = Object.entries(blockList)
 
 	entries.forEach(function(item) {
-		createBlock(item[0], item[1].name, item[1].type, item[1].texture, item[1].options)
+		createBlock(item[0], item[1].name, item[1].type, item[1].texture, item[1].options, item[1].data)
 	})
 
 
@@ -51,6 +53,25 @@ export function registerBlocks(noa, blockList, idList) {
 		} else if (type == 2) {
 			noa.registry.registerMaterial(name, [0, 0, 0], texture[0])
 			var mesh = makeCactusMesh(scene, ['textures/' + texture[0]  + '.png', 'textures/' + texture[1]  + '.png'], name)
+			var finOpts = options
+			finOpts.blockMesh = mesh
+			noa.registry.registerBlock(id, finOpts)
+		} else if (type == 4) {
+			var mat = noa.rendering.makeStandardMaterial(name)
+
+			var tex = new BABYLON.Texture('textures/' + texture[0] + '.png', scene, true, true,
+				BABYLON.Texture.NEAREST_SAMPLINGMODE)
+			
+			mat.diffuseTexture = tex
+			mat.opacityTexture = mat.diffuseTexture
+			mat.backFaceCulling = true
+
+			var mesh = BABYLON.MeshBuilder.CreateBox(name, {size: 1}, noa.rendering.getScene())
+			mesh.material = mat
+			mesh.bakeTransformIntoVertices( ( new BABYLON.Matrix.Scaling(1, 1, 1) ).setTranslation ( new BABYLON.Vector3(0, 0.5, 0) ) )
+			//mesh.opaque = true
+			mesh.material.needDepthPrePass = true
+
 			var finOpts = options
 			finOpts.blockMesh = mesh
 			noa.registry.registerBlock(id, finOpts)
