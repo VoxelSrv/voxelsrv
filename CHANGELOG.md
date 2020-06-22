@@ -1,3 +1,8 @@
+# 0.1.4
+- Added new blocktype (4) for colored glass like blocks
+- Now player can't place blocks at location occupied by other entities
+- Plant blocks can now be targeted and destroyed (Todo: change hitbox to nonfull block)
+
 # 0.1.3
 - Inventory can now have diffrent size ( need to use this formula: x*9-1 )
 

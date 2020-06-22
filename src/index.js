@@ -8,7 +8,7 @@ console.log('Username: ' + username, 'Server: ' + server)
 
 global.game = {
 	name: 'VoxelSRV',
-	version: '0.1.3'
+	version: '0.1.4'
 }
 const io = require('socket.io-client')
 const cruncher = require('voxel-crunch')
