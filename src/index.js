@@ -4,18 +4,22 @@ var server = options.get('ip')
 
 var username = options.get('username')
 
+var discreason
+
 console.log('Username: ' + username, 'Server: ' + server)
 
 global.game = {
 	name: 'VoxelSRV',
-	version: '0.1.4'
+	version: '0.1.5'
 }
 const io = require('socket.io-client')
 const cruncher = require('voxel-crunch')
 const ndarray = require('ndarray')
 var vec3 = require('gl-vec3')
 
-const socket = new io('ws://' + server)
+const socket = new io('ws://' + server, {
+	reconnection: false
+})
 
 import Engine from 'noa-engine'
 import * as BABYLON from '@babylonjs/core/Legacy/legacy'
@@ -23,9 +27,10 @@ import 'babylonjs-loaders'
 import { registerBlocks, registerItems } from './registry'
 import { setupGuis } from './gui/setup'
 import { updateInventory } from './gui/inventory'
+import { setTab } from './gui/tab'
 import { setChunk } from './world'
 import { setupPlayer, setupControls } from './player'
-import { addToChat } from './gui/chat'
+import { addToChat, parseText } from './gui/chat'
 import { playSound } from './sound'
 import { Socket } from 'socket.io-client'
 
@@ -69,8 +74,9 @@ const engineParams = {
 		"pause": ["P"],
 		"muteMusic": ["O"],
 		"thirdprsn": ["M"],
-		"cmd" :["<enter>"],
-		"chat" :["T"]
+		"cmd": ["<enter>"],
+		"chat": ["T"],
+		"tab": ["<tab>"]
 	}
 }
 
@@ -83,6 +89,7 @@ socket.on('login-request', function(dataLogin) {
 
 	socket.on('kick', function(data) {
 		console.log('You has been kicked from server \nReason: ' + data)
+		discreason = data
 		return
 	})
 
@@ -131,6 +138,15 @@ socket.on('login-request', function(dataLogin) {
 		socket.on('chat', function(data) { 
 			addToChat(data)
 			console.log('Chat: ' + data)
+		})
+
+		socket.on('tab-update', function(data) {
+			setTab(data)
+		})
+
+		socket.on('teleport', function(data) {
+			noa.ents.setPosition(noa.playerEntity, data)
+			console.log(data)
 		})
 
 		socket.on('entity-spawn', async function(data) {
@@ -207,5 +223,26 @@ socket.on('login-request', function(dataLogin) {
 })
 
 socket.once('disconnect', function() {
-	document.body.innerHTML = '<div class="">' 
+	document.body.innerHTML = '' 
+	var div = document.createElement('div')
+	var style = 'position:fixed; bottom:50%; left:50%; z-index:2;'
+	style += 'color:white; height:auto; width:auto; text-shadow: 1px 1px #000000;'
+	style += 'font-size:20px; padding:3px; text-aling:center;'
+	style += 'min-width:2em; transform: translate(-50%, 50%);'
+
+	div.style = style
+	
+	var h3 = document.createElement('h3')
+	h3.innerText = "Disconnected!"
+
+	var reason = document.createElement('div')
+
+	if (discreason != undefined) reason.innerHTML = parseText(discreason)
+	else reason.innerHTML = 'Connection has been closed'
+
+	div.appendChild(h3)
+	div.appendChild(reason)
+
+	document.body.appendChild(div)
+	
 } )

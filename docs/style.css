@@ -123,6 +123,15 @@
 	pointer-events: none;
 }
 
+.item_tooltip {
+	display: none;
+	position: relative;
+	font-family: 'lato';
+	font-weight: normal;
+	pointer-events: none;
+	background-color: #22222277;
+}
+
 .cube_face-top  { 
 	transform: rotatex(90deg) translateX(40.1px) translateY(24.4px) translateZ(48.8px);
 }
@@ -154,7 +163,7 @@
 	position:absolute;
 	bottom:75px;
 	left:5px;
-	z-index:1;
+	z-index:0;
 	color:white;
 	font-family:'lato';
 	text-shadow: 1px 1px black;
@@ -162,7 +171,7 @@
 	font-size:22px;
 	margin:4px;
 	max-height:500px;
-	overflow:hidden;
+	overflow-y: scroll;
 	display:flex;
 	flex-direction: column-reverse;
 }
@@ -184,6 +193,24 @@
 
 #game_version {
 	font-family:'lato';
+}
+
+#game_tab {
+	background-color: #18181888;
+	font-family:'lato';
+	color:white;
+	font-size:22px;
+	max-height: 400px;
+	max-width: 600px;
+	min-width: 200px;
+	min-height: 100px;
+	position: absolute;
+	z-index:1;
+	position: fixed;
+	bottom:50%;
+	left:50%;
+	transform: translate(-50%, 50%);
+	padding: 20px;
 }
 
 .chat_line p {
@@ -213,19 +240,22 @@ body {
 	border-radius: 100%;
 }
 
-::-webkit-scrollbar {
+#game_inventory ::-webkit-scrollbar {
     width: 8px;
 }
- 
 
-::-webkit-scrollbar-track {
+#game_inventory ::-webkit-scrollbar-track {
 	background: rgba(2,0,0,0.4); 
-
 }
- 
-::-webkit-scrollbar-thumb {
+
+#game_inventory ::-webkit-scrollbar-thumb {
     background: rgba(255,0,0,0.6); 
 }
-::-webkit-scrollbar-thumb:window-inactive {
+#game_inventory ::-webkit-scrollbar-thumb:window-inactive {
 	background: rgba(255,0,0,0.4); 
+}
+
+
+#game_chatbox::-webkit-scrollbar {
+    width: 0px;
 }

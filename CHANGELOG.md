@@ -1,3 +1,9 @@
+# 0.1.5
+- Added "tab" screen. It is controlled fully by server
+- Added chat color support
+- `Better` disconnect screen
+- Server can now teleport players
+
 # 0.1.4
 - Added new blocktype (4) for colored glass like blocks
 - Now player can't place blocks at location occupied by other entities

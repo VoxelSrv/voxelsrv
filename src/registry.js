@@ -69,7 +69,7 @@ export function registerBlocks(noa, blockList, idList) {
 			var mesh = BABYLON.MeshBuilder.CreateBox(name, {size: 1}, noa.rendering.getScene())
 			mesh.material = mat
 			mesh.bakeTransformIntoVertices( ( new BABYLON.Matrix.Scaling(1, 1, 1) ).setTranslation ( new BABYLON.Vector3(0, 0.5, 0) ) )
-			//mesh.opaque = true
+			mesh.opaque = false
 			mesh.material.needDepthPrePass = true
 
 			var finOpts = options

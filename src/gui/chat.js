@@ -1,9 +1,14 @@
-const md = new require('markdown-it')({
-	html: false,
-	linkify: true,
-	breaks: false,
-	typographer: true
-})
+import DOMPurify from 'dompurify';
+
+const md = require('markdown-it')(
+	{
+		html: true,
+		linkify: true,
+		breaks: true,
+		typographer: true
+	}).use(require('markdown-it-inline-text-color'))
+
+
 
 var defaultRender = md.renderer.rules.link_open || function(tokens, idx, options, env, self) {
 	return self.renderToken(tokens, idx, options);
@@ -22,6 +27,12 @@ var defaultRender = md.renderer.rules.link_open || function(tokens, idx, options
 	// pass token to default renderer.
 	return defaultRender(tokens, idx, options, env, self);
   };
+
+export function parseText(text) {
+	text = text.replace('<', '&lt;')
+	text = text.replace('>', '&gt;')
+	return DOMPurify.sanitize( md.render(text) )	
+}
 
 var chatbox
 var input
@@ -46,9 +57,7 @@ export function setupChatbox() {
 export function addToChat(text) {
 	var msg = document.createElement('div')
 	msg.classList.add('chat_line')
-	text = text.replace('<', '&lt;')
-	text = text.replace('>', '&gt;')
-	msg.innerHTML = md.render(text)
+	msg.innerHTML = parseText(text)
 	chatbox.insertBefore(msg, chatbox.firstElementChild)
 }
 
