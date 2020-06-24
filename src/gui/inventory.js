@@ -112,9 +112,30 @@ export async function setupInventory(noa, socket) { // Opens inventory
 		row_hotbar.appendChild(invslot[x])
 	}
 
+
+	var tooltip = document.createElement('div') // Item at cursor
+	tooltip.id = 'game_tooltip'
+	tooltip.classList.add('item_tooltip')
+
+	screen.appendChild(tooltip)
+
+
 	window.addEventListener("mousemove", function(e){ //Moving items at cursor
-		tempslot.style.left = e.x + 'px'
-		tempslot.style.top = e.y + 'px'
+		if (screen.style.display != 'none') {
+			tempslot.style.left = e.x + 'px'
+			tempslot.style.top = e.y + 'px'
+
+			var slot = document.elementFromPoint(e.x, e.y).id
+
+			if (inv[slot] != undefined && inv[slot].id != undefined) {
+				tooltip.style.left = e.x + 'px'
+				tooltip.style.top = e.y + 'px'
+
+				tooltip.innerHTML = inv[slot].id
+				tooltip.style.display = 'initial'
+			}
+			else tooltip.style.display = 'none'
+		}
 	});
 
 

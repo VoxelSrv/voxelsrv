@@ -2,6 +2,7 @@ import { setupInfo, setupCross } from './info'
 import { setupHotbar, setupInventory } from './inventory'
 import { setupChatbox } from './chat'
 import { setupHand } from './hand'
+import { setupTab } from './tab'
 
 
 export function setupGuis(noa, server, socket, data) {
@@ -10,5 +11,6 @@ export function setupGuis(noa, server, socket, data) {
 	setupHotbar()
 	setupInventory(noa, socket)
 	setupChatbox()
+	setupTab()
 	//setupHand(noa)
 }

@@ -12,6 +12,8 @@ export function setupControls(noa, socket) {
 		else return false
 	}
 
+	noa.inputs.preventDefaults = true
+
 	// on left mouse, set targeted block to be air
 	noa.inputs.down.on('fire', function () {
 		if (noa.targetedBlock) {
@@ -85,17 +87,30 @@ export function setupControls(noa, socket) {
 		var input = document.getElementById('game_chatinput')
 		if (input.style.display == 'none') {
 			document.exitPointerLock()
+			noa.inputs.preventDefaults = false
 			input.style.display = 'initial'
 			input.focus()
 			setInterval( function() {
 				if (document.activeElement.id != 'game_chatinput') {
 					input.style.display = 'none'
+					noa.inputs.preventDefaults = true
 					return
 				} 
 			}, 500)
 			
 		}
 		
+	})
+
+	noa.inputs.down.on('tab', function () {
+		console.log(1)
+		document.getElementById('game_tab').style.display = 'initial'
+	})
+
+	noa.inputs.up.on('tab', function () {
+		console.log(2)
+
+		document.getElementById('game_tab').style.display = 'none'
 	})
 
 	// each tick, consume any scroll events and use them to zoom camera
