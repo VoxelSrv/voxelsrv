@@ -1,0 +1,91 @@
+{
+	"textureSize": [128, 128],
+	"models": [
+		{
+			"part": "head",
+			"id": "head",
+			"invertAxis": "xy",
+			"translate": [-1, -24, 8.5],
+			"rotate": [-45, 0, 0],
+			"boxes": [
+				{"coordinates": [-7, 19, -28.5, 14, 6, 19], "textureOffset": [1, 42]},
+				{"coordinates": [-8, 20.25, -22.5, 2, 11, 2], "textureOffset": [6, 45]},
+				{"coordinates": [6, 20.25, -22.5, 2, 11, 2], "textureOffset": [6, 45]}
+			],
+			"submodels": [
+				{
+					"id": "bone3",
+					"invertAxis": "xy",
+					"translate": [7, 25.25, -13.5],
+					"rotate": [0, 0, -30],
+					"boxes": [
+						{"coordinates": [0.125, -1.71651, -1, 6, 1, 4], "textureOffset": [4, 16]}
+					]
+				},
+				{
+					"id": "bone2",
+					"invertAxis": "xy",
+					"translate": [-7, 25.25, -13.5],
+					"rotate": [0, 0, 30],
+					"boxes": [
+						{"coordinates": [-6.125, -1.71651, -1, 6, 1, 4], "textureOffset": [4, 21]}
+					]
+				}
+			]
+		},
+		{
+			"part": "body",
+			"id": "body",
+			"invertAxis": "xy",
+			"translate": [0, -18, -17],
+			"boxes": [
+				{"coordinates": [-8, 10, -8.5, 16, 14, 26], "textureOffset": [1, 1]}
+			]
+		},
+		{
+			"part": "hair",
+			"id": "hair",
+			"invertAxis": "xy",
+			"translate": [0, 0, 0],
+			"boxes": [
+				{"coordinates": [0, 22, -11.5, 0, 10, 19], "textureOffset": [5, 66]}
+			]
+		},
+		{
+			"part": "leg1",
+			"id": "leg1",
+			"invertAxis": "xy",
+			"translate": [-4, -11, 5.5],
+			"boxes": [
+				{"coordinates": [-7, 0, -7.5, 6, 14, 6], "textureOffset": [71, 75]}
+			]
+		},
+		{
+			"part": "leg3",
+			"id": "leg3",
+			"invertAxis": "xy",
+			"translate": [4, -11, 5.5],
+			"boxes": [
+				{"coordinates": [1, 0, -7.5, 6, 14, 6], "textureOffset": [46, 75]}
+			]
+		},
+		{
+			"part": "leg2",
+			"id": "leg2",
+			"invertAxis": "xy",
+			"translate": [-4.5, -5.5, -12],
+			"boxes": [
+				{"coordinates": [-7, 0, 11.5, 5, 11, 5], "textureOffset": [72, 43]}
+			]
+		},
+		{
+			"part": "leg4",
+			"id": "leg4",
+			"invertAxis": "xy",
+			"translate": [4.5, -11, -13],
+			"boxes": [
+				{"coordinates": [2, 0, 11.5, 5, 11, 5], "textureOffset": [51, 43]}
+			]
+		}
+	]
+}

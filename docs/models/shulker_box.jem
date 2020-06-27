@@ -1,0 +1,25 @@
+{
+	"textureSize": [64, 64],
+	"models": [
+		{
+			"part": "lid",
+			"id": "lid",
+			"invertAxis": "xy",
+			"translate": [0, 0, 0],
+			"mirrorTexture": "u",
+			"boxes": [
+				{"coordinates": [-8, 4, -8, 16, 12, 16], "textureOffset": [0, 0]}
+			]
+		},
+		{
+			"part": "base",
+			"id": "base",
+			"invertAxis": "xy",
+			"translate": [0, 0, 0],
+			"mirrorTexture": "u",
+			"boxes": [
+				{"coordinates": [-8, 0, -8, 16, 8, 16], "textureOffset": [0, 28]}
+			]
+		}
+	]
+}

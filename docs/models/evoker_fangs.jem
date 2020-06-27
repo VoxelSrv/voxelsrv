@@ -1,0 +1,32 @@
+{
+	"textureSize": [64, 32],
+	"models": [
+		{
+			"part": "base",
+			"id": "base",
+			"invertAxis": "xy",
+			"translate": [-5, -11, 5],
+			"boxes": [
+				{"coordinates": [-5, 0, -5, 10, 11, 10], "textureOffset": [0, 0]}
+			]
+		},
+		{
+			"part": "upper_jaw",
+			"id": "upper_jaw",
+			"invertAxis": "xy",
+			"translate": [-2.5, -25, 4],
+			"boxes": [
+				{"coordinates": [-1.5, 11, -4, 4, 14, 8], "textureOffset": [40, 0]}
+			]
+		},
+		{
+			"part": "lower_jaw",
+			"id": "lower_jaw",
+			"invertAxis": "xy",
+			"translate": [-1.5, -25, 4],
+			"boxes": [
+				{"coordinates": [-2.5, 11, -4, 4, 14, 8], "textureOffset": [40, 0]}
+			]
+		}
+	]
+}
