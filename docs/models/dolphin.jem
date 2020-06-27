@@ -1,0 +1,66 @@
+{
+	"textureSize": [64, 64],
+	"models": [
+		{
+			"part": "head",
+			"id": "head",
+			"invertAxis": "xy",
+			"translate": [0, -4, 6],
+			"boxes": [
+				{"coordinates": [-4, 0, -9, 8, 7, 6], "textureOffset": [0, 0]}
+			]
+		},
+		{
+			"part": "body",
+			"id": "body",
+			"invertAxis": "xy",
+			"translate": [0, 0, 3],
+			"mirrorTexture": "u",
+			"boxes": [
+				{"coordinates": [-1, 0, -13, 2, 2, 4], "textureOffset": [0, 13]},
+				{"coordinates": [-4, 0, -3, 8, 7, 13], "textureOffset": [22, 0]}
+			]
+		},
+		{
+			"part": "tail",
+			"id": "tail",
+			"invertAxis": "xy",
+			"translate": [0, -2.5, -11],
+			"mirrorTexture": "u",
+			"boxes": [
+				{"coordinates": [-2, 0, 10, 4, 5, 11], "textureOffset": [0, 19]},
+				{"coordinates": [-5, 2, 19, 10, 1, 6], "textureOffset": [19, 20]}
+			]
+		},
+		{
+			"part": "right_fin",
+			"id": "right_fin",
+			"invertAxis": "xy",
+			"translate": [-4.5, 0, 2],
+			"mirrorTexture": "u",
+			"boxes": [
+				{"coordinates": [4, 0, -2, 1, 4, 7], "textureOffset": [48, 20]}
+			]
+		},
+		{
+			"part": "left_fin",
+			"id": "left_fin",
+			"invertAxis": "xy",
+			"translate": [4.5, 0, 2],
+			"mirrorTexture": "u",
+			"boxes": [
+				{"coordinates": [-5, 0, -2, 1, 4, 7], "textureOffset": [48, 20]}
+			]
+		},
+		{
+			"part": "back_fin",
+			"id": "back_fin",
+			"invertAxis": "xy",
+			"translate": [0, -11, 5],
+			"mirrorTexture": "u",
+			"boxes": [
+				{"coordinates": [-0.5, 7, 3, 1, 4, 5], "textureOffset": [51, 0]}
+			]
+		}
+	]
+}

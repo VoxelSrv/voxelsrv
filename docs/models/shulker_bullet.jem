@@ -1,0 +1,16 @@
+{
+	"textureSize": [64, 32],
+	"models": [
+		{
+			"part": "bullet",
+			"id": "bullet",
+			"invertAxis": "xy",
+			"translate": [0, -4, 0],
+			"boxes": [
+				{"coordinates": [-4, 0, -1, 8, 8, 2], "textureOffset": [0, 0]},
+				{"coordinates": [-1, 0, -4, 2, 8, 8], "textureOffset": [0, 10]},
+				{"coordinates": [-4, 3, -4, 8, 2, 8], "textureOffset": [20, 0]}
+			]
+		}
+	]
+}

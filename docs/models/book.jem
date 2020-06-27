@@ -1,0 +1,68 @@
+{
+	"textureSize": [64, 32],
+	"models": [
+		{
+			"part": "cover_right",
+			"id": "cover_right",
+			"invertAxis": "xy",
+			"translate": [-1, -5, 0],
+			"boxes": [
+				{"coordinates": [1, 0, 0, 6, 10, 0], "textureOffset": [0, 0]}
+			]
+		},
+		{
+			"part": "cover_left",
+			"id": "cover_left",
+			"invertAxis": "xy",
+			"translate": [1, -5, 0],
+			"boxes": [
+				{"coordinates": [-7, 0, 0, 6, 10, 0], "textureOffset": [16, 0]}
+			]
+		},
+		{
+			"part": "pages_right",
+			"id": "pages_right",
+			"invertAxis": "xy",
+			"translate": [-5, -5, 0.2],
+			"boxes": [
+				{"coordinates": [0, 1, -1.1, 5, 8, 1], "textureOffset": [0, 10]}
+			]
+		},
+		{
+			"part": "pages_left",
+			"id": "pages_left",
+			"invertAxis": "xy",
+			"translate": [0, -5, 1],
+			"boxes": [
+				{"coordinates": [-5, 1, -1.1, 5, 8, 1], "textureOffset": [12, 10]}
+			]
+		},
+		{
+			"part": "flipping_page_right",
+			"id": "flipping_page_right",
+			"invertAxis": "xy",
+			"translate": [-5, -5, 2.2],
+			"boxes": [
+				{"coordinates": [0, 1, -2.1, 5, 8, 0], "textureOffset": [24, 10]}
+			]
+		},
+		{
+			"part": "flipping_page_left",
+			"id": "flipping_page_left",
+			"invertAxis": "xy",
+			"translate": [0, -5, 2],
+			"boxes": [
+				{"coordinates": [-5, 1, -2.1, 5, 8, 0], "textureOffset": [24, 10]}
+			]
+		},
+		{
+			"part": "book_spine",
+			"id": "book_spine",
+			"invertAxis": "xy",
+			"translate": [0, -5, 0],
+			"boxes": [
+				{"coordinates": [-1, 0, 0, 2, 10, 0], "textureOffset": [14, 0]}
+			]
+		}
+	]
+}

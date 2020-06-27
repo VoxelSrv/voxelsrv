@@ -1,0 +1,23 @@
+{
+	"textureSize": [64, 32],
+	"models": [
+		{
+			"part": "elytra",
+			"id": "elytra",
+			"invertAxis": "xy",
+			"translate": [0, 0, 0],
+			"submodels": [
+				{
+					"invertAxis": "xy",
+					"mirrorTexture": "u",
+					"boxes": [
+						{"coordinates": [1, 0, 0, 10, 20, 2], "textureOffset": [22, 0]}
+					]
+				}
+			],
+			"boxes": [
+				{"coordinates": [-11, 0, 0, 10, 20, 2], "textureOffset": [22, 0]}
+			]
+		}
+	]
+}

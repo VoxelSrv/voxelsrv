@@ -10,7 +10,7 @@ console.log('Username: ' + username, 'Server: ' + server)
 
 global.game = {
 	name: 'VoxelSRV',
-	version: '0.1.5'
+	version: '0.1.6'
 }
 const io = require('socket.io-client')
 const cruncher = require('voxel-crunch')
@@ -33,6 +33,7 @@ import { setupPlayer, setupControls } from './player'
 import { addToChat, parseText } from './gui/chat'
 import { playSound } from './sound'
 import { Socket } from 'socket.io-client'
+import { applyModel, defineModelComp } from './model'
 
 const engineParams = {
 	debug: true,
@@ -113,6 +114,7 @@ socket.on('login-request', function(dataLogin) {
 
 		registerBlocks(noa, dataLogin.blocks, dataLogin.blockIDs)
 		registerItems(noa, dataLogin.items)
+		defineModelComp(noa)
 
 		setupControls(noa, socket)
 		setupPlayer(noa, dataPlayer.inv)
@@ -153,12 +155,7 @@ socket.on('login-request', function(dataLogin) {
 			if (entityIgnore != data.id) {
 				entityList[data.id] = noa.ents.add(Object.values(data.data.position), 1, 2, null, null, false, true)
 				
-				var mesh = BABYLON.MeshBuilder.CreateBox("player", {height: 1.85, width: 0.5, depth: 0.5}, scene)
-
-				noa.entities.addComponent(entityList[data.id], noa.entities.names.mesh, {
-					mesh: mesh,
-					offset: [0, 0.9, 0]
-				})
+				applyModel(entityList[data.id], data.data.model, data.data.texture)
 			}
 		})
 
@@ -201,7 +198,7 @@ socket.on('login-request', function(dataLogin) {
 				}
 			}
 		})
-		noa.on('beforeRender', async function() {
+		/*noa.on('beforeRender', async function() {
 			Object.values(entityList).forEach(async function (id) {
 				var pos = noa.ents.getState(id, 'position').position
 				var newPos = noa.ents.getState(id, 'position').newPosition
@@ -217,7 +214,7 @@ socket.on('login-request', function(dataLogin) {
 
 
 			})
-		})
+		})*/
 
 	})
 })
