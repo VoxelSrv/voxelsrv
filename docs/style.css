@@ -125,11 +125,14 @@
 
 .item_tooltip {
 	display: none;
-	position: relative;
+	position: absolute;
 	font-family: 'lato';
 	font-weight: normal;
 	pointer-events: none;
 	background-color: #22222277;
+	padding: 5px;
+	font-size: 24px;
+	z-index: 10;
 }
 
 .cube_face-top  { 

@@ -112,14 +112,14 @@ socket.on('login-request', function(dataLogin) {
 		var lastPos = {}
 		var lastRot = 0
 
-		registerBlocks(noa, dataLogin.blocks, dataLogin.blockIDs)
-		registerItems(noa, dataLogin.items)
+		registerBlocks(noa, dataPlayer.blocks, dataPlayer.blockIDs)
+		registerItems(noa, dataPlayer.items)
 		defineModelComp(noa)
 
 		setupControls(noa, socket)
 		setupPlayer(noa, dataPlayer.inv)
 
-		setupGuis(noa, server, socket, dataPlayer)
+		setupGuis(noa, server, socket, dataPlayer, dataLogin)
 		
 		socket.on('chunkdata', function(data) {
 			var chunkdata = cruncher.decode(Object.values(data.chunk), new Uint16Array(24 * 120 * 24))
@@ -154,8 +154,9 @@ socket.on('login-request', function(dataLogin) {
 		socket.on('entity-spawn', async function(data) {
 			if (entityIgnore != data.id) {
 				entityList[data.id] = noa.ents.add(Object.values(data.data.position), 1, 2, null, null, false, true)
-				
-				applyModel(entityList[data.id], data.data.model, data.data.texture)
+
+				applyModel(entityList[data.id], data.data.model, data.data.texture, data.data.offset, data.data.nametag, data.data.name)
+								
 			}
 		})
 
@@ -173,7 +174,7 @@ socket.on('login-request', function(dataLogin) {
 			if (entityList[data.id] != undefined) {
 				var pos = Object.values(data.data.pos)
 				noa.ents.getState(entityList[data.id], 'position').newPosition = data.data.pos
-				noa.ents.getState(entityList[data.id], 'position').rotation = data.data.rot
+				noa.ents.getState(entityList[data.id], 'position').rotation = data.data.rot * 2
 			}
 		})
 
@@ -186,7 +187,7 @@ socket.on('login-request', function(dataLogin) {
 		
 		noa.on('tick', function() {
 			timerPos = timerPos + 1
-			if (timerPos == 2) {
+			if (timerPos == 1) {
 				timerPos = 0
 				var pos = noa.ents.getState(noa.playerEntity, 'position').position
 				var rot = noa.camera.heading
@@ -198,23 +199,25 @@ socket.on('login-request', function(dataLogin) {
 				}
 			}
 		})
-		/*noa.on('beforeRender', async function() {
+		noa.on('beforeRender', async function() {
 			Object.values(entityList).forEach(async function (id) {
 				var pos = noa.ents.getState(id, 'position').position
 				var newPos = noa.ents.getState(id, 'position').newPosition
-				if (newPos != undefined && pos != undefined) {
+				if (noa.ents.getState(id, noa.entities.names.mesh) != undefined && newPos != undefined && pos != undefined) {
 					var move = vec3.create()	
-					vec3.lerp(move, pos, newPos, 0.2)			
-					//noa.ents.setPosition(id, [ pos[0] + move[0]/2, pos[1] + move[1]/2, pos[2] + move[2]/2])
-					var rot = JSON.parse( JSON.stringify(noa.ents.getState(id, noa.entities.names.mesh).mesh.rotation.y) )
-					var newRot = noa.ents.getState(id, 'position').rotation
+					vec3.lerp(move, pos, newPos, 0.1)			
+					var rot = noa.ents.getState(id, 'position').rotation
 					noa.ents.setPosition(id, move)
-					noa.ents.getState(id, noa.entities.names.mesh).mesh.rotation.y = (2*rot + newRot)/4
+					noa.ents.getState(id, noa.entities.names.mesh).mesh.rotation.y = rot/2
+
+					if (noa.ents.getState(id, 'model').nametag != undefined) {
+						noa.ents.getState(id, 'model').nametag.rotation.y = noa.camera.heading - rot/2
+						noa.ents.getState(id, 'model').nametag.rotation.x = noa.camera.pitch
+
+					}
 				}
-
-
 			})
-		})*/
+		})
 
 	})
 })

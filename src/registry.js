@@ -94,9 +94,7 @@ function makePlantSpriteMesh(scene, url, name) {
 	BABYLON.Texture.NEAREST_SAMPLINGMODE)
 	tex.hasAlpha = true
 	var mesh = BABYLON.Mesh.CreatePlane('sprite-' + matname, 1, scene)
-	var mat = new BABYLON.StandardMaterial('sprite-mat-' + matname, scene)
-	mat.specularColor = new BABYLON.Color3(0, 0, 0)
-	mat.emissiveColor = new BABYLON.Color3(1, 1, 1)
+	var mat = noa.rendering.makeStandardMaterial(matname)
 	mat.backFaceCulling = false
 	mat.diffuseTexture = tex
 	mat.diffuseTexture.vOffset = 0.99	
@@ -118,9 +116,7 @@ function makeCactusMesh(scene, url, name) {
 	for (var x = 0; x < 6; x++) {
 		var matname = name + '-' + x || 'sprite-mat'
 		mesh[x] = BABYLON.Mesh.CreatePlane('sprite-' + matname, 1, scene)
-		mat[x] = new BABYLON.StandardMaterial('sprite-mat-' + matname, scene)
-		mat[x].specularColor = new BABYLON.Color3(0, 0, 0)
-		mat[x].emissiveColor = new BABYLON.Color3(1, 1, 1)
+		mat[x] = noa.rendering.makeStandardMaterial(matname + x)
 		mat[x].backFaceCulling = false
 		mat[x].diffuseTexture = new BABYLON.Texture( ((x < 4) ? url[1] : url [0]), scene,
 			true, true, BABYLON.Texture.NEAREST_SAMPLINGMODE)

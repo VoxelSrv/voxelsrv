@@ -113,6 +113,18 @@ export function setupControls(noa, socket) {
 		document.getElementById('game_tab').style.display = 'none'
 	})
 
+	var debug = false
+	var scene = noa.rendering.getScene()
+    noa.inputs.bind('debug', 'Z')
+    noa.inputs.down.on('debug', () => {
+        // inspector is very heavy, so load it via dynamic import
+        import('@babylonjs/inspector').then(data => {
+            debug = !debug
+            if (debug) scene.debugLayer.show()
+            else scene.debugLayer.hide()
+        })
+    })
+
 	// each tick, consume any scroll events and use them to zoom camera
 	noa.on('tick', async function () {
 		var scroll = noa.inputs.state.scrolly

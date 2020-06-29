@@ -1,3 +1,8 @@
+# 0.1.6
+- Add basic support for Json Entity Models ( [https://github.com/sp614x/optifine/blob/master/OptiFineDoc/doc/cem_model.txt](Format used by Optifine, a Minecraft Mod) ). For now only few properties are used by game.
+- Added nametags
+- Fixed item tooltips
+
 # 0.1.5
 - Added "tab" screen. It is controlled fully by server
 - Added chat color support
