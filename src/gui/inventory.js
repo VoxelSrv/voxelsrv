@@ -166,30 +166,30 @@ async function renderItem(item) { // Inventory item rendering
 
 	if (items[item.id].type == 'block') {
 		var block = blockIDs[item.id]
+		var url = new Array(3)
+		var preUrl = new Array(3)
 		try {
 			var txt = blocks[block].texture
-
-			try { 
-				var txtLeft = txt[txt.length - 1]
-				var txtRight = txt[txt.length - 1]
-				var txtTop = txt[0]
-			} catch { 
-				var txtLeft = 'error'
-				var txtRight = 'error' 
-				var txtTop = 'error' 
-			}
+			preUrl[0] = txt[txt.length - 1]
+			preUrl[1] = txt[txt.length - 1]
+			preUrl[2] = txt[0]
 		}
 		catch { 
-			var txtLeft = 'error'
-			var txtRight = 'error' 
-			var txtTop = 'error' 
+			preUrl[0] = 'error'
+			preUrl[1] = 'error' 
+			preUrl[2] = 'error'
 		}
-		
+
+		for(var x = 0; x < 3; x++) {
+			if (preUrl[x].startsWith('http://') || preUrl[x].startsWith('https://')) url[x] = preUrl[x]
+			else url[x] = 'textures/' + preUrl[x] + '.png'
+		}
+
 		var x = '<div class="item_icon">' +
 					'<div class="cube">' +
-						'<div class="cube_face cube_face-right" style="background-image: url(textures/' + txtRight +'.png"></div>' +
-						'<div class="cube_face cube_face-left" style="background-image: url(textures/' + txtLeft +'.png"></div>' +
-						'<div class="cube_face cube_face-top" style="background-image: url(textures/' + txtTop +'.png"></div>' +
+						'<div class="cube_face cube_face-right" style="background-image: url('+ url[0] +'"></div>' +
+						'<div class="cube_face cube_face-left" style="background-image: url(' + url[1] +'"></div>' +
+						'<div class="cube_face cube_face-top" style="background-image: url(' + url[2] + '"></div>' +
 					'</div>' + 
 				'</div>' + 
 				'<div class="item_count float-right">' + count + '</div>'
@@ -197,6 +197,10 @@ async function renderItem(item) { // Inventory item rendering
 	} else {
 		try { var txt = items[item.id].texture}
 		catch { var txt = 'error' }
-		return '<div class="item_icon" style="background-image: url(textures/' + txt +'.png"></div><div class="item_count float-right">' + count + '</div>'
+
+		if (txt.startsWith('http://') || txt.startsWith('https://')) var url = txt
+		else var url = 'textures/' + txt + '.png'
+
+		return '<div class="item_icon" style="background-image: url(' + url +'"></div><div class="item_count float-right">' + count + '</div>'
 	}
 }

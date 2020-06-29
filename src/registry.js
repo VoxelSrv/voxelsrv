@@ -32,11 +32,13 @@ export function registerBlocks(noa, blockList, idList) {
 			if (options.opaque == false) var txtTransparent = true
 			else txtTransparent = false
 			if (texture.length == 1 && options.material == undefined) {
-				noa.registry.registerMaterial(name, [0, 0, 0], texture[0] + '.png', txtTransparent)
+				if (texture[0].startsWith('http://') || texture[0].startsWith('https://')) noa.registry.registerMaterial(name, [0, 0, 0], texture[0], txtTransparent)
+				else noa.registry.registerMaterial(name, [0, 0, 0], 'textures/' + texture[0] + '.png', txtTransparent)
 				mat = name
 			} else if (options.material == undefined){
 				for (var x = 0; x < texture.length; x++) {
-					noa.registry.registerMaterial(name + x, [0, 0, 0], texture[x] + '.png', txtTransparent)
+					if (texture[x].startsWith('http://') || texture[x].startsWith('https://')) noa.registry.registerMaterial(name + x, [0, 0, 0], texture[x], txtTransparent)
+					else noa.registry.registerMaterial(name  + x, [0, 0, 0], 'textures/' + texture[x] + '.png', txtTransparent)
 					mat.push(name + x)
 				}
 			} else { mat = options.material}
@@ -45,22 +47,20 @@ export function registerBlocks(noa, blockList, idList) {
 			noa.registry.registerBlock(id, finOpts)
 
 		} else if (type == 1) {
-			noa.registry.registerMaterial(name, [0, 0, 0], texture[0])
-			var mesh = makePlantSpriteMesh(scene, 'textures/' + texture[0] + '.png', name)
+			var mesh = makePlantSpriteMesh(scene, texture[0], name)
 			var finOpts = options
 			finOpts.blockMesh = mesh
 			noa.registry.registerBlock(id, finOpts)
 		} else if (type == 2) {
-			noa.registry.registerMaterial(name, [0, 0, 0], texture[0])
-			var mesh = makeCactusMesh(scene, ['textures/' + texture[0]  + '.png', 'textures/' + texture[1]  + '.png'], name)
+			var mesh = makeCactusMesh(scene, [texture[0], texture[1]], name)
 			var finOpts = options
 			finOpts.blockMesh = mesh
 			noa.registry.registerBlock(id, finOpts)
 		} else if (type == 4) {
 			var mat = noa.rendering.makeStandardMaterial(name)
 
-			var tex = new BABYLON.Texture('textures/' + texture[0] + '.png', scene, true, true,
-				BABYLON.Texture.NEAREST_SAMPLINGMODE)
+			if (texture[0].startsWith('http://') || texture[0].startsWith('https://')) var tex = new BABYLON.Texture(texture[0], scene, true, true, BABYLON.Texture.NEAREST_SAMPLINGMODE)
+			else var tex = new BABYLON.Texture('textures/' + texture[0] + '.png', scene, true, true, BABYLON.Texture.NEAREST_SAMPLINGMODE)
 			
 			mat.diffuseTexture = tex
 			mat.opacityTexture = mat.diffuseTexture
@@ -87,11 +87,10 @@ export function registerItems(noa, itemList) {
 
 
 
-
 function makePlantSpriteMesh(scene, url, name) {
 	var matname = name || 'sprite-mat'
-	var tex = new BABYLON.Texture(url, scene, true, true,
-	BABYLON.Texture.NEAREST_SAMPLINGMODE)
+	if (url.startsWith('http://') || url.startsWith('https://')) var tex = new BABYLON.Texture(url, scene, true, true, BABYLON.Texture.NEAREST_SAMPLINGMODE)
+	else var tex = new BABYLON.Texture('textures/' + url + '.png', scene, true, true, BABYLON.Texture.NEAREST_SAMPLINGMODE)
 	tex.hasAlpha = true
 	var mesh = BABYLON.Mesh.CreatePlane('sprite-' + matname, 1, scene)
 	var mat = noa.rendering.makeStandardMaterial(matname)
@@ -118,8 +117,10 @@ function makeCactusMesh(scene, url, name) {
 		mesh[x] = BABYLON.Mesh.CreatePlane('sprite-' + matname, 1, scene)
 		mat[x] = noa.rendering.makeStandardMaterial(matname + x)
 		mat[x].backFaceCulling = false
-		mat[x].diffuseTexture = new BABYLON.Texture( ((x < 4) ? url[1] : url [0]), scene,
-			true, true, BABYLON.Texture.NEAREST_SAMPLINGMODE)
+		console.log(url)
+		if (((x < 4) ? url[1] : url[0]).startsWith('http://') || ((x < 4) ? url[1] : url[0]).startsWith('https://')) mat[x].diffuseTexture = new BABYLON.Texture( ((x < 4) ? url[1] : url[0]), scene, true, true, BABYLON.Texture.NEAREST_SAMPLINGMODE)
+		else  mat[x].diffuseTexture = new BABYLON.Texture('textures/' + ((x < 4) ? url[1] : url[0]) + '.png', scene, true, true, BABYLON.Texture.NEAREST_SAMPLINGMODE)
+		
 		mat[x].diffuseTexture.hasAlpha = true
 		mesh[x].material = mat[x]
 		var offset
@@ -135,10 +136,6 @@ function makeCactusMesh(scene, url, name) {
 	
 	var newmesh = BABYLON.Mesh.MergeMeshes(Object.values(mesh), true, true, undefined, false, false)
 
-	//var multimat = new BABYLON.MultiMaterial("cactus", scene)
-	//multimat.subMaterials = Object.values(mat)
-
-	//newmesh.material = multimat
 	return newmesh
 
 }
