@@ -14,5 +14,6 @@ Server files, check this repo: https://github.com/Patbox/voxelsrv-server
 
 # Assets used in this project (graphics/sounds):
 - Pixel Perfection Community  Edition (https://github.com/Athemis/PixelPerfectionCE)
+- Json Entity Models by ewanhowell5195 (https://www.curseforge.com/minecraft/texture-packs/template-cem)
 - Art of silence by uniq
 - Some remixes by bulby

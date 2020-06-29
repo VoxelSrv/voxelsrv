@@ -5,8 +5,8 @@ import { setupHand } from './hand'
 import { setupTab } from './tab'
 
 
-export function setupGuis(noa, server, socket, data) {
-	setupInfo(noa, server)
+export function setupGuis(noa, server, socket, dataPlayer, dataLogin) {
+	setupInfo(noa, server, dataLogin)
 	setupCross()
 	setupHotbar()
 	setupInventory(noa, socket)

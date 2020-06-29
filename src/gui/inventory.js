@@ -41,7 +41,7 @@ var inventoryscreen
 
 export async function setupInventory(noa, socket) { // Opens inventory
 	var inventory = noa.ents.getState(1, 'inventory')
-	var items = Object.entries(inventory.main)
+	var invItems = Object.entries(inventory.main)
 	var inv = inventory.main
 	inventory.bin = {}
 	
@@ -84,7 +84,7 @@ export async function setupInventory(noa, socket) { // Opens inventory
 	screen.appendChild(tempslot)
 
 
-	for (var x = 0; x < (items.length/9)-1; x++) { // Inventory slots (backpack)
+	for (var x = 0; x < (invItems.length/9)-1; x++) { // Inventory slots (backpack)
 		var row = document.createElement('tr')
 		backpack.appendChild(row)
 		for (var y = 0; y < 9; y++) {
@@ -120,18 +120,20 @@ export async function setupInventory(noa, socket) { // Opens inventory
 	screen.appendChild(tooltip)
 
 
+
 	window.addEventListener("mousemove", function(e){ //Moving items at cursor
 		if (screen.style.display != 'none') {
 			tempslot.style.left = e.x + 'px'
 			tempslot.style.top = e.y + 'px'
 
 			var slot = document.elementFromPoint(e.x, e.y).id
+			var inv2 = noa.ents.getState(1, 'inventory').main
 
-			if (inv[slot] != undefined && inv[slot].id != undefined) {
-				tooltip.style.left = e.x + 'px'
-				tooltip.style.top = e.y + 'px'
+			if (inv2[slot] != undefined && inv2[slot].id != undefined) {
+				tooltip.style.left = e.x + 20 + 'px'
+				tooltip.style.top = e.y - 10 + 'px'
 
-				tooltip.innerHTML = inv[slot].id
+				tooltip.innerHTML = items[inv2[slot].id].name
 				tooltip.style.display = 'initial'
 			}
 			else tooltip.style.display = 'none'

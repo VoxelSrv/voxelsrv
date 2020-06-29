@@ -1,5 +1,5 @@
 
-export function setupInfo(noa, server) {
+export function setupInfo(noa, server, dataLogin) {
 	var eid = noa.playerEntity
 	var dat = noa.entities.getPositionData(eid)
 
@@ -16,7 +16,7 @@ export function setupInfo(noa, server) {
 	div.appendChild(version)
 
 	var world = document.createElement('span') //World
-	world.innerHTML = '<br>Server: ' + server
+	world.innerHTML = '<br>Server: ' + dataLogin.name + ' [' + server + ']'
 	div.appendChild(world)
 
 	var pos = document.createElement('span') //Coordinates
