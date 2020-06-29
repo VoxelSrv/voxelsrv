@@ -21,7 +21,7 @@
     "@babylonjs/inspector": "^4.0.3",
     "babylonjs": "^4.1.0",
     "babylonjs-loaders": "^4.1.0",
-    "dompurify": "^2.0.11",
+    "dompurify": "^2.0.12",
     "howler": "^2.2.0",
     "markdown-it": "^11.0.0",
     "markdown-it-inline-text-color": "github:ScopiCisco/markdown-it-inline-text-color",

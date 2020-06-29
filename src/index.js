@@ -10,7 +10,7 @@ console.log('Username: ' + username, 'Server: ' + server)
 
 global.game = {
 	name: 'VoxelSRV',
-	version: '0.1.6'
+	version: '0.1.7'
 }
 const io = require('socket.io-client')
 const cruncher = require('voxel-crunch')
@@ -32,7 +32,6 @@ import { setChunk } from './world'
 import { setupPlayer, setupControls } from './player'
 import { addToChat, parseText } from './gui/chat'
 import { playSound } from './sound'
-import { Socket } from 'socket.io-client'
 import { applyModel, defineModelComp } from './model'
 
 const engineParams = {
@@ -47,7 +46,7 @@ const engineParams = {
 	chunkRemoveDistance: 6.0, // ^
 	blockTestDistance: 8, // Per Gamemode?
 	tickRate: 50, // Maybe make it lower
-	texturePath: 'textures/',
+	texturePath: '',
 	playerStart: [0, 100, 0], // Make y changeable based on terrain/last player possition
 	playerHeight: 1.85,
 	playerWidth: 0.5,

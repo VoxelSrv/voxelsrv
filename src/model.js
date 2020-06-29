@@ -101,7 +101,8 @@ function buildModel(model, texture) {
 
 			var mat = noa.rendering.makeStandardMaterial('modelmaterial-' + mdata.id + '-' + y)
 			part[y].material = mat
-			mat.diffuseTexture = new BABYLON.Texture('textures/' + texture + '.png', scene, true, true, BABYLON.Texture.NEAREST_SAMPLINGMODE)
+			if (texture.startsWith('http://') || texture.startsWith('https://')) mat.diffuseTexture = new BABYLON.Texture(texture, scene, true, true, BABYLON.Texture.NEAREST_SAMPLINGMODE)
+			else mat.diffuseTexture = new BABYLON.Texture('textures/' + texture + '.png', scene, true, true, BABYLON.Texture.NEAREST_SAMPLINGMODE)
 
 			part[y].opaque = false
 			mat.diffuseTexture.hasAlpha = true
