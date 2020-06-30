@@ -177,7 +177,7 @@ socket.on('login-request', function(dataLogin) {
 			}
 		})
 
-		socket.on('sound-play', function(data) { playSound(data.sound, data.volume) } )
+		socket.on('sound-play', function(data) { playSound(data.sound, data.volume, scene) } )
 
 
 		socket.emit('move', {pos: noa.ents.getState(noa.playerEntity, 'position').position, rot: noa.ents.getState(noa.playerEntity, 'position').position})
@@ -207,10 +207,16 @@ socket.on('login-request', function(dataLogin) {
 					vec3.lerp(move, pos, newPos, 0.1)			
 					var rot = noa.ents.getState(id, 'position').rotation
 					noa.ents.setPosition(id, move)
-					noa.ents.getState(id, noa.entities.names.mesh).mesh.rotation.y = rot/2
+
+					var oldRot = noa.ents.getState(id, noa.entities.names.mesh).mesh.rotation.y
+
+					if (rot/2 - oldRot > 5) noa.ents.getState(id, noa.entities.names.mesh).mesh.rotation.y = rot/2
+					else noa.ents.getState(id, noa.entities.names.mesh).mesh.rotation.y = (rot/2 + oldRot)/2
+					
+					
 
 					if (noa.ents.getState(id, 'model').nametag != undefined) {
-						noa.ents.getState(id, 'model').nametag.rotation.y = noa.camera.heading - rot/2
+						noa.ents.getState(id, 'model').nametag.rotation.y = noa.camera.heading - noa.ents.getState(id, noa.entities.names.mesh).mesh.rotation.y
 						noa.ents.getState(id, 'model').nametag.rotation.x = noa.camera.pitch
 
 					}

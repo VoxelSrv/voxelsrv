@@ -1,9 +1,10 @@
-import {Howl, Howler} from 'howler'
-
+//
+// It's broken for now
+//
 
 var sounds = {}
 
-export function playSound(sound, volume) {
+export function playSound(sound, volume, scene) {
 	var id = Object.keys(sounds)[Object.keys(sounds).length - 1] + 1
 
 	var safeVolume = volume/10
@@ -12,18 +13,16 @@ export function playSound(sound, volume) {
 	else if (1 < volume ) safeVolume = 0.1
 
 
-	sounds[id] = new Howl({
-		src: ['./audio/' + sound],
-		volume: safeVolume
-	})
-
-	sounds[id].play()
-	console.log('Playing: ' + sound)
-
-	sounds[id].once('end', function(){
-		delete sounds[id]
-	})
+	sounds[id] = new BABYLON.Sound(sound, 'audio/' + sound, scene, function() {
+		sounds[id].play()
+		console.log('Playing: ' + sound)
+	
+		sounds[id].onended = function() {
+			delete sounds[id]
+		}
+	}, {volume: safeVolume})
 
 
-	// /playsound music/bulby/lake 1
+
+	// /playsound music/bulby/lake.mp3 1
 }
