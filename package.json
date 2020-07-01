@@ -17,9 +17,9 @@
   "author": "Patbox",
   "license": "ISC",
   "dependencies": {
-    "@babylonjs/core": "^4.0.3",
-    "@babylonjs/inspector": "^4.0.3",
-    "babylonjs": "^4.1.0",
+    "@babylonjs/core": "^4.1.0",
+    "@babylonjs/inspector": "^4.1.0",
+    "@babylonjs/materials": "^4.1.0",
     "babylonjs-loaders": "^4.1.0",
     "dompurify": "^2.0.12",
     "howler": "^2.2.0",

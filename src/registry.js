@@ -34,12 +34,12 @@ export function registerBlocks(noa, blockList, idList) {
 			if (options.opaque == false) var txtTransparent = true
 			else txtTransparent = false
 			if (texture.length == 1 && options.material == undefined) {
-				if (texture[0].startsWith('http://') || texture[0].startsWith('https://')) noa.registry.registerMaterial(name, [0, 0, 0], texture[0], txtTransparent)
+				if ( (texture[0].startsWith('http://') || texture[0].startsWith('https://')  ) && game.allowCustom == true) noa.registry.registerMaterial(name, [0, 0, 0], texture[0], txtTransparent)
 				else noa.registry.registerMaterial(name, [0, 0, 0], 'textures/' + texture[0] + '.png', txtTransparent)
 				mat = name
 			} else if (options.material == undefined){
 				for (var x = 0; x < texture.length; x++) {
-					if (texture[x].startsWith('http://') || texture[x].startsWith('https://')) noa.registry.registerMaterial(name + x, [0, 0, 0], texture[x], txtTransparent)
+					if ( (texture[x].startsWith('http://') || texture[x].startsWith('https://') ) && game.allowCustom == true) noa.registry.registerMaterial(name + x, [0, 0, 0], texture[x], txtTransparent)
 					else noa.registry.registerMaterial(name  + x, [0, 0, 0], 'textures/' + texture[x] + '.png', txtTransparent)
 					mat.push(name + x)
 				}
@@ -61,7 +61,7 @@ export function registerBlocks(noa, blockList, idList) {
 		} else if (type == 4) {
 			var mat = noa.rendering.makeStandardMaterial(name)
 
-			if (texture[0].startsWith('http://') || texture[0].startsWith('https://')) var tex = new BABYLON.Texture(texture[0], scene, true, true, BABYLON.Texture.NEAREST_SAMPLINGMODE)
+			if ( (texture[0].startsWith('http://') || texture[0].startsWith('https://') ) && game.allowCustom == true) var tex = new BABYLON.Texture(texture[0], scene, true, true, BABYLON.Texture.NEAREST_SAMPLINGMODE)
 			else var tex = new BABYLON.Texture('textures/' + texture[0] + '.png', scene, true, true, BABYLON.Texture.NEAREST_SAMPLINGMODE)
 			
 			mat.diffuseTexture = tex
@@ -91,7 +91,7 @@ export function registerItems(noa, itemList) {
 
 function makePlantSpriteMesh(noa, scene, url, name) {
 	var matname = name || 'sprite-mat'
-	if (url.startsWith('http://') || url.startsWith('https://')) var tex = new BABYLON.Texture(url, scene, true, true, BABYLON.Texture.NEAREST_SAMPLINGMODE)
+	if ( (url.startsWith('http://') || url.startsWith('https://') ) && game.allowCustom == true) var tex = new BABYLON.Texture(url, scene, true, true, BABYLON.Texture.NEAREST_SAMPLINGMODE)
 	else var tex = new BABYLON.Texture('textures/' + url + '.png', scene, true, true, BABYLON.Texture.NEAREST_SAMPLINGMODE)
 	tex.hasAlpha = true
 	var mesh = BABYLON.Mesh.CreatePlane('sprite-' + matname, 1, scene)
@@ -119,7 +119,7 @@ function makeCactusMesh(noa, scene, url, name) {
 		mesh[x] = BABYLON.Mesh.CreatePlane('sprite-' + matname, 1, scene)
 		mat[x] = noa.rendering.makeStandardMaterial(matname + x)
 		mat[x].backFaceCulling = false
-		if (((x < 4) ? url[1] : url[0]).startsWith('http://') || ((x < 4) ? url[1] : url[0]).startsWith('https://')) mat[x].diffuseTexture = new BABYLON.Texture( ((x < 4) ? url[1] : url[0]), scene, true, true, BABYLON.Texture.NEAREST_SAMPLINGMODE)
+		if ( ( ( (x < 4) ? url[1] : url[0]).startsWith('http://') || ( (x < 4) ? url[1] : url[0]).startsWith('https://') ) && game.allowCustom == true) mat[x].diffuseTexture = new BABYLON.Texture( ((x < 4) ? url[1] : url[0]), scene, true, true, BABYLON.Texture.NEAREST_SAMPLINGMODE)
 		else  mat[x].diffuseTexture = new BABYLON.Texture('textures/' + ((x < 4) ? url[1] : url[0]) + '.png', scene, true, true, BABYLON.Texture.NEAREST_SAMPLINGMODE)
 		
 		mat[x].diffuseTexture.hasAlpha = true

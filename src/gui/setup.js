@@ -3,6 +3,7 @@ import { setupHotbar, setupInventory } from './inventory'
 import { setupChatbox } from './chat'
 import { setupHand } from './hand'
 import { setupTab } from './tab'
+import { setupSkybox } from './skybox'
 
 
 export function setupGuis(noa, server, socket, dataPlayer, dataLogin) {
@@ -12,5 +13,6 @@ export function setupGuis(noa, server, socket, dataPlayer, dataLogin) {
 	setupInventory(noa, socket)
 	setupChatbox()
 	setupTab()
+	//setupSkybox(noa)
 	//setupHand(noa)
 }
