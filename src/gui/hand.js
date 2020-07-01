@@ -68,7 +68,7 @@ export function setupHand(noa) {
 			}
 	
 			for(var x = 0; x < 3; x++) {
-				if (preUrl[x].startsWith('http://') || preUrl[x].startsWith('https://')) url[x] = preUrl[x]
+				if ((preUrl[x].startsWith('http://') || preUrl[x].startsWith('https://')  ) && game.allowCustom == true ) url[x] = preUrl[x]
 				else url[x] = 'textures/' + preUrl[x] + '.png'
 			}
 

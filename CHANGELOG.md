@@ -1,5 +1,6 @@
 # 0.1.7 (Master/WIP)
 - You can now use textures loaded from other websites (like imgur)
+- Replaced Howler with Babylon Audio
 
 # 0.1.6 (Stable)
 - Add basic support for Json Entity Models ( [https://github.com/sp614x/optifine/blob/master/OptiFineDoc/doc/cem_model.txt](Format used by Optifine, a Minecraft Mod) ). For now only few properties are used by game.

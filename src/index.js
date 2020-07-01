@@ -10,7 +10,8 @@ console.log('Username: ' + username, 'Server: ' + server)
 
 global.game = {
 	name: 'VoxelSRV',
-	version: '0.1.7'
+	version: '0.1.7',
+	allowCustom: true
 }
 const io = require('socket.io-client')
 const cruncher = require('voxel-crunch')
@@ -35,7 +36,7 @@ import { playSound } from './sound'
 import { applyModel, defineModelComp } from './model'
 
 const engineParams = {
-	debug: false,
+	debug: true,
 	showFPS: true,
 	inverseY: false,
 	inverseX: false,
@@ -110,6 +111,7 @@ socket.on('login-request', function(dataLogin) {
 		var moveState = noa.inputs.state
 		var lastPos = {}
 		var lastRot = 0
+		var chunkList = []
 
 		registerBlocks(noa, dataPlayer.blocks, dataPlayer.blockIDs)
 		registerItems(noa, dataPlayer.items)
@@ -123,7 +125,8 @@ socket.on('login-request', function(dataLogin) {
 		socket.on('chunkdata', function(data) {
 			var chunkdata = cruncher.decode(Object.values(data.chunk), new Uint16Array(24 * 120 * 24))
 			var array = new ndarray(chunkdata, [24, 120, 24])
-			setChunk(data.id, array, noa)
+			
+			chunkList.push([data.id, array])
 		})
 
 		socket.on('block-update', function(data) {
@@ -148,6 +151,15 @@ socket.on('login-request', function(dataLogin) {
 		socket.on('teleport', function(data) {
 			noa.ents.setPosition(noa.playerEntity, data)
 			console.log(data)
+		})
+
+		socket.on('movement-change', function(data) {
+			var move = noa.ents.getMovement(noa.playerEntity)
+			move = data
+		})
+
+		socket.on('skybox-colors', function(data) {
+			
 		})
 
 		socket.on('entity-spawn', async function(data) {
@@ -177,13 +189,18 @@ socket.on('login-request', function(dataLogin) {
 			}
 		})
 
-		socket.on('sound-play', function(data) { playSound(data.sound, data.volume, scene) } )
+		socket.on('sound-play', function(data) { playSound(data.sound, data.volume, data.position, noa) } )
 
 
 		socket.emit('move', {pos: noa.ents.getState(noa.playerEntity, 'position').position, rot: noa.ents.getState(noa.playerEntity, 'position').position})
 		var timerPos = 0
 
-		
+		setInterval(async function() {
+			if (chunkList.length != 0) {
+				setChunk(chunkList[0][0], chunkList[0][1], noa)
+				chunkList.shift()
+			}
+		}, 50)
 		noa.on('tick', function() {
 			timerPos = timerPos + 1
 			if (timerPos == 1) {
@@ -197,6 +214,7 @@ socket.on('login-request', function(dataLogin) {
 					socket.emit('move', {pos: pos, rot: rot})
 				}
 			}
+
 		})
 		noa.on('beforeRender', async function() {
 			Object.values(entityList).forEach(async function (id) {

@@ -181,7 +181,7 @@ async function renderItem(item) { // Inventory item rendering
 		}
 
 		for(var x = 0; x < 3; x++) {
-			if (preUrl[x].startsWith('http://') || preUrl[x].startsWith('https://')) url[x] = preUrl[x]
+			if ( (preUrl[x].startsWith('http://') || preUrl[x].startsWith('https://') ) && game.allowCustom == true) url[x] = preUrl[x]
 			else url[x] = 'textures/' + preUrl[x] + '.png'
 		}
 
@@ -198,7 +198,7 @@ async function renderItem(item) { // Inventory item rendering
 		try { var txt = items[item.id].texture}
 		catch { var txt = 'error' }
 
-		if (txt.startsWith('http://') || txt.startsWith('https://')) var url = txt
+		if ( (txt.startsWith('http://') || txt.startsWith('https://')  ) && game.allowCustom == true) var url = txt
 		else var url = 'textures/' + txt + '.png'
 
 		return '<div class="item_icon" style="background-image: url(' + url +'"></div><div class="item_count float-right">' + count + '</div>'
