@@ -1,5 +1,5 @@
 import { sendFromInput } from "./gui/chat"
-import { protocol } from "socket.io-client"
+var noa 
 
 export function setupControls(noa, socket) {
 	var eid = noa.playerEntity
@@ -142,7 +142,9 @@ export function setupControls(noa, socket) {
 }
 
 
-export function setupPlayer(noa, invData) {
+export function setupPlayer(noa2, invData) {
+	noa = noa2
+
 	var eid = noa.playerEntity
 	var dat = noa.entities.getPositionData(eid)
 	

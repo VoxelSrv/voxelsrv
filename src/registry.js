@@ -11,6 +11,8 @@ export function getBlockIDs() { return blockIDs}
 
 
 export function registerBlocks(noa, blockList, idList) {
+	var scene = noa.rendering.getScene()
+
 	blockIDs = idList
 	blocks = blockList
 
@@ -47,12 +49,12 @@ export function registerBlocks(noa, blockList, idList) {
 			noa.registry.registerBlock(id, finOpts)
 
 		} else if (type == 1) {
-			var mesh = makePlantSpriteMesh(scene, texture[0], name)
+			var mesh = makePlantSpriteMesh(noa, scene, texture[0], name)
 			var finOpts = options
 			finOpts.blockMesh = mesh
 			noa.registry.registerBlock(id, finOpts)
 		} else if (type == 2) {
-			var mesh = makeCactusMesh(scene, [texture[0], texture[1]], name)
+			var mesh = makeCactusMesh(noa, scene, [texture[0], texture[1]], name)
 			var finOpts = options
 			finOpts.blockMesh = mesh
 			noa.registry.registerBlock(id, finOpts)
@@ -87,7 +89,7 @@ export function registerItems(noa, itemList) {
 
 
 
-function makePlantSpriteMesh(scene, url, name) {
+function makePlantSpriteMesh(noa, scene, url, name) {
 	var matname = name || 'sprite-mat'
 	if (url.startsWith('http://') || url.startsWith('https://')) var tex = new BABYLON.Texture(url, scene, true, true, BABYLON.Texture.NEAREST_SAMPLINGMODE)
 	else var tex = new BABYLON.Texture('textures/' + url + '.png', scene, true, true, BABYLON.Texture.NEAREST_SAMPLINGMODE)
@@ -109,7 +111,7 @@ function makePlantSpriteMesh(scene, url, name) {
 }
 
 
-function makeCactusMesh(scene, url, name) {
+function makeCactusMesh(noa, scene, url, name) {
 	var mesh = {}
 	var mat = {}
 	for (var x = 0; x < 6; x++) {
@@ -117,7 +119,6 @@ function makeCactusMesh(scene, url, name) {
 		mesh[x] = BABYLON.Mesh.CreatePlane('sprite-' + matname, 1, scene)
 		mat[x] = noa.rendering.makeStandardMaterial(matname + x)
 		mat[x].backFaceCulling = false
-		console.log(url)
 		if (((x < 4) ? url[1] : url[0]).startsWith('http://') || ((x < 4) ? url[1] : url[0]).startsWith('https://')) mat[x].diffuseTexture = new BABYLON.Texture( ((x < 4) ? url[1] : url[0]), scene, true, true, BABYLON.Texture.NEAREST_SAMPLINGMODE)
 		else  mat[x].diffuseTexture = new BABYLON.Texture('textures/' + ((x < 4) ? url[1] : url[0]) + '.png', scene, true, true, BABYLON.Texture.NEAREST_SAMPLINGMODE)
 		

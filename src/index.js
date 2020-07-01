@@ -35,7 +35,7 @@ import { playSound } from './sound'
 import { applyModel, defineModelComp } from './model'
 
 const engineParams = {
-	debug: true,
+	debug: false,
 	showFPS: true,
 	inverseY: false,
 	inverseX: false,
@@ -133,7 +133,7 @@ socket.on('login-request', function(dataLogin) {
 		socket.on('inventory-update', function(data) {
 			noa.ents.getState(noa.playerEntity, 'inventory').main = data.main
 			noa.ents.getState(noa.playerEntity, 'inventory').tempslot = data.tempslot
-			updateInventory()
+			updateInventory(noa)
 		})
 
 		socket.on('chat', function(data) { 

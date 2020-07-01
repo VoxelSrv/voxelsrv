@@ -8,7 +8,7 @@ import { setupTab } from './tab'
 export function setupGuis(noa, server, socket, dataPlayer, dataLogin) {
 	setupInfo(noa, server, dataLogin)
 	setupCross()
-	setupHotbar()
+	setupHotbar(noa)
 	setupInventory(noa, socket)
 	setupChatbox()
 	setupTab()

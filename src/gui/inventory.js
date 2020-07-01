@@ -1,4 +1,4 @@
-export function setupHotbar() {
+export function setupHotbar(noa) {
 	var eid = noa.playerEntity
 	var inventory = noa.ents.getState(eid, 'inventory')
 	game.hotbarsize = 9
@@ -144,7 +144,7 @@ export async function setupInventory(noa, socket) { // Opens inventory
 }
 
 
-export async function updateInventory() { // Update slots
+export async function updateInventory(noa) { // Update slots
 	if (inventoryscreen.style.display != 'none') {
 		var inventory = noa.ents.getState(noa.playerEntity, 'inventory')
 		var inv = inventory.main
