@@ -1,12 +1,13 @@
 import { sendFromInput } from "./gui/chat"
-var noa 
+var noa
+
 
 export function setupControls(noa, socket) {
 	var eid = noa.playerEntity
 
 	noa.blockTargetIdCheck = function(id) {
 		if (blocks[id] != undefined) {
-			if (blocks[id].fluid == true) return false
+			if (blocks[id].options.fluid == true) return false
 			return true
 		}
 		else return false
@@ -103,13 +104,10 @@ export function setupControls(noa, socket) {
 	})
 
 	noa.inputs.down.on('tab', function () {
-		console.log(1)
 		document.getElementById('game_tab').style.display = 'initial'
 	})
 
 	noa.inputs.up.on('tab', function () {
-		console.log(2)
-
 		document.getElementById('game_tab').style.display = 'none'
 	})
 
