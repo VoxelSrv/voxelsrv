@@ -187,6 +187,11 @@ export function setupPlayer(noa2, invData) {
 		move.airJumps = 0
 
 	}
+
+	noa.entities.addComponent(eid, noa.entities.names.mesh, {
+		mesh: new BABYLON.Mesh('main', scene),
+		offset: offset
+	})
 }
 
 
