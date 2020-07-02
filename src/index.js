@@ -10,7 +10,7 @@ console.log('Username: ' + username, 'Server: ' + server)
 
 global.game = {
 	name: 'VoxelSRV',
-	version: '0.1.7',
+	version: '0.1.7-dev',
 	allowCustom: true
 }
 const io = require('socket.io-client')
