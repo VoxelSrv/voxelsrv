@@ -150,7 +150,7 @@ socket.on('login-request', function(dataLogin) {
 
 		socket.on('teleport', function(data) {
 			noa.ents.setPosition(noa.playerEntity, data)
-			console.log(data)
+			console.log('Teleport: ', data)
 		})
 
 		socket.on('movement-change', function(data) {
@@ -192,7 +192,7 @@ socket.on('login-request', function(dataLogin) {
 		socket.on('sound-play', function(data) { playSound(data.sound, data.volume, data.position, noa) } )
 
 
-		socket.emit('move', {pos: noa.ents.getState(noa.playerEntity, 'position').position, rot: noa.ents.getState(noa.playerEntity, 'position').position})
+		socket.emit('move', {pos: noa.ents.getState(noa.playerEntity, 'position').position, rot: noa.camera.heading})
 		var timerPos = 0
 
 		setInterval(async function() {
