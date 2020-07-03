@@ -23,6 +23,7 @@ const socket = new io('ws://' + server, {
 })
 
 import Engine from 'noa-engine'
+import { isMobile } from 'mobile-device-detect'
 import * as BABYLON from '@babylonjs/core/Legacy/legacy'
 import 'babylonjs-loaders'
 import { registerBlocks, registerItems } from './registry'
@@ -35,23 +36,35 @@ import { addToChat, parseText } from './gui/chat'
 import { playSound } from './sound'
 import { applyModel, defineModelComp } from './model'
 
+if (isMobile) {
+	var link = document.createElement('link')
+    link.rel = 'stylesheet'
+    link.href = 'mobile.css'
+	document.head.appendChild(link)
+	document.documentElement.addEventListener('click', function() {
+		if (!document.fullscreenElement) {
+			document.documentElement.requestFullscreen()
+		}
+	})
+}
+
 const engineParams = {
 	debug: true,
 	showFPS: true,
 	inverseY: false,
 	inverseX: false,
-	sensitivityX: 15, // Make it changeable?
-	sensitivityY: 15, // ^
+	sensitivityX: ( isMobile ? 50 : 15 ), // Make it changeable?
+	sensitivityY: ( isMobile ? 50 : 15 ), // ^
 	chunkSize: 24, // Don't touch this
 	chunkAddDistance: 5.5, // Make it changeable?
 	chunkRemoveDistance: 6.0, // ^
-	blockTestDistance: 8, // Per Gamemode?
-	tickRate: 50, // Maybe make it lower
+	blockTestDistance: 7, // Per Gamemode?
+	tickRate: 60, // Maybe make it lower
 	texturePath: '',
 	playerStart: [0, 100, 0], // Make y changeable based on terrain/last player possition
 	playerHeight: 1.85,
 	playerWidth: 0.5,
-	playerAutoStep: false, // true for mobile?
+	playerAutoStep: isMobile, // true for mobile?
 	clearColor: [0.8, 0.9, 1],
 	ambientColor: [1, 1, 1],
 	lightDiffuse: [1, 1, 1],
@@ -85,7 +98,8 @@ const engineParams = {
 socket.on('login-request', function(dataLogin) {
 	socket.emit('login', {
 		username: username,
-		protocol: 1
+		protocol: 1,
+		mobile: isMobile
 	})
 
 	socket.on('kick', function(data) {

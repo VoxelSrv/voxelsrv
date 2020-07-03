@@ -1,0 +1,22 @@
+#game_hotbar {
+	transform: translateX(-50%) scale(0.8);
+	bottom:0px !important;
+	left:50%;
+}
+
+#game_chatbox {
+	position:absolute;
+	top:1px;
+	left:1px;
+	z-index:0;
+	font-size:18px;
+	margin:4px;
+	max-height:35%;
+	overflow-y: scroll;
+	display:flex;
+	flex-direction: column-reverse;
+}
+
+#game_version {
+	display: none;
+}

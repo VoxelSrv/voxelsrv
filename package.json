@@ -26,6 +26,7 @@
     "markdown-it": "^11.0.0",
     "markdown-it-inline-text-color": "github:ScopiCisco/markdown-it-inline-text-color",
     "mesh-particle-system": "^0.9.0",
+    "mobile-device-detect": "^0.4.3",
     "ndarray": "^1.0.19",
     "noa-engine": "github:andyhall/noa#develop",
     "socket.io-client": "^2.3.0",

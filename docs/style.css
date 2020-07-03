@@ -262,3 +262,58 @@ body {
 #game_chatbox::-webkit-scrollbar {
     width: 0px;
 }
+
+#game_version {
+	position:absolute;
+	top:5;
+	left:5;
+	z-index:0;
+	color:white;
+	text-shadow: 1px 1px black;
+	font-size:20px;
+	margin:4px;
+}
+
+#game_cross {
+	position:absolute;
+	top:50%;
+	left:50%;
+	z-index:0;
+	transform: translate(-50% -50%);
+	border-radius:50%;
+	background-color: white;
+	filter: opacity(0.5);
+	height:6px;
+	width:6px;
+	backdrop-filter: invert(1);
+}
+
+#game_inventory_screen {
+	position: absolute;
+	top: 0;
+	right: 0;
+	bottom: 0;
+	left: 0;
+	z-index:1;
+	color:white;
+	height:auto;
+	width:auto;
+	background-color: #00000055;
+	font-size:2em;
+	text-align:center;
+	padding:3px;
+	min-width:2em;
+}
+
+#game_inventory {
+	position:fixed;
+	bottom:50%;
+	left:50%;
+	z-index:2;
+	color:white;
+	height:auto; 
+	width:auto;
+	padding:3px;
+	min-width:2em;
+	transform: translate(-50%, 50%);
+}

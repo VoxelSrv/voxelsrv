@@ -5,10 +5,6 @@ export function setupInfo(noa, server, dataLogin) {
 
 	var div = document.createElement('div') // Main div
 	div.id = 'game_version'
-	var style = 'position:absolute; top:5; left:5; z-index:0;'
-	style += 'color:white; text-shadow: 1px 1px black;'
-	style += 'font-size:20px; margin:4px;'
-	div.style = style
 	document.body.appendChild(div)
 
 	var version = document.createElement('span') // Version
@@ -46,9 +42,5 @@ export function setupInfo(noa, server, dataLogin) {
 export function setupCross() { //More like point in a middle of screen
 	var div = document.createElement('div')
 	div.id = 'game_cross'
-	var style = 'position:absolute; top:50%; left:50%; z-index:0;'
-	style += 'transform: translate(-50% -50%); border-radius:50%; background-color: white;'
-	style += 'filter: opacity(0.5);height:6px; width:6px; backdrop-filter: invert(1);'
-	div.style = style
 	document.body.appendChild(div)
 }
