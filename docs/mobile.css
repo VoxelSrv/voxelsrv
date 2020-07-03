@@ -71,3 +71,67 @@
 .inventory_item {
 	display: inline-block;
 }
+
+#game_mobile_jump {
+	height: 64px;
+	width: 64px;
+	color: white;
+	position: absolute;
+	bottom: 10%;
+	right: 5%;
+	background-color: #e7e7e788;
+	image-rendering: pixelated;
+	background-size: cover;
+	background-image: url(./textures/gui/inventoryexit.png);
+	box-shadow: 0px 0px 3px 1px rgba(0,0,0,0.75);
+}
+
+#game_mobile_chat {
+	height: 32px;
+	width: 32px;
+	color: gray;
+	font-size: 24px;
+	text-align: center;
+	position: absolute;
+	top: 1%;
+	right: 50%;
+	transform: translateX(50%);
+	background-color: #e7e7e788;
+	image-rendering: pixelated;
+	background-size: cover;
+	box-shadow: 0px 0px 3px 1px rgba(0,0,0,0.75);
+}
+
+#game_mobile_controls {
+	height: 96px;
+	width: 96px;
+	position: absolute;
+	bottom: 10%;
+	left: 5%;
+	border-radius: 50%;
+	background-color: #e7e7e788;
+	image-rendering: pixelated;
+	background-size: cover;
+	box-shadow: 0px 0px 3px 1px rgba(0,0,0,0.75);
+}
+
+#game_mobile_joystick {
+	height: 64px;
+	width: 64px;
+	border-radius: 50%;
+	background-color: #e7e7e788;
+	image-rendering: pixelated;
+	background-size: cover;
+	box-shadow: 0px 0px 3px 1px rgba(0,0,0,0.75);
+	transform: translate(16px, 16px);
+}
+
+#game_inventory_backpack {
+	max-height: 200px;
+	max-width: 100%;
+	display: inline-block;
+	overflow-y: scroll;
+}
+
+#game_chatinput {
+}

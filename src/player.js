@@ -1,5 +1,4 @@
 import { sendFromInput } from "./gui/chat"
-import { isMobile } from "mobile-device-detect"
 
 var noa
 
@@ -17,94 +16,41 @@ export function setupControls(noa, socket) {
 
 	noa.inputs.preventDefaults = true
 
-	if ( isMobile ) {
-		console.log('Using mobile controls')
-
-		var timer = 0
-		var touchTime = 0
-		var isTouching = false
-		var loop
-		var breaking
-
-		function inGameTouchStart(ev) {
-			isTouching = true
-			touchTime = new Date().getTime()/1000
-			loop = setInterval(function() {
-				timer = new Date().getTime()/1000 - touchTime
-			}, 10)
-			breaking = setInterval(function() {
-				if (timer > 0.6) {
-					if (noa.targetedBlock) {
-						socket.emit('block-break', noa.targetedBlock.position)
-					}
-				}
-			}, 400)
+	// on left mouse, set targeted block to be air
+	noa.inputs.down.on('fire', function () {
+		if (noa.targetedBlock) {
+			//startBreakingBlock(noa.targetedBlock.position, noa.targetedBlock.blockID)
+			socket.emit('block-break', noa.targetedBlock.position)
 		}
+	})
 
-		function inGameTouchMove(ev) {
-			console.log(ev)
-			if (ev)
-			touchTime = new Date().getTime()/1000 + 0.5
+	noa.inputs.up.on('fire', function () {
+		//stopBreakingBlock()
+	})
+
+
+	// place block on alt-fire (RMB/E)
+	noa.inputs.down.on('alt-fire', function () {
+		if (noa.targetedBlock != undefined) {
+			var pos = noa.targetedBlock.adjacent
+			if (noa.ents.isTerrainBlocked(pos[0], pos[1], pos[2]) == false) socket.emit('block-place', pos)
 		}
+	})
 
-		function inGameTouchEnd(ev) {
-			if ( 0 < timer && timer < 0.6) {
-				if (noa.targetedBlock != undefined) {
-					var pos = noa.targetedBlock.adjacent
-					if (noa.ents.isTerrainBlocked(pos[0], pos[1], pos[2]) == false) socket.emit('block-place', pos)
-				}
+
+	// pick block on middle fire (MMB/Q)
+	noa.inputs.down.on('mid-fire', function () {
+		if (noa.targetedBlock && noa.targetedBlock.blockID != 0) {
+			var item = blocks[noa.targetedBlock.blockID].name
+			var slot = inventoryHasItem(noa.playerEntity, item, 1)
+			var sel = noa.ents.getState(eid, 'inventory').selected
+			if (slot != -1 && slot < 9) {
+				socket.emit('inventory-click', { type: 'select', slot: slot })
+				noa.ents.getState(eid, 'inventory').selected = slot
 			}
-			clearInterval(loop)
-			clearInterval(breaking)
-
-			isTouching = false
-			timer = 0
+			else if (slot != -1) socket.emit('inventory-click', { type: 'switch', slot: slot, slot2: sel })
 		}
-
-
-
-
-		noa.container.element.ontouchstart = inGameTouchStart
-		noa.container.element.ontouchmove = inGameTouchMove
-		noa.container.element.ontouchend = inGameTouchEnd
-	}
-	else {
-		// on left mouse, set targeted block to be air
-		noa.inputs.down.on('fire', function () {
-			if (noa.targetedBlock) {
-				//startBreakingBlock(noa.targetedBlock.position, noa.targetedBlock.blockID)
-				socket.emit('block-break', noa.targetedBlock.position)
-			}
-		})
-
-		noa.inputs.up.on('fire', function () {
-			//stopBreakingBlock()
-		})
-
-
-		// place block on alt-fire (RMB/E)
-		noa.inputs.down.on('alt-fire', function () {
-			if (noa.targetedBlock != undefined) {
-				var pos = noa.targetedBlock.adjacent
-				if (noa.ents.isTerrainBlocked(pos[0], pos[1], pos[2]) == false) socket.emit('block-place', pos)
-			}
-		})
-
-
-		// pick block on middle fire (MMB/Q)
-		noa.inputs.down.on('mid-fire', function () {
-			if (noa.targetedBlock && noa.targetedBlock.blockID != 0) {
-				var item = blocks[noa.targetedBlock.blockID].name
-				var slot = inventoryHasItem(noa.playerEntity, item, 1)
-				var sel = noa.ents.getState(eid, 'inventory').selected
-				if (slot != -1 && slot < 9) {
-					socket.emit('inventory-click', { type: 'select', slot: slot })
-					noa.ents.getState(eid, 'inventory').selected = slot
-				}
-				else if (slot != -1) socket.emit('inventory-click', { type: 'switch', slot: slot, slot2: sel })
-			}
-		})
-	}
+	})
 
 	// 3rd person view
 	noa.inputs.down.on('thirdprsn', function () {
@@ -125,17 +71,6 @@ export function setupControls(noa, socket) {
 		else {
 			noa.container.canvas.requestPointerLock()
 			inv.style.display = 'none'
-		}
-	})
-
-	// Command prompt
-	noa.inputs.down.on('cmd', function() {
-		var input = document.getElementById('game_chatinput')
-		if (input.style.display != 'none') { 
-			sendFromInput(socket)
-			noa.container.canvas.requestPointerLock()
-			input.style.display = 'none'
-			noa.setPaused(false)
 		}
 	})
 

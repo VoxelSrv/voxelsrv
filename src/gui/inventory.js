@@ -1,10 +1,10 @@
 import { isMobile } from 'mobile-device-detect'
 
 
-export function setupHotbar(noa) {
+export function setupHotbar(noa, socket) {
 	var eid = noa.playerEntity
 	var inventory = noa.ents.getState(eid, 'inventory')
-	game.hotbarsize = 9
+	game.hotbarsize = isMobile ? 7 : 9
 
 	var div = document.createElement('table')
 	div.classList.add('hotbar')
@@ -16,7 +16,10 @@ export function setupHotbar(noa) {
 	for (var x = 0; x < game.hotbarsize; x++) { //Create hotbar items
 		hotbar[x] = document.createElement('th')
 		hotbar[x].id = x
-		hotbar[x].addEventListener('click', function(){ noa.ents.getState(eid, 'inventory').selected = parseInt(this.id) } )
+		hotbar[x].addEventListener('click', function(){
+			socket.emit('inventory-click', {slot: parseInt(this.id), type: 'select'} )
+			noa.ents.getState(eid, 'inventory').selected = parseInt(this.id) 
+		})
 		hotbar[x].classList.add('hotbar_item')
 		row.appendChild(hotbar[x])
 	}
@@ -76,7 +79,7 @@ export async function setupInventory(noa, socket) { // Opens inventory
 	var hotbar = {}
 	var slot = 9
 
-	var backpack = document.createElement('table') // Backpack Inventory
+	var backpack = document.createElement('div') // Backpack Inventory
 	backpack.id = 'game_inventory_backpack'
 
 	invGui.appendChild(backpack)
@@ -161,15 +164,21 @@ export async function setupInventory(noa, socket) { // Opens inventory
 }
 
 
+var oldInv = '{}'
+
 export async function updateInventory(noa) { // Update slots
 	if (inventoryscreen.style.display != 'none') {
 		var inventory = noa.ents.getState(noa.playerEntity, 'inventory')
 		var inv = inventory.main
 
-		for (var x = 0; x < Object.entries(inv).length; x++) {
-			invslot[x].innerHTML = await renderItem(inv[x])
+		var json = JSON.stringify(inv)
+		if (json != oldInv) {
+			oldInv = json
+			for (var x = 0; x < Object.entries(inv).length; x++) {
+				invslot[x].innerHTML = await renderItem(inv[x])
+			}
+			tempslot.innerHTML = await renderItem(inventory.tempslot)
 		}
-		tempslot.innerHTML = await renderItem(inventory.tempslot)
 	}
 }
 
