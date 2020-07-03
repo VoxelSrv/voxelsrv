@@ -77,7 +77,6 @@ function buildModel(model, texture) {
 			var cords = box[y].coordinates
 			var off = box[y].textureOffset
 
-			console.log(cords)
 			faceUV[0] = new BABYLON.Vector4( ( off[0] + cords[5] ) / txtSize[0], (txtSize[1] - cords[4] - cords[5] - off[1]) / txtSize[1], ( cords[3] + cords[5] + off[0] ) / txtSize[0], ( txtSize[1] - cords[5] - off[1] )/ txtSize[1])
 			faceUV[1] = new BABYLON.Vector4( ( off[0] + cords[5]*2 + cords[3] ) / txtSize[0], (txtSize[1] - cords[4] - cords[5] - off[1]) / txtSize[1], ( cords[5]*2 + cords[3]*2 + off[0] ) / txtSize[0], ( txtSize[1] - cords[5] - off[1] )/ txtSize[1])
 			faceUV[2] = new BABYLON.Vector4( ( off[0] ) / txtSize[0], (txtSize[1] - cords[4] - cords[5] - off[1]) / txtSize[1], (off[0] + cords[5] ) / txtSize[0], ( txtSize[1] - cords[5] - off[1] )/ txtSize[1])

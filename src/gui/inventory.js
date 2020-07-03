@@ -1,3 +1,6 @@
+import { isMobile } from 'mobile-device-detect'
+
+
 export function setupHotbar(noa) {
 	var eid = noa.playerEntity
 	var inventory = noa.ents.getState(eid, 'inventory')
@@ -17,6 +20,21 @@ export function setupHotbar(noa) {
 		hotbar[x].classList.add('hotbar_item')
 		row.appendChild(hotbar[x])
 	}
+	if (isMobile) {
+		var invButton = document.createElement('th')
+		invButton.id = 'hotbar_invbutton'
+		invButton.addEventListener('click', function(){ 
+			var inv = document.getElementById('game_inventory_screen')
+			var input = document.getElementById('game_chatinput')
+
+			if (input.style.display != 'none') {}
+			else if (inv.style.display == 'none') {
+				inv.style.display = 'initial'
+			}
+		} )
+		row.appendChild(invButton)
+	}
+
 	div.appendChild(row)
 	var inv = {}
 	var sel = inventory.selected
@@ -59,10 +77,9 @@ export async function setupInventory(noa, socket) { // Opens inventory
 	var slot = 9
 
 	var backpack = document.createElement('table') // Backpack Inventory
-	backpack.style = 'max-height: 410px; display: block; overflow-y: scroll;'
+	backpack.id = 'game_inventory_backpack'
 
 	invGui.appendChild(backpack)
-
 
 
 	tempslot = document.createElement('div') // Item at cursor
@@ -73,6 +90,15 @@ export async function setupInventory(noa, socket) { // Opens inventory
 
 	screen.appendChild(tempslot)
 
+	if (isMobile) { // Mobile exit button
+		var invExit = document.createElement('div')
+		invExit.id = 'game_inventory_exit'
+		invExit.addEventListener('click', function(){ 
+			var inv = document.getElementById('game_inventory_screen')
+			inv.style.display = 'none'
+		} )
+		screen.appendChild(invExit)
+	}
 
 	for (var x = 0; x < (invItems.length/9)-1; x++) { // Inventory slots (backpack)
 		var row = document.createElement('tr')
@@ -90,6 +116,7 @@ export async function setupInventory(noa, socket) { // Opens inventory
 	}
 
 	var row_hotbar = document.createElement('tr')
+	row_hotbar.id = 'game_inventory_hotbar'
 	invGui.appendChild(row_hotbar)
 	
 	for (var x = 0; x < 9; x++) { // Inventory slots (hotbar)

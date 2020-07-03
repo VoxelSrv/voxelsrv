@@ -86,6 +86,12 @@
 	background-color: #97979788;
 }
 
+#game_inventory_backpack {
+	max-height: 410px;
+	display: block;
+	overflow-y: scroll;
+}
+
 .hotbar {
 	position:fixed;
 	bottom:5px;
