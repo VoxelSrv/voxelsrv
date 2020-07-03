@@ -29,6 +29,7 @@
 	font-size:20px;
 	text-align:center; 
 	margin: 2px;
+	margin-bottom: -10px;
 	padding:8px;
 	transition: background-color 0.1s;
 
@@ -86,11 +87,6 @@
 	background-color: #97979788;
 }
 
-#game_inventory_backpack {
-	max-height: 410px;
-	display: block;
-	overflow-y: scroll;
-}
 
 .hotbar {
 	position:fixed;
@@ -295,11 +291,12 @@ body {
 }
 
 #game_inventory_screen {
+	backdrop-filter: blur(2px);
 	position: absolute;
-	top: 0;
-	right: 0;
-	bottom: 0;
-	left: 0;
+	top: 0px;
+	right: 0px;
+	bottom: 0px;
+	left: 0px;
 	z-index:1;
 	color:white;
 	height:auto;
@@ -309,17 +306,25 @@ body {
 	text-align:center;
 	padding:3px;
 	min-width:2em;
+	
 }
 
 #game_inventory {
-	position:fixed;
-	bottom:50%;
-	left:50%;
+	backdrop-filter: none;
+	position: relative;
+	top: 50%;
+	transform: translate(0, -50%);
 	z-index:2;
+	width: 100%;
 	color:white;
-	height:auto; 
-	width:auto;
 	padding:3px;
 	min-width:2em;
-	transform: translate(-50%, 50%);
+}
+
+
+#game_inventory_backpack {
+	max-height: 410px;
+	max-width: 620px;
+	display: inline-block;
+	overflow-y: scroll;
 }

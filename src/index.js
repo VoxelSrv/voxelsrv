@@ -47,9 +47,9 @@ const engineParams = {
 	chunkAddDistance: 5.5, // Make it changeable?
 	chunkRemoveDistance: 6.0, // ^
 	blockTestDistance: 7, // Per Gamemode?
-	tickRate: 60, // Maybe make it lower
+	tickRate: ( isMobile ? 65 : 50 ), // Maybe make it lower
 	texturePath: '',
-	playerStart: [0, 100, 0], // Make y changeable based on terrain/last player possition
+	playerStart: [0, 100, 0],
 	playerHeight: 1.85,
 	playerWidth: 0.5,
 	playerAutoStep: isMobile,
