@@ -1,6 +1,6 @@
 #game_hotbar {
-	transform: translateX(-50%) scale(0.8);
-	bottom:0px !important;
+	transform: translateX(-50%) scale(0.75);
+	bottom:-5px !important;
 	left:50%;
 }
 
@@ -19,4 +19,55 @@
 
 #game_version {
 	display: none;
+}
+
+.hotbar_item {
+	margin: 1px;
+}
+
+#hotbar_invbutton {
+	z-index: 2;
+    display: inline-block;
+    color: white;
+	background-color: #77000088;
+	image-rendering: pixelated;
+	background-size: cover;
+	background-image: url(./textures/gui/inventorybutton.png);
+    height: 64px;
+    width: 32px;
+    font-size: 20px;
+    text-align: center;
+    margin: 2px;
+	padding: 8px;
+}
+
+#game_inventory_backpack {
+	max-height: 200px;
+	transform: scale(0.9);
+}
+
+#game_inventory_hotbar {
+	transform: scale(0.9);
+}
+
+#game_inventory ::-webkit-scrollbar {
+    width: 12px;
+}
+
+#game_inventory_exit {
+	height: 32px;
+	width: 32px;
+	color: white;
+	position: absolute;
+	top: 5px;
+	right: 5px;
+	background-color: #77000088;
+	image-rendering: pixelated;
+	background-size: cover;
+	background-image: url(./textures/gui/inventoryexit.png);
+
+}
+
+.inventory_item {
+	display: inline-block;
 }

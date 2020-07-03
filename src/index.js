@@ -36,18 +36,6 @@ import { addToChat, parseText } from './gui/chat'
 import { playSound } from './sound'
 import { applyModel, defineModelComp } from './model'
 
-if (isMobile) {
-	var link = document.createElement('link')
-    link.rel = 'stylesheet'
-    link.href = 'mobile.css'
-	document.head.appendChild(link)
-	document.documentElement.addEventListener('click', function() {
-		if (!document.fullscreenElement) {
-			document.documentElement.requestFullscreen()
-		}
-	})
-}
-
 const engineParams = {
 	debug: true,
 	showFPS: true,
@@ -64,7 +52,7 @@ const engineParams = {
 	playerStart: [0, 100, 0], // Make y changeable based on terrain/last player possition
 	playerHeight: 1.85,
 	playerWidth: 0.5,
-	playerAutoStep: isMobile, // true for mobile?
+	playerAutoStep: isMobile,
 	clearColor: [0.8, 0.9, 1],
 	ambientColor: [1, 1, 1],
 	lightDiffuse: [1, 1, 1],
@@ -94,6 +82,18 @@ const engineParams = {
 	}
 }
 
+
+if (isMobile) {
+	var link = document.createElement('link')
+    link.rel = 'stylesheet'
+    link.href = 'mobile.css'
+	document.head.appendChild(link)
+	document.documentElement.addEventListener('click', function() {
+		if (!document.fullscreenElement) {
+			document.documentElement.requestFullscreen()
+		}
+	})
+}
 
 socket.on('login-request', function(dataLogin) {
 	socket.emit('login', {
