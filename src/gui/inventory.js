@@ -48,22 +48,12 @@ export async function setupInventory(noa, socket) { // Opens inventory
 	var screen = document.createElement('div') // Main screen (blocks integration with canvas)
 	inventoryscreen = screen
 	screen.id = 'game_inventory_screen'
-	var style = 'position: absolute; top: 0; right: 0; bottom: 0; left: 0; z-index:1;'
-	style += 'color:white; height:auto; width:auto; background-color: #00000055;'
-	style += 'font-size:40px; text-align:center; padding:3px;'
-	style += 'min-width:2em;'
-	screen.style = style
 	screen.style.display = 'none'
 	document.body.appendChild(screen)
 
 
 	var invGui = document.createElement('table') // Inventory table
 	invGui.id = 'game_inventory'
-	var style = 'position:fixed; bottom:50%; left:50%; z-index:2;'
-	style += 'color:white; height:auto; width:auto;'
-	style += 'font-size:40px; padding:3px;'
-	style += 'min-width:2em; transform: translate(-50%, 50%);'
-	invGui.style = style
 	screen.appendChild(invGui)
 	var hotbar = {}
 	var slot = 9
