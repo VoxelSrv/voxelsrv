@@ -76,7 +76,7 @@ const engineParams = {
 		"pause": ["P"],
 		"muteMusic": ["O"],
 		"thirdprsn": ["M"],
-		"cmd": ["<enter>"],
+		"chatenter": ["<enter>"],
 		"chat": ["T"],
 		"tab": ["<tab>"]
 	}

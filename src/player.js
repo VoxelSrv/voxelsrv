@@ -90,6 +90,16 @@ export function setupControls(noa, socket) {
 			}, 500)
 			
 		}
+
+	noa.inputs.down.on('chatenter', function() {
+		var input = document.getElementById('game_chatinput')
+		if (input.style.display != 'none') { 
+			sendFromInput(socket)
+			noa.container.canvas.requestPointerLock()
+			input.style.display = 'none'
+			noa.setPaused(false)
+		}
+	})
 		
 	})
 
