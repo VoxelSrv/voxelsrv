@@ -7,50 +7,70 @@ export function setupMobile(noa) {
 	var timer = 0
 	var touchTime = 0
 	var isTouching = false
-	var loop
-	var breaking
+	var loop = null
+	var breaking = null
 
 	var oldMovePos = [0, 0]
 
-	noa.container.element.ontouchstart = function(ev) {
+	noa.container.canvas.ontouchstart = function(ev) {
+		oldMovePos = [event.clientX, event.clientY]
+		if (ev.target != noa.container.canvas) return
+
 		ev.preventDefault()
+		if (loop != null) {
+			clearInterval(loop)
+			clearInterval(breaking)
+		}
 		isTouching = true
 		touchTime = new Date().getTime()/1000
 		loop = setInterval(function() {
 			timer = new Date().getTime()/1000 - touchTime
-		}, 10)
+		}, 2)
 		breaking = setInterval(function() {
-			if (timer > 0.6) {
+			if (timer > 0.7) {
 				noa.inputs.down.emit('fire')
 			}
 		}, 400)
 	}
 
-	noa.container.element.ontouchmove = function(ev) {
+	noa.container.canvas.ontouchmove = function(ev) {
 		ev.preventDefault()
-		touchTime = new Date().getTime()/1000 + 0.5
+		console.log(event)
+		var x = Math.abs( oldMovePos[0] - event.targetTouches[0].clientX)
+		var y = Math.abs( oldMovePos[1] - event.targetTouches[0].clientY)
+
+		if (x > 3 || y > 3) touchTime = new Date().getTime()/1000 + 0.5
+
+		oldMovePos = [event.targetTouches[0].clientX, event.targetTouches[0].clientY]
+
 	}
 
-	noa.container.element.ontouchend = function(ev) {
+	noa.container.canvas.ontouchend = function(ev) {
+		if (ev.target != noa.container.canvas) return
+
 		ev.preventDefault()
 
-		if ( 0 < timer && timer < 0.6) {
+		if ( 0 <= timer && timer < 0.7) {
 			noa.inputs.down.emit('alt-fire')
 			}
-		clearInterval(loop)
-		clearInterval(breaking)
+		if (loop != null) {
+			clearInterval(loop)
+			clearInterval(breaking)
+		}
 
 		isTouching = false
 		timer = 0
 	}
 
-	noa.container.element.ontouchcancel = function(ev) {
-		if (ev.target != noa.container.cancas)
+	noa.container.canvas.ontouchcancel = function(ev) {
+		if (ev.target != noa.container.canvas) return
 
 		ev.preventDefault()
 
-		clearInterval(loop)
-		clearInterval(breaking)
+		if (loop != null) {
+			clearInterval(loop)
+			clearInterval(breaking)
+		}
 
 		isTouching = false
 		timer = 0
@@ -78,8 +98,8 @@ export function setupMobile(noa) {
 		stick.style.transition = '0s'
 		if (event.changedTouches) {
 			dragStart = {
-				x: event.changedTouches[0].clientX,
-				y: event.changedTouches[0].clientY,
+				x: event.targetTouches[0].clientX,
+				y: event.targetTouches[0].clientY,
 			}
 			return
 		}
@@ -93,9 +113,9 @@ export function setupMobile(noa) {
 
 		if (dragStart === null) return
 		event.preventDefault()
-		if (event.changedTouches) {
-			event.clientX = event.changedTouches[0].clientX
-			event.clientY = event.changedTouches[0].clientY
+		if (event.targetTouches) {
+			event.clientX = event.targetTouches[0].clientX
+			event.clientY = event.targetTouches[0].clientY
 		}
 		const xDiff = event.clientX - dragStart.x
 		const yDiff = event.clientY - dragStart.y
@@ -177,8 +197,5 @@ export function setupMobile(noa) {
 	}
 
 	document.body.appendChild(chat)
-
-
-
 
 }

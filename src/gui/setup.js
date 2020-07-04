@@ -13,7 +13,7 @@ export function setupGuis(noa, server, socket, dataPlayer, dataLogin) {
 	setupCross()
 	setupHotbar(noa, socket)
 	setupInventory(noa, socket)
-	setupChatbox()
+	setupChatbox(noa)
 	setupTab()
 	setupClouds(noa)
 	//setupSkybox(noa)
