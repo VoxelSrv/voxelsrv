@@ -29,6 +29,7 @@
 	font-size:20px;
 	text-align:center; 
 	margin: 2px;
+	margin-bottom: -10px;
 	padding:8px;
 	transition: background-color 0.1s;
 
@@ -85,6 +86,7 @@
 .inventory_item_hotbar:hover {
 	background-color: #97979788;
 }
+
 
 .hotbar {
 	position:fixed;
@@ -261,4 +263,68 @@ body {
 
 #game_chatbox::-webkit-scrollbar {
     width: 0px;
+}
+
+#game_version {
+	position:absolute;
+	top:5;
+	left:5;
+	z-index:0;
+	color:white;
+	text-shadow: 1px 1px black;
+	font-size:20px;
+	margin:4px;
+}
+
+#game_cross {
+	position:absolute;
+	top:50%;
+	left:50%;
+	z-index:0;
+	transform: translate(-50% -50%);
+	border-radius:50%;
+	background-color: white;
+	filter: opacity(0.5);
+	height:6px;
+	width:6px;
+	backdrop-filter: invert(1);
+}
+
+#game_inventory_screen {
+	backdrop-filter: blur(2px);
+	position: absolute;
+	top: 0px;
+	right: 0px;
+	bottom: 0px;
+	left: 0px;
+	z-index:1;
+	color:white;
+	height:auto;
+	width:auto;
+	background-color: #00000055;
+	font-size:2em;
+	text-align:center;
+	padding:3px;
+	min-width:2em;
+	
+}
+
+#game_inventory {
+	backdrop-filter: none;
+	position: relative;
+	top: 50%;
+	transform: translate(0, -50%);
+	z-index:2;
+	width: 100%;
+	color:white;
+	padding:3px;
+	min-width:2em;
+}
+
+
+#game_inventory_backpack {
+	max-height: 410px;
+	max-width: 620px;
+	display: inline-block;
+	overflow-y: scroll;
 }

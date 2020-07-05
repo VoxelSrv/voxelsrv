@@ -77,7 +77,6 @@ function buildModel(model, texture) {
 			var cords = box[y].coordinates
 			var off = box[y].textureOffset
 
-			console.log(cords)
 			faceUV[0] = new BABYLON.Vector4( ( off[0] + cords[5] ) / txtSize[0], (txtSize[1] - cords[4] - cords[5] - off[1]) / txtSize[1], ( cords[3] + cords[5] + off[0] ) / txtSize[0], ( txtSize[1] - cords[5] - off[1] )/ txtSize[1])
 			faceUV[1] = new BABYLON.Vector4( ( off[0] + cords[5]*2 + cords[3] ) / txtSize[0], (txtSize[1] - cords[4] - cords[5] - off[1]) / txtSize[1], ( cords[5]*2 + cords[3]*2 + off[0] ) / txtSize[0], ( txtSize[1] - cords[5] - off[1] )/ txtSize[1])
 			faceUV[2] = new BABYLON.Vector4( ( off[0] ) / txtSize[0], (txtSize[1] - cords[4] - cords[5] - off[1]) / txtSize[1], (off[0] + cords[5] ) / txtSize[0], ( txtSize[1] - cords[5] - off[1] )/ txtSize[1])
@@ -101,7 +100,8 @@ function buildModel(model, texture) {
 
 			var mat = noa.rendering.makeStandardMaterial('modelmaterial-' + mdata.id + '-' + y)
 			part[y].material = mat
-			mat.diffuseTexture = new BABYLON.Texture('textures/' + texture + '.png', scene, true, true, BABYLON.Texture.NEAREST_SAMPLINGMODE)
+			if ( ( texture.startsWith('http://') || texture.startsWith('https://')  ) && game.allowCustom == true ) mat.diffuseTexture = new BABYLON.Texture(texture, scene, true, true, BABYLON.Texture.NEAREST_SAMPLINGMODE)
+			else mat.diffuseTexture = new BABYLON.Texture('textures/' + texture + '.png', scene, true, true, BABYLON.Texture.NEAREST_SAMPLINGMODE)
 
 			part[y].opaque = false
 			mat.diffuseTexture.hasAlpha = true

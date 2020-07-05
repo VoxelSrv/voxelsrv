@@ -1,3 +1,10 @@
+# 0.1.7 (Stable)
+- You can now use textures loaded from other websites (like imgur/own website)
+- Replaced Howler with Babylon Audio
+- Block limit changed to 65535 (Change in Noa)
+- Added clouds
+- Early support for playing on touchscreen/mobile
+
 # 0.1.6
 - Add basic support for Json Entity Models ( [https://github.com/sp614x/optifine/blob/master/OptiFineDoc/doc/cem_model.txt](Format used by Optifine, a Minecraft Mod) ). For now only few properties are used by game.
 - Added nametags

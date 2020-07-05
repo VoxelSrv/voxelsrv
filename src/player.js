@@ -1,12 +1,14 @@
 import { sendFromInput } from "./gui/chat"
-import { protocol } from "socket.io-client"
+
+var noa
+
 
 export function setupControls(noa, socket) {
 	var eid = noa.playerEntity
 
 	noa.blockTargetIdCheck = function(id) {
 		if (blocks[id] != undefined) {
-			if (blocks[id].fluid == true) return false
+			if (blocks[id].options.fluid == true) return false
 			return true
 		}
 		else return false
@@ -72,17 +74,6 @@ export function setupControls(noa, socket) {
 		}
 	})
 
-	// Command prompt
-	noa.inputs.down.on('cmd', function() {
-		var input = document.getElementById('game_chatinput')
-		if (input.style.display != 'none') { 
-			sendFromInput(socket)
-			noa.container.canvas.requestPointerLock()
-			input.style.display = 'none'
-			noa.setPaused(false)
-		}
-	})
-
 	noa.inputs.down.on('chat', function() {
 		var input = document.getElementById('game_chatinput')
 		if (input.style.display == 'none') {
@@ -99,17 +90,24 @@ export function setupControls(noa, socket) {
 			}, 500)
 			
 		}
+
+	noa.inputs.down.on('chatenter', function() {
+		var input = document.getElementById('game_chatinput')
+		if (input.style.display != 'none') { 
+			sendFromInput(socket)
+			noa.container.canvas.requestPointerLock()
+			input.style.display = 'none'
+			noa.setPaused(false)
+		}
+	})
 		
 	})
 
 	noa.inputs.down.on('tab', function () {
-		console.log(1)
 		document.getElementById('game_tab').style.display = 'initial'
 	})
 
 	noa.inputs.up.on('tab', function () {
-		console.log(2)
-
 		document.getElementById('game_tab').style.display = 'none'
 	})
 
@@ -142,7 +140,9 @@ export function setupControls(noa, socket) {
 }
 
 
-export function setupPlayer(noa, invData) {
+export function setupPlayer(noa2, invData) {
+	noa = noa2
+
 	var eid = noa.playerEntity
 	var dat = noa.entities.getPositionData(eid)
 	
@@ -185,6 +185,11 @@ export function setupPlayer(noa, invData) {
 		move.airJumps = 0
 
 	}
+
+	noa.entities.addComponent(eid, noa.entities.names.mesh, {
+		mesh: new BABYLON.Mesh('main', scene),
+		offset: offset
+	})
 }
 
 

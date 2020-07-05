@@ -10,7 +10,8 @@ console.log('Username: ' + username, 'Server: ' + server)
 
 global.game = {
 	name: 'VoxelSRV',
-	version: '0.1.6'
+	version: '0.1.7',
+	allowCustom: true
 }
 const io = require('socket.io-client')
 const cruncher = require('voxel-crunch')
@@ -22,6 +23,7 @@ const socket = new io('ws://' + server, {
 })
 
 import Engine from 'noa-engine'
+import { isMobile } from 'mobile-device-detect'
 import * as BABYLON from '@babylonjs/core/Legacy/legacy'
 import 'babylonjs-loaders'
 import { registerBlocks, registerItems } from './registry'
@@ -32,7 +34,6 @@ import { setChunk } from './world'
 import { setupPlayer, setupControls } from './player'
 import { addToChat, parseText } from './gui/chat'
 import { playSound } from './sound'
-import { Socket } from 'socket.io-client'
 import { applyModel, defineModelComp } from './model'
 
 const engineParams = {
@@ -40,18 +41,18 @@ const engineParams = {
 	showFPS: true,
 	inverseY: false,
 	inverseX: false,
-	sensitivityX: 15, // Make it changeable?
-	sensitivityY: 15, // ^
+	sensitivityX: ( isMobile ? 50 : 15 ), // Make it changeable?
+	sensitivityY: ( isMobile ? 50 : 15 ), // ^
 	chunkSize: 24, // Don't touch this
 	chunkAddDistance: 5.5, // Make it changeable?
 	chunkRemoveDistance: 6.0, // ^
-	blockTestDistance: 8, // Per Gamemode?
-	tickRate: 50, // Maybe make it lower
-	texturePath: 'textures/',
-	playerStart: [0, 100, 0], // Make y changeable based on terrain/last player possition
+	blockTestDistance: 7, // Per Gamemode?
+	tickRate: ( isMobile ? 65 : 50 ), // Maybe make it lower
+	texturePath: '',
+	playerStart: [0, 100, 0],
 	playerHeight: 1.85,
 	playerWidth: 0.5,
-	playerAutoStep: false, // true for mobile?
+	playerAutoStep: isMobile,
 	clearColor: [0.8, 0.9, 1],
 	ambientColor: [1, 1, 1],
 	lightDiffuse: [1, 1, 1],
@@ -75,17 +76,30 @@ const engineParams = {
 		"pause": ["P"],
 		"muteMusic": ["O"],
 		"thirdprsn": ["M"],
-		"cmd": ["<enter>"],
+		"chatenter": ["<enter>"],
 		"chat": ["T"],
 		"tab": ["<tab>"]
 	}
 }
 
 
+if (isMobile) {
+	var link = document.createElement('link')
+    link.rel = 'stylesheet'
+    link.href = 'mobile.css'
+	document.head.appendChild(link)
+	document.documentElement.addEventListener('click', function() {
+		if (!document.fullscreenElement) {
+			document.documentElement.requestFullscreen()
+		}
+	})
+}
+
 socket.on('login-request', function(dataLogin) {
 	socket.emit('login', {
 		username: username,
-		protocol: 1
+		protocol: 1,
+		mobile: isMobile
 	})
 
 	socket.on('kick', function(data) {
@@ -111,6 +125,7 @@ socket.on('login-request', function(dataLogin) {
 		var moveState = noa.inputs.state
 		var lastPos = {}
 		var lastRot = 0
+		var chunkList = []
 
 		registerBlocks(noa, dataPlayer.blocks, dataPlayer.blockIDs)
 		registerItems(noa, dataPlayer.items)
@@ -124,7 +139,8 @@ socket.on('login-request', function(dataLogin) {
 		socket.on('chunkdata', function(data) {
 			var chunkdata = cruncher.decode(Object.values(data.chunk), new Uint16Array(24 * 120 * 24))
 			var array = new ndarray(chunkdata, [24, 120, 24])
-			setChunk(data.id, array, noa)
+			
+			chunkList.push([data.id, array])
 		})
 
 		socket.on('block-update', function(data) {
@@ -134,7 +150,7 @@ socket.on('login-request', function(dataLogin) {
 		socket.on('inventory-update', function(data) {
 			noa.ents.getState(noa.playerEntity, 'inventory').main = data.main
 			noa.ents.getState(noa.playerEntity, 'inventory').tempslot = data.tempslot
-			updateInventory()
+			updateInventory(noa)
 		})
 
 		socket.on('chat', function(data) { 
@@ -148,7 +164,16 @@ socket.on('login-request', function(dataLogin) {
 
 		socket.on('teleport', function(data) {
 			noa.ents.setPosition(noa.playerEntity, data)
-			console.log(data)
+			console.log('Teleport: ', data)
+		})
+
+		socket.on('movement-change', function(data) {
+			var move = noa.ents.getMovement(noa.playerEntity)
+			move = data
+		})
+
+		socket.on('skybox-colors', function(data) {
+			
 		})
 
 		socket.on('entity-spawn', async function(data) {
@@ -178,13 +203,18 @@ socket.on('login-request', function(dataLogin) {
 			}
 		})
 
-		socket.on('sound-play', function(data) { playSound(data.sound, data.volume) } )
+		socket.on('sound-play', function(data) { playSound(data.sound, data.volume, data.position, noa) } )
 
 
-		socket.emit('move', {pos: noa.ents.getState(noa.playerEntity, 'position').position, rot: noa.ents.getState(noa.playerEntity, 'position').position})
+		socket.emit('move', {pos: noa.ents.getState(noa.playerEntity, 'position').position, rot: noa.camera.heading})
 		var timerPos = 0
 
-		
+		setInterval(async function() {
+			if (chunkList.length != 0) {
+				setChunk(chunkList[0][0], chunkList[0][1], noa)
+				chunkList.shift()
+			}
+		}, 50)
 		noa.on('tick', function() {
 			timerPos = timerPos + 1
 			if (timerPos == 1) {
@@ -198,6 +228,7 @@ socket.on('login-request', function(dataLogin) {
 					socket.emit('move', {pos: pos, rot: rot})
 				}
 			}
+
 		})
 		noa.on('beforeRender', async function() {
 			Object.values(entityList).forEach(async function (id) {
@@ -208,10 +239,16 @@ socket.on('login-request', function(dataLogin) {
 					vec3.lerp(move, pos, newPos, 0.1)			
 					var rot = noa.ents.getState(id, 'position').rotation
 					noa.ents.setPosition(id, move)
-					noa.ents.getState(id, noa.entities.names.mesh).mesh.rotation.y = rot/2
+
+					var oldRot = noa.ents.getState(id, noa.entities.names.mesh).mesh.rotation.y
+
+					if (rot/2 - oldRot > 5) noa.ents.getState(id, noa.entities.names.mesh).mesh.rotation.y = rot/2
+					else noa.ents.getState(id, noa.entities.names.mesh).mesh.rotation.y = (rot/2 + oldRot)/2
+					
+					
 
 					if (noa.ents.getState(id, 'model').nametag != undefined) {
-						noa.ents.getState(id, 'model').nametag.rotation.y = noa.camera.heading - rot/2
+						noa.ents.getState(id, 'model').nametag.rotation.y = noa.camera.heading - noa.ents.getState(id, noa.entities.names.mesh).mesh.rotation.y
 						noa.ents.getState(id, 'model').nametag.rotation.x = noa.camera.pitch
 
 					}
