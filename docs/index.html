@@ -1,136 +1,29 @@
 <!DOCTYPE HTML>
-<html lang="pl">
-
-<head>
-	<title>VoxelSrv</title>
-	<meta charset="utf-8">
-	<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
-	<style type="text/css">
-		body {
-			background-color: white;
-			margin: 0px;
-			overflow: hidden;
-			-moz-user-select: none;
-			-webkit-user-select: none;
-			-ms-user-select: none;
-		}
-	</style>
-	<meta name="mobile-web-app-capable" content="yes">
-	<meta name="apple-mobile-web-app-capable" content="yes">
-	<link rel="manifest" href="/manifest.json">
-	<link rel="stylesheet" href="style.css">
-	<link rel="stylesheet" href="https://anothermc.pl/assets/css/bootstrap.min.css">
-	<link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700&display=swap" rel="stylesheet">
-</head>
-
-<body oncontextmenu="return false;" style="overflow-y: scroll;">
-	<div class="container text-light" style="margin-top:10px; background-color: #11111198; padding: 1%;">
-		<div>
-			<div class="logo" style="display: inline-block;"></div>
-			<span class="align-top" style="font-family: 'silkscreen'; font-size: 64px; display: inline-block;;
-			">VoxelSrv</span>
-		</div>
-		<br>
-		<div class="align-top" style="margin-bottom: 10px;">
-			<form id="start">
-				<div style="display: inline-block;">
-					<h4>Nickname</h4>	
-					<input id="nickname" required>
-				</div>
-				<div style="display: inline-block;">
-					<h4>Server</h4>	
-					<input id="ip" required>
-				</div>
-				<div style="display: inline-block;">
-					<input type='submit' value='Join game'>
-				</div>
-			</form>
-		</div>
-		<div>
-			<table id="server-list" class="text-align: center; col-md-8 table table-bordered table-sm" style="background-color: #eeeeee;">
-				<thead class="thead-dark">
-					<tr>
-						<th scope="col">Address</th>
-						<th scope="col">Name</th>
-						<th scope="col">Motd</th>
-						<th scope="col"></th>
-					</tr>
-				</thead>
-				<tbody id="servers" class="table-hover">
-
-				</tbody>
-			</table>
-		</div>
-
-		<br>
-
-		<footer>
-			<a href="https://github.com/Patbox/voxelsrv" class="text-light">Github (client)</a> / 
-			<a href="https://github.com/Patbox/voxelsrv-server" class="text-light">Github (server)</a> / 
-			<a href="https://discord.com/invite/K9PdsDh" class="text-light">Discord</a>
-			<span class="float-right">Look of this page is temporary.</span>
-		</footer>
-
-	</div>
-</body>
-
-	<script>
-
-		document.getElementById('start').addEventListener('submit', function(e) {
-			e.preventDefault()
-			startGame()
-
-		})
-
-		var table = document.getElementById("servers")
-		var x = 0
-
-		fetch('http://pb4.eu:9000').then(response => response.json())
-		.then(function(data) {
-			var array = Object.values(data)
-			array.forEach( function(item) {
-				var row = table.insertRow(x)
-				x = x + 1
-
-                var cell1 = row.insertCell(0)
-                var cell2 = row.insertCell(1)
-				var cell3 = row.insertCell(2)
-				var cell4 = row.insertCell(3)
-
-
-                cell1.innerHTML = item.ip
-                cell2.innerHTML = item.name
-				cell3.innerHTML = item.motd
-
-				var button = document.createElement('button')
-				button.innerHTML = 'Select'
-				button.classList.add("btn")
-				button.classList.add("btn-outline-secondary")
-				button.classList.add("btn-sm")
-				cell4.appendChild(button)
-				button.onclick = function(){ document.getElementById("ip").value = item.ip }
-
-			})
-			
-		})
-
-		function startGame() {
-			window.location.search = '?username=' + document.getElementById('nickname').value + '&ip=' + document.getElementById('ip').value
-		}
-
-		var x = new URLSearchParams(window.location.search)
-
-		if (x.get('ip') && x.get('username')) {
-			document.body.innerHTML = ''
-
-			var script = document.createElement('script')
-			script.src = "babylon.js"
-
-			var script2 = document.createElement('script')
-			script2.src = "bundle.js"
-
-			document.body.appendChild(script)
-			document.body.appendChild(script2)
-		}
-	</script>
+<html>
+	<head>
+		<title>VoxelSrv</title>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+		<style type="text/css">
+			body {
+				background-color: white;
+				margin: 0px;
+				overflow: hidden;
+				overflow-y: scroll;
+				-moz-user-select: none;
+				-webkit-user-select: none;
+				-ms-user-select: none;
+			}
+		</style>
+		<meta name="mobile-web-app-capable" content="yes">
+		<meta name="apple-mobile-web-app-capable" content="yes">
+		<link rel="manifest" href="/manifest.json">
+		<link rel="stylesheet" href="style.css">
+		<link rel="stylesheet" href="https://anothermc.pl/assets/css/bootstrap.min.css">
+		<link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700&display=swap" rel="stylesheet">
+		<script src="babylon.js"></script>
+		<script src="bundle.js"></script>
+	</head>
+	<body oncontextmenu="return false;">
+	</body>
 </html>

@@ -1,3 +1,6 @@
+# 0.1.8 (Master/WIP)
+- New main menu screen
+
 # 0.1.7 (Stable)
 - You can now use textures loaded from other websites (like imgur/own website)
 - Replaced Howler with Babylon Audio

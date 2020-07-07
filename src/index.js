@@ -1,87 +1,126 @@
-const options = new URLSearchParams(window.location.search)
+import { startGame } from './game'
+import { isMobile } from 'mobile-device-detect'
+import { createWindow } from './gui/window'
 
-var server = options.get('ip')
-
-var username = options.get('username')
-
-var discreason
-
-console.log('Username: ' + username, 'Server: ' + server)
 
 global.game = {
 	name: 'VoxelSRV',
-	version: '0.1.7',
+	version: '0.1.8-dev',
 	allowCustom: true
 }
-const io = require('socket.io-client')
-const cruncher = require('voxel-crunch')
-const ndarray = require('ndarray')
-var vec3 = require('gl-vec3')
 
-const socket = new io('ws://' + server, {
-	reconnection: false
-})
+var menuScreen = document.createElement('div')
+menuScreen.id = 'menu_screen'
+menuScreen.style['background-image'] = 'url(./textures/menu.jpg)'
 
-import Engine from 'noa-engine'
-import { isMobile } from 'mobile-device-detect'
-import * as BABYLON from '@babylonjs/core/Legacy/legacy'
-import 'babylonjs-loaders'
-import { registerBlocks, registerItems } from './registry'
-import { setupGuis } from './gui/setup'
-import { updateInventory } from './gui/inventory'
-import { setTab } from './gui/tab'
-import { setChunk } from './world'
-import { setupPlayer, setupControls } from './player'
-import { addToChat, parseText } from './gui/chat'
-import { playSound } from './sound'
-import { applyModel, defineModelComp } from './model'
+var menuContainer = document.createElement('div')
+menuContainer.id = 'menu_container'
 
-const engineParams = {
-	debug: true,
-	showFPS: true,
-	inverseY: false,
-	inverseX: false,
-	sensitivityX: ( isMobile ? 50 : 15 ), // Make it changeable?
-	sensitivityY: ( isMobile ? 50 : 15 ), // ^
-	chunkSize: 24, // Don't touch this
-	chunkAddDistance: 5.5, // Make it changeable?
-	chunkRemoveDistance: 6.0, // ^
-	blockTestDistance: 7, // Per Gamemode?
-	tickRate: ( isMobile ? 65 : 50 ), // Maybe make it lower
-	texturePath: '',
-	playerStart: [0, 100, 0],
-	playerHeight: 1.85,
-	playerWidth: 0.5,
-	playerAutoStep: isMobile,
-	clearColor: [0.8, 0.9, 1],
-	ambientColor: [1, 1, 1],
-	lightDiffuse: [1, 1, 1],
-	lightSpecular: [1, 1, 1],
-	groundLightColor: [0.5, 0.5, 0.5],
-	useAO: true,
-	AOmultipliers: [0.93, 0.8, 0.5],
-	reverseAOmultiplier: 1.0,
-	preserveDrawingBuffer: true,
-	gravity: [0, -14, 0],
-	bindings: {
-		"forward": ["W"],
-		"left": ["A"],
-		"backward": ["S"],
-		"right": ["D"],
-		"fire": "<mouse 1>",
-		"mid-fire": ["<mouse 2>"],
-		"alt-fire": ["<mouse 3>"],
-		"jump": "<space>",
-		"inventory": ["E", "I"],
-		"pause": ["P"],
-		"muteMusic": ["O"],
-		"thirdprsn": ["M"],
-		"chatenter": ["<enter>"],
-		"chat": ["T"],
-		"tab": ["<tab>"]
-	}
+menuScreen.appendChild(menuContainer)
+
+
+var menuLogo = document.createElement('img')
+menuLogo.id = 'menu_logo'
+menuLogo.src = './textures/gui/logo.png'
+
+menuContainer.appendChild(menuLogo)
+
+
+var multiplayerMenu = document.createElement('div')
+multiplayerMenu.style.padding = '10px'
+
+var nicknameInput = document.createElement('input')
+nicknameInput.id = 'menu_nickname'
+nicknameInput.classList.add('form-control-lg')
+nicknameInput.setAttribute('required', '');
+nicknameInput.setAttribute('placeholder', "Username");
+
+multiplayerMenu.appendChild(nicknameInput)
+
+
+var serverInput = document.createElement('input')
+serverInput.id = 'menu_server'
+serverInput.classList.add('form-control-lg')
+serverInput.setAttribute('required', '');
+serverInput.setAttribute('placeholder', "Server");
+
+multiplayerMenu.appendChild(serverInput)
+
+var connectButton = document.createElement('button')
+connectButton.id = 'menu_connect'
+connectButton.classList.add('btn')
+connectButton.classList.add('btn-primary')
+connectButton.classList.add('btn-lg')
+connectButton.onclick = function() {
+	var nick = nicknameInput.value
+	var server = serverInput.value
+	console.log(nick, server)
+
+	startGame(nick, server, true)
 }
 
+connectButton.innerHTML = 'Join'
+
+multiplayerMenu.appendChild(connectButton)
+
+var serverList = document.createElement('table')
+
+serverList.setAttribute('class', "col-md-8 table table-bordered table-sm")
+
+var serverListHead = document.createElement('thead')
+serverListHead.classList.add('thead-dark')
+serverListHead.innerHTML =`
+	<tr>
+		<th scope="col">Address</th>
+		<th scope="col">Name</th>
+		<th scope="col">Motd</th>
+		<th scope="col"></th>
+	</tr>
+	`
+serverList.appendChild(serverListHead)
+multiplayerMenu.appendChild(serverList)
+
+var serverListBody = document.createElement('tbody')
+serverListBody.classList.add('table-hover')
+serverList.appendChild(serverListBody)
+
+
+
+
+var multiplayerWindow = createWindow('menu_multiplayer', 'Multiplayer servers', ['50vw', '50vh'], multiplayerMenu)
+multiplayerWindow.main.style.display = 'none' 
+
+menuScreen.appendChild(multiplayerWindow.main)
+
+
+var menuOptions = document.createElement('ul')
+menuOptions.id = 'menu_options'
+menuOptions.classList.add('menu_list')
+
+var multiplayerOption = document.createElement('li')
+multiplayerOption.innerHTML = 'Multiplayer'
+multiplayerOption.onclick = function() { multiplayerWindow.main.style.display = 'initial'}
+menuOptions.appendChild(multiplayerOption)
+
+var githubOption = document.createElement('li')
+githubOption.innerHTML = 'Github'
+githubOption.onclick = function() { window.open('https://github.com/Patbox/voxelsrv', '_blank') }
+menuOptions.appendChild(githubOption)
+
+var discordOption = document.createElement('li')
+discordOption.innerHTML = 'Official discord'
+discordOption.onclick = function() { window.open('https://discord.com/invite/K9PdsDh', '_blank') }
+menuOptions.appendChild(discordOption)
+
+
+menuContainer.appendChild(menuOptions)
+
+
+var menuVersion = document.createElement('div')
+menuVersion.id = 'menu_version'
+menuVersion.innerHTML = game.name + ' ' + game.version
+
+menuScreen.appendChild(menuVersion)
 
 if (isMobile) {
 	var link = document.createElement('link')
@@ -95,191 +134,38 @@ if (isMobile) {
 	})
 }
 
-socket.on('login-request', function(dataLogin) {
-	socket.emit('login', {
-		username: username,
-		protocol: 1,
-		mobile: isMobile
-	})
 
-	socket.on('kick', function(data) {
-		console.log('You has been kicked from server \nReason: ' + data)
-		discreason = data
-		return
-	})
-
-	var entityIgnore = 0
-	var entityList = {}
-
-	socket.on('entity-ignore', function(data) {
-		console.log('Ignoring player-entity: ' + data)
-		entityIgnore = data
-		if (entityList[data] != undefined) noa.ents.deleteEntity(entityList[data]); delete entityList[data]
-	})
-
-	socket.on('login-success', function(dataPlayer) {
-		document.body.innerHTML = ""
-
-		if (dataPlayer.pos != undefined) engineParams.playerStart = dataPlayer.pos
-		var noa = new Engine(engineParams)
-		var moveState = noa.inputs.state
-		var lastPos = {}
-		var lastRot = 0
-		var chunkList = []
-
-		registerBlocks(noa, dataPlayer.blocks, dataPlayer.blockIDs)
-		registerItems(noa, dataPlayer.items)
-		defineModelComp(noa)
-
-		setupControls(noa, socket)
-		setupPlayer(noa, dataPlayer.inv)
-
-		setupGuis(noa, server, socket, dataPlayer, dataLogin)
-		
-		socket.on('chunkdata', function(data) {
-			var chunkdata = cruncher.decode(Object.values(data.chunk), new Uint16Array(24 * 120 * 24))
-			var array = new ndarray(chunkdata, [24, 120, 24])
-			
-			chunkList.push([data.id, array])
-		})
-
-		socket.on('block-update', function(data) {
-			noa.setBlock(data.id, data.pos)
-		})
-
-		socket.on('inventory-update', function(data) {
-			noa.ents.getState(noa.playerEntity, 'inventory').main = data.main
-			noa.ents.getState(noa.playerEntity, 'inventory').tempslot = data.tempslot
-			updateInventory(noa)
-		})
-
-		socket.on('chat', function(data) { 
-			addToChat(data)
-			console.log('Chat: ' + data)
-		})
-
-		socket.on('tab-update', function(data) {
-			setTab(data)
-		})
-
-		socket.on('teleport', function(data) {
-			noa.ents.setPosition(noa.playerEntity, data)
-			console.log('Teleport: ', data)
-		})
-
-		socket.on('movement-change', function(data) {
-			var move = noa.ents.getMovement(noa.playerEntity)
-			move = data
-		})
-
-		socket.on('skybox-colors', function(data) {
-			
-		})
-
-		socket.on('entity-spawn', async function(data) {
-			if (entityIgnore != data.id) {
-				entityList[data.id] = noa.ents.add(Object.values(data.data.position), 1, 2, null, null, false, true)
-
-				applyModel(entityList[data.id], data.data.model, data.data.texture, data.data.offset, data.data.nametag, data.data.name)
-								
-			}
-		})
-
-		/*socket.on('entity-update', function(data) {
-			if (data.index == '')
-			noa.ents.getState()
-		})*/
-
-		socket.on('entity-despawn', function(data) {
-			if (entityList[data] != undefined) noa.ents.deleteEntity(entityList[data]); delete entityList[data]
-
-		})
-
-		socket.on('entity-move', function(data) {
-			if (entityList[data.id] != undefined) {
-				var pos = Object.values(data.data.pos)
-				noa.ents.getState(entityList[data.id], 'position').newPosition = data.data.pos
-				noa.ents.getState(entityList[data.id], 'position').rotation = data.data.rot * 2
-			}
-		})
-
-		socket.on('sound-play', function(data) { playSound(data.sound, data.volume, data.position, noa) } )
+window.onload = function() { document.body.appendChild(menuScreen) }
 
 
-		socket.emit('move', {pos: noa.ents.getState(noa.playerEntity, 'position').position, rot: noa.camera.heading})
-		var timerPos = 0
+setTimeout(function() {
+	fetch('http://pb4.eu:9000').then(response => response.json())
+		.then(function(data) {
+			var x = 0
+			var array = Object.values(data)
+			array.forEach( function(item) {
+				var row = serverListBody.insertRow(x)
+				x = x + 1
 
-		setInterval(async function() {
-			if (chunkList.length != 0) {
-				setChunk(chunkList[0][0], chunkList[0][1], noa)
-				chunkList.shift()
-			}
-		}, 50)
-		noa.on('tick', function() {
-			timerPos = timerPos + 1
-			if (timerPos == 1) {
-				timerPos = 0
-				var pos = noa.ents.getState(noa.playerEntity, 'position').position
-				var rot = noa.camera.heading
-				if (JSON.stringify(lastPos) != JSON.stringify(pos) || JSON.stringify(lastRot) != JSON.stringify(rot) ) {
-					lastPos = [...pos]
-					lastRot = JSON.parse( JSON.stringify(rot) )
+                var cell1 = row.insertCell(0)
+                var cell2 = row.insertCell(1)
+				var cell3 = row.insertCell(2)
+				var cell4 = row.insertCell(3)
 
-					socket.emit('move', {pos: pos, rot: rot})
-				}
-			}
 
-		})
-		noa.on('beforeRender', async function() {
-			Object.values(entityList).forEach(async function (id) {
-				var pos = noa.ents.getState(id, 'position').position
-				var newPos = noa.ents.getState(id, 'position').newPosition
-				if (noa.ents.getState(id, noa.entities.names.mesh) != undefined && newPos != undefined && pos != undefined) {
-					var move = vec3.create()	
-					vec3.lerp(move, pos, newPos, 0.1)			
-					var rot = noa.ents.getState(id, 'position').rotation
-					noa.ents.setPosition(id, move)
+                cell1.innerHTML = item.ip
+                cell2.innerHTML = item.name
+				cell3.innerHTML = item.motd
 
-					var oldRot = noa.ents.getState(id, noa.entities.names.mesh).mesh.rotation.y
+				var button = document.createElement('button')
+				button.innerHTML = 'Select'
+				button.classList.add("btn")
+				button.classList.add("btn-outline-secondary")
+				button.classList.add("btn-sm")
+				cell4.appendChild(button)
+				button.onclick = function(){ serverInput.value = item.ip }
 
-					if (rot/2 - oldRot > 5) noa.ents.getState(id, noa.entities.names.mesh).mesh.rotation.y = rot/2
-					else noa.ents.getState(id, noa.entities.names.mesh).mesh.rotation.y = (rot/2 + oldRot)/2
-					
-					
-
-					if (noa.ents.getState(id, 'model').nametag != undefined) {
-						noa.ents.getState(id, 'model').nametag.rotation.y = noa.camera.heading - noa.ents.getState(id, noa.entities.names.mesh).mesh.rotation.y
-						noa.ents.getState(id, 'model').nametag.rotation.x = noa.camera.pitch
-
-					}
-				}
 			})
+			
 		})
-
-	})
 })
-
-socket.once('disconnect', function() {
-	document.body.innerHTML = '' 
-	var div = document.createElement('div')
-	var style = 'position:fixed; bottom:50%; left:50%; z-index:2;'
-	style += 'color:white; height:auto; width:auto; text-shadow: 1px 1px #000000;'
-	style += 'font-size:20px; padding:3px; text-aling:center;'
-	style += 'min-width:2em; transform: translate(-50%, 50%);'
-
-	div.style = style
-	
-	var h3 = document.createElement('h3')
-	h3.innerText = "Disconnected!"
-
-	var reason = document.createElement('div')
-
-	if (discreason != undefined) reason.innerHTML = parseText(discreason)
-	else reason.innerHTML = 'Connection has been closed'
-
-	div.appendChild(h3)
-	div.appendChild(reason)
-
-	document.body.appendChild(div)
-	
-} )

@@ -230,19 +230,9 @@
   }
 
 body {
-	background-image: url("./textures/block/planks_birch.png");
+	background-image: url("./textures/block/birch_planks.png");
 	background-size: 80px;
 	image-rendering: pixelated;
-
-}
-
-.logo {
-	image-rendering: pixelated;
-	background-image: url("./textures/logo.png");
-	height: 96px;
-	width: 96px;
-	background-size: cover;
-	border-radius: 100%;
 }
 
 #game_inventory ::-webkit-scrollbar {
@@ -327,4 +317,69 @@ body {
 	max-width: 620px;
 	display: inline-block;
 	overflow-y: scroll;
+}
+
+
+#menu_screen {
+	/*backdrop-filter: blur(2px);*/
+	position: fixed;
+	top: 0px;
+	right: 0px;
+	bottom: 0px;
+	left: 0px;
+	z-index: 100;
+	height:auto;
+	width:auto;
+	/*background-color: #00000055;*/
+	background-size: cover;
+}
+
+#menu_container {
+	backdrop-filter: blur(5px);
+	position: absolute;
+	top: 5vh;
+	left: 5vh;
+	z-index: 100;
+	color:white;
+	height: 90vh;
+	width: calc(200px + 50vw);
+	background-color: #00000066;
+	font-size:2em;
+	padding:3px;
+	min-width:2em;
+}
+
+#menu_options {
+	backdrop-filter: none;
+	position: absolute;
+	top: 50%;
+	transform: translate(0, -50%);
+	z-index:101;
+	color:white;
+	padding:3px;
+	min-width:2em;
+}
+
+#menu_logo {
+	position: absolute;
+	max-height: 20%;
+	image-rendering: pixelated;
+}
+
+#menu_version {
+	font-size: 25px;
+	color: white;
+	position: absolute;
+	bottom: 5px;
+	right: 5px;
+	z-index:190;
+}
+
+.menu_list {
+	margin-left: 10px;
+	list-style: none;
+}
+
+.menu_list li:hover {
+	text-decoration: underline;
 }
