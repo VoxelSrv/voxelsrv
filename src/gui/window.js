@@ -1,3 +1,4 @@
+var zindex = 100
 
 
 export function createWindow(id, title, size, content) {
@@ -7,9 +8,8 @@ export function createWindow(id, title, size, content) {
 
 	main.style = `
 		position: absolute;
-		z-index: 999;
-		background-color: #eeeeeeaa;
-		text-align: center;
+		z-index: ${zindex};
+		background-color: #eeeeeedd;
 		top: calc(50vh - ${size[1]}/2);
 		left: calc(50vw - ${size[0]}/2);
 		`
@@ -17,14 +17,20 @@ export function createWindow(id, title, size, content) {
 	main.style.width = size[0]
 	main.style.height = size[1]
 
+	main.onclick = function() {
+		zindex++
+		main.style.zIndex = zindex
+	}
+
 	var bar = document.createElement('div')
 	bar.id = id + '_bar'
 	bar.style = `
 		padding: 10px;
 		cursor: move;
-		z-index: 999999;
+		z-index: 1;
 		background-color: #2b2b2bee;
 		color: #fff;
+		text-align: center;
 	`
 	bar.style.width = '100%'
 	bar.style.height = '40px'
@@ -36,7 +42,7 @@ export function createWindow(id, title, size, content) {
 	close.id = id + '_close'
 	close.style = `
 		cursor: pointer;
-		z-index: 999999;
+		z-index: 2;
 		background-color: #dd444466;
 		float: right;
 		color: #fff;
@@ -62,6 +68,8 @@ export function createWindow(id, title, size, content) {
 	bar.onmousedown = function(e) {
 		e = e || window.event
 		e.preventDefault()
+		zindex++
+		main.style.zIndex = zindex
 		// get the mouse cursor position at startup:
 		pos3 = e.clientX
 		pos4 = e.clientY
@@ -89,5 +97,5 @@ export function createWindow(id, title, size, content) {
  		document.onmousemove = null;
   	}
 
-	return {main: main, bar: bar}
+	return {main: main, bar: bar, close: close}
 }

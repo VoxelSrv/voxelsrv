@@ -1,3 +1,5 @@
+
+
 .hotbar_selected {
 	background-image: url(./textures/gui/selected.png);
 	image-rendering: pixelated;
@@ -233,6 +235,7 @@ body {
 	background-image: url("./textures/block/birch_planks.png");
 	background-size: 80px;
 	image-rendering: pixelated;
+	overflow: hidden;
 }
 
 #game_inventory ::-webkit-scrollbar {
@@ -382,4 +385,16 @@ body {
 
 .menu_list li:hover {
 	text-decoration: underline;
+}
+
+#menu_server_input {
+	font-size: 20px;
+}
+
+#menu_connect {
+	font-size: 16px;
+}
+
+#menu_serverlist {
+	margin-top:10px;
 }
