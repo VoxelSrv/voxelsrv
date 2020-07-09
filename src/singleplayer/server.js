@@ -38,7 +38,7 @@ function emitToClient(type, packet) {
 socket.emit = emitToClient
 io.emit = emitToClient
 
-socket.disconnect = function() { console.log('Disconnect...') }
+socket.disconnect = function() { }
 
 
 require('./src/world/main').init(cfg.world)
