@@ -99,3 +99,6 @@ export function createWindow(id, title, size, content) {
 
 	return {main: main, bar: bar, close: close}
 }
+
+
+window.createWindow = createWindow

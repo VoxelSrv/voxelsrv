@@ -1,0 +1,14 @@
+{
+	"port": 0,
+	"address": "",
+	"name": "Internal server",
+	"motd": "",
+	"public": false,
+	"maxplayers": 1,
+	"world": {
+		"seed": 43242345,
+		"border": 200,
+		"spawn": [0, 100, 0],
+		"generator": "normal"
+	}
+}

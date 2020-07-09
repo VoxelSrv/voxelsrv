@@ -1,4 +1,5 @@
 import { isMobile } from 'mobile-device-detect'
+import { createSingleplayerWindow } from './gui/menu/singleplayer'
 import { createMultiplayerWindow } from './gui/menu/multiplayer'
 import { createSettingsWindow } from './gui/menu/settings'
 
@@ -39,6 +40,10 @@ var multiplayerWindow = createMultiplayerWindow() // Creates and sets multiplaye
 multiplayerWindow.style.display = 'none'
 menuScreen.appendChild(multiplayerWindow)
 
+var singleplayerWindow = createSingleplayerWindow()
+singleplayerWindow.style.display = 'none'
+menuScreen.appendChild(singleplayerWindow)
+
 var settingsWindow = createSettingsWindow() // Creates and sets settingsWindow
 settingsWindow.style.display = 'none'
 menuScreen.appendChild(settingsWindow)
@@ -53,6 +58,11 @@ var multiplayerOption = document.createElement('li')
 multiplayerOption.innerHTML = 'Multiplayer'
 multiplayerOption.onclick = function() { multiplayerWindow.style.display = 'initial'}
 menuOptions.appendChild(multiplayerOption)
+
+var singleplayerOption = document.createElement('li')
+singleplayerOption.innerHTML = 'Singleplayer (Experimental)'
+singleplayerOption.onclick = function() { singleplayerWindow.style.display = 'initial'}
+menuOptions.appendChild(singleplayerOption)
 
 var settingsOption = document.createElement('li')
 settingsOption.innerHTML = 'Settings'

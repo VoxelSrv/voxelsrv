@@ -106,3 +106,4 @@ export function createMultiplayerWindow() {
 	return multiplayerWindow.main
 
 }
+

@@ -2,6 +2,8 @@
 var path = require('path')
 var buildPath = path.resolve('..', 'docs')
 
+var webpack = require('webpack')
+
 
 
 module.exports = (env) => ({
@@ -21,9 +23,28 @@ module.exports = (env) => ({
          * github link then this setting shouldn't be necessary 
          * (though I don't think it breaks anything..)
         */
-        symlinks: false,
+		symlinks: false,
+		
+		alias: {
+			'fs': 'browserfs/dist/shims/fs.js',
+			'buffer': 'browserfs/dist/shims/buffer.js',
+			'path': 'browserfs/dist/shims/path.js',
+			'processGlobal': 'browserfs/dist/shims/process.js',
+			'bufferGlobal': 'browserfs/dist/shims/bufferGlobal.js',
+			'bfsGlobal': require.resolve('browserfs')
+		  }
 
-    },
+	},
+	module: {
+		noParse: /browserfs\.js/
+	},
+	node: {
+		process: false,
+		Buffer: false
+	},
+	plugins: [
+		new webpack.ProvidePlugin({ BrowserFS: 'bfsGlobal', process: 'processGlobal', Buffer: 'bufferGlobal' }),
+	],
     performance: {
         // change the default size warnings
         maxEntrypointSize: 1.5e6,

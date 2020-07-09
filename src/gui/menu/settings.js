@@ -45,7 +45,10 @@ export function createSettingsWindow(noa) {
 
 	var window = createWindow('menu_multiplayer', 'Settings', ['800px', '500px'], menu)
 
+	var old = window.main.onclick
+
 	window.main.onclick = function() {
+		old()
 		localStorage.setItem('nickname', nicknameInput.value)
 		//localStorage.setItem('autostep', stepInput.checked)
 

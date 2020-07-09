@@ -347,7 +347,6 @@ body {
 	height: 90vh;
 	width: calc(200px + 50vw);
 	background-color: #00000066;
-	font-size:2em;
 	padding:3px;
 	min-width:2em;
 }
@@ -360,7 +359,7 @@ body {
 	z-index:101;
 	color:white;
 	padding:3px;
-	min-width:2em;
+	font-size:1.5em;
 }
 
 #menu_logo {
