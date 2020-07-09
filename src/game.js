@@ -3,6 +3,8 @@ const io = require('socket.io-client')
 const cruncher = require('voxel-crunch')
 const ndarray = require('ndarray')
 var vec3 = require('gl-vec3')
+const EventEmiter = require('events')
+
 
 import Engine from 'noa-engine'
 import { isMobile } from 'mobile-device-detect'
@@ -65,12 +67,32 @@ const engineParams = {
 }
 
 export function startGame(username, server, allowCustom) {
+
+	if (typeof server == 'string') {
+
+		var socket = new io('ws://' + server, {
+			reconnection: false
+		})
+
+	} else {
+		const fromServer = new EventEmiter()
+		fromServer.emit2 = fromServer.emit
+
+		server.onmessage = function (m) { 
+			fromServer.emit2(m.data[0], m.data[1])
+		}
+
+		function emitToServer(type, packet) {
+			server.postMessage([type, packet])
+		}
+
+		fromServer.emit = emitToServer
+
+		var socket = fromServer
+	}
+
 	console.log('Username: ' + username, 'Server: ' + server)
 	var discreason
-
-	const socket = new io('ws://' + server, {
-		reconnection: false
-	})
 
 	socket.on('login-request', function(dataLogin) {
 		socket.emit('login', {
