@@ -1,3 +1,4 @@
+import { setupGamepad } from "./gamepad"
 import { sendFromInput } from "./gui/chat"
 
 var noa
@@ -137,6 +138,10 @@ export function setupControls(noa, socket) {
 		}
 	})
 
+
+
+	if (localStorage.getItem('gamepad') == 'true') setupGamepad(noa)
+
 }
 
 
@@ -199,7 +204,7 @@ function inventoryHasItem(eid, item, count) {
 	var items = Object.entries(inventory.main)
 
 	for (var [slot, data] of items) {
-		if (data.id == item && data.count >= count) return slot
+		if (data.id == item && data.count >= count) return parseInt(slot)
 	}
 	return -1
 }
