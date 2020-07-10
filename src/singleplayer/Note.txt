@@ -1,0 +1,1 @@
+You need to copy "src" folder from voxelsrv-server repo: https://github.com/Patbox/voxelsrv-server

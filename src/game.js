@@ -36,7 +36,7 @@ const engineParams = {
 	playerStart: [0, 100, 0],
 	playerHeight: 1.85,
 	playerWidth: 0.5,
-	playerAutoStep: isMobile,
+	playerAutoStep: (localStorage.getItem('autostep') == 'true'),
 	clearColor: [0.8, 0.9, 1],
 	ambientColor: [1, 1, 1],
 	lightDiffuse: [1, 1, 1],
@@ -208,12 +208,15 @@ export function startGame(username, server, allowCustom) {
 			socket.emit('move', {pos: noa.ents.getState(noa.playerEntity, 'position').position, rot: noa.camera.heading})
 			var timerPos = 0
 
-			setInterval(async function() {
-				if (chunkList.length != 0) {
-					setChunk(chunkList[0][0], chunkList[0][1], noa)
-					chunkList.shift()
-				}
-			}, 50)
+			setTimeout(function() {
+				setInterval(async function() {
+					if (chunkList.length != 0) {
+						setChunk(chunkList[0][0], chunkList[0][1], noa)
+						chunkList.shift()
+					}
+				}, 50)
+			}, 500)
+
 			noa.on('tick', function() {
 				timerPos = timerPos + 1
 				if (timerPos == 1) {

@@ -15,6 +15,10 @@ global.game = {
 
 if (localStorage.getItem('nickname') == undefined) localStorage.setItem('nickname', 'Player' + Math.round(Math.random() * 1000 ) )
 if (localStorage.getItem('autostep') == undefined) localStorage.setItem('autostep', isMobile)
+if (localStorage.getItem('gamepad') == undefined) localStorage.setItem('autostep', false)
+if (localStorage.getItem('singleplayer') == undefined) localStorage.setItem('singleplayer', false)
+
+
 
 
 // Main menu
@@ -59,10 +63,12 @@ multiplayerOption.innerHTML = 'Multiplayer'
 multiplayerOption.onclick = function() { multiplayerWindow.style.display = 'initial'}
 menuOptions.appendChild(multiplayerOption)
 
-var singleplayerOption = document.createElement('li')
-singleplayerOption.innerHTML = 'Singleplayer (Experimental)'
-singleplayerOption.onclick = function() { singleplayerWindow.style.display = 'initial'}
-menuOptions.appendChild(singleplayerOption)
+if (localStorage.getItem('singleplayer') == 'true') {
+	var singleplayerOption = document.createElement('li')
+	singleplayerOption.innerHTML = 'Singleplayer (Experimental)'
+	singleplayerOption.onclick = function() { singleplayerWindow.style.display = 'initial'}
+	menuOptions.appendChild(singleplayerOption)
+}
 
 var settingsOption = document.createElement('li')
 settingsOption.innerHTML = 'Settings'
