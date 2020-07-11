@@ -35,7 +35,7 @@ export function setupMobile(noa) {
 
 	noa.container.canvas.ontouchmove = function(ev) {
 		ev.preventDefault()
-		console.log(event)
+
 		var x = Math.abs( oldMovePos[0] - event.targetTouches[0].clientX)
 		var y = Math.abs( oldMovePos[1] - event.targetTouches[0].clientY)
 
