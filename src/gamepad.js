@@ -1,7 +1,7 @@
-var gamepad = null
 
 
 export function setupGamepad(noa) {
+	var gamepad = null
 
 	var block = {}
 
