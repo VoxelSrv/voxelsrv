@@ -1,5 +1,7 @@
 const EventEmiter = require('events')
 
+const fs = require('./src/fs')
+
 var version = '0.1.0'
 var protocol = 1
 
@@ -11,16 +13,17 @@ var cfg = require('./config.json')
 require('./src/blocks').init()
 require('./src/items').init()
 
-const fs = require('fs')
+if (!fs.existsSync('./players') ) fs.mkdirSync('./players')
+if (!fs.existsSync('./worlds') ) fs.mkdirSync('./worlds')
+
+
+const worldManager = require('./src/worlds')
+
+if (worldManager.exist('default') == false) worldManager.create('default', cfg.world.seed, cfg.world.generator)
+else worldManager.load('default') 
+ 
 const initProtocol = require('./src/protocol').init
 
-BrowserFS.configure({
-    fs: "InMemory"
-  }, function(e) {
-    if (e) {
-      throw e;
-    }
-  })
 
 const io = new EventEmiter()
 io.emit2 = io.emit
@@ -41,20 +44,14 @@ io.emit = emitToClient
 socket.disconnect = function() { }
 
 
-require('./src/world/main').init(cfg.world)
-
 initProtocol(io)
 
-if (!fs.existsSync('./plugins') ) fs.mkdirSync('./plugins')
-if (!fs.existsSync('./players') ) fs.mkdirSync('./players')
-if (!fs.existsSync('./world') ) fs.mkdirSync('./world')
-if (!fs.existsSync('./world/chunks') ) fs.mkdirSync('./world/chunks')
+setTimeout( () => { io.emit2('connection', socket) }, 100 )
 
-io.emit2('connection', socket)
 
 
 const players = require('./src/player')
-const items = require('./src/items')
+const items = require('./src/items') 
 
 
 players.event.on('create', function(player) {

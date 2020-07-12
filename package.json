@@ -21,7 +21,6 @@
     "@babylonjs/inspector": "^4.1.0",
     "@babylonjs/materials": "^4.1.0",
     "babylonjs-loaders": "^4.1.0",
-    "browserfs": "^1.4.3",
     "dompurify": "^2.0.12",
     "howler": "^2.2.0",
     "markdown-it": "^11.0.0",
