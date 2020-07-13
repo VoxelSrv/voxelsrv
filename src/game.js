@@ -56,13 +56,14 @@ const engineParams = {
 		"mid-fire": ["<mouse 2>"],
 		"alt-fire": ["<mouse 3>"],
 		"jump": "<space>",
-		"inventory": ["E", "I"],
-		"pause": ["P"],
+		"inventory": ["E"],
 		"muteMusic": ["O"],
 		"thirdprsn": ["M"],
 		"chatenter": ["<enter>"],
 		"chat": ["T"],
-		"tab": ["<tab>"]
+		"tab": ["<tab>"],
+		"screenshot": ["P"]
+
 	}
 }
 

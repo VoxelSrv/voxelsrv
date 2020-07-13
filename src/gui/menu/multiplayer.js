@@ -30,6 +30,8 @@ export function createMultiplayerWindow() {
 		var server = serverInput.value
 		console.log(nick, server)
 
+		//history.replaceState({}, null, '?server=' + server)
+
 		startGame(nick, server, true)
 	}
 

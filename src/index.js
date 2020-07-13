@@ -2,6 +2,7 @@ import { isMobile } from 'mobile-device-detect'
 import { createSingleplayerWindow } from './gui/menu/singleplayer'
 import { createMultiplayerWindow } from './gui/menu/multiplayer'
 import { createSettingsWindow } from './gui/menu/settings'
+import { startGame } from './game'
 
 //  Global informations
 
@@ -11,14 +12,24 @@ global.game = {
 	allowCustom: true
 }
 
+
+
 // Default settings
 
 if (localStorage.getItem('nickname') == undefined) localStorage.setItem('nickname', 'Player' + Math.round(Math.random() * 1000 ) )
 if (localStorage.getItem('autostep') == undefined) localStorage.setItem('autostep', isMobile)
 if (localStorage.getItem('gamepad') == undefined) localStorage.setItem('autostep', false)
 if (localStorage.getItem('singleplayer') == undefined) localStorage.setItem('singleplayer', false)
+if (localStorage.getItem('allowcustom') == undefined) localStorage.setItem('allowcustom', true)
+
+game.allowCustom = (localStorage.getItem('allowcustom') == 'true')
+
+// Default actions
 
 
+const options = new URLSearchParams(window.location.search)
+
+if (!!options.get('server')) { startGame(localStorage.getItem('nickname'), options.get('server') ) }
 
 
 // Main menu
