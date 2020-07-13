@@ -100,6 +100,29 @@ export function createSettingsWindow(noa) {
 	menu.appendChild(gamepadDiv)
 
 
+	// Enable custom assets
+
+	var allowCustomDiv = document.createElement('div')
+	allowCustomDiv.classList.add('form-check')
+
+	var allowCustomLabel = document.createElement('label')
+	allowCustomLabel.id = 'menu_options_allowCustom_label'
+	allowCustomLabel.classList.add('form-check-label')
+	allowCustomLabel.htmlFor = 'menu_options_allowCustom'
+	allowCustomLabel.innerHTML = 'Allow usage of custom assets from Internet'
+	
+	var allowCustomInput = document.createElement('input')
+	allowCustomInput.id = 'menu_options_allowCustom'
+	allowCustomInput.classList.add('form-check-input')
+	allowCustomInput.checked = (localStorage.getItem('allowcustom') == 'true')
+	allowCustomInput.type = 'checkbox'
+
+	allowCustomDiv.appendChild(allowCustomInput)
+	allowCustomDiv.appendChild(allowCustomLabel)
+
+	menu.appendChild(allowCustomDiv)
+
+
 	var window = createWindow('menu_settins', 'Settings', ['800px', '500px'], menu)
 
 	var old = window.main.onclick
@@ -110,7 +133,9 @@ export function createSettingsWindow(noa) {
 		localStorage.setItem('singleplayer', singleplayerInput.checked)
 		localStorage.setItem('autostep', stepInput.checked)
 		localStorage.setItem('gamepad', gamepadInput.checked)
+		localStorage.setItem('allowcustom', allowCustomInput.checked)
 
+		game.allowCustom = (localStorage.getItem('allowcustom') == 'true')
 
 
 		if (noa != undefined) {

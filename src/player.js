@@ -3,6 +3,8 @@ import { sendFromInput } from "./gui/chat"
 
 var noa
 
+const screenshot = require("canvas-screenshot")
+
 
 export function setupControls(noa, socket) {
 	var eid = noa.playerEntity
@@ -110,6 +112,10 @@ export function setupControls(noa, socket) {
 
 	noa.inputs.up.on('tab', function () {
 		document.getElementById('game_tab').style.display = 'none'
+	})
+
+	noa.inputs.up.on('screenshot', function () {
+		screenshot(noa.container.canvas, {filename: 'VoxelSRV-' + Date.now() + '.png'})
 	})
 
 	var debug = false
