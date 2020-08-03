@@ -33,11 +33,11 @@
     "noa-engine": "github:andyhall/noa#develop",
     "open-simplex-noise": "^2.3.1",
     "socket.io-client": "^2.3.0",
-    "uuid": "^8.2.0",
+    "uuid": "^8.3.0",
     "voxel-crunch": "^0.2.1"
   },
   "devDependencies": {
-    "webpack": "^4.41.5",
+    "webpack": "^4.44.1",
     "webpack-cli": "^3.3.12",
     "webpack-dev-server": "^3.11.0",
     "worker-loader": "^2.0.0"
