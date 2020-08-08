@@ -18,9 +18,11 @@ global.game = {
 
 if (localStorage.getItem('nickname') == undefined) localStorage.setItem('nickname', 'Player' + Math.round(Math.random() * 1000 ) )
 if (localStorage.getItem('autostep') == undefined) localStorage.setItem('autostep', isMobile)
-if (localStorage.getItem('gamepad') == undefined) localStorage.setItem('autostep', false)
+if (localStorage.getItem('gamepad') == undefined) localStorage.setItem('gamepad', false)
 if (localStorage.getItem('singleplayer') == undefined) localStorage.setItem('singleplayer', false)
 if (localStorage.getItem('allowcustom') == undefined) localStorage.setItem('allowcustom', true)
+if (localStorage.getItem('mouse') == undefined) localStorage.setItem('mouse', (isMobile) ? 50 : 15)
+
 
 game.allowCustom = (localStorage.getItem('allowcustom') == 'true')
 

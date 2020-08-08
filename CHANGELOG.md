@@ -1,5 +1,8 @@
 # 0.1.8 (Master/WIP)
 - New main menu screen
+- Added pause screen
+- Added options
+- Added gamepad support
 
 # 0.1.7 (Stable)
 - You can now use textures loaded from other websites (like imgur/own website)

@@ -2,7 +2,7 @@ const EventEmiter = require('events')
 
 const fs = require('./src/fs')
 
-var version = game.version
+var version = '0.0.0'
 var protocol = 1
 
 console.log('Starting VoxelSRV server version ' + version + ' [Protocol: ' + protocol + ']\n')
