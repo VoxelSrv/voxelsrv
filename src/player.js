@@ -1,5 +1,6 @@
 import { setupGamepad } from "./gamepad"
 import { sendFromInput } from "./gui/chat"
+import { isMobile } from 'mobile-device-detect'
 
 var noa
 
@@ -169,7 +170,7 @@ export function setupControls(noa, socket) {
 	// Tempfix
 	
 	noa.on('beforeRender', () => {
-		if (document.pointerLockElement != noa.container.canvas) {
+		if (document.pointerLockElement != noa.container.canvas && !isMobile) {
 			noa.inputs.state.left = false
 			noa.inputs.state.right = false
 			noa.inputs.state.forward = false

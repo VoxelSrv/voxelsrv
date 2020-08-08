@@ -186,6 +186,10 @@ export function setupMobile(noa) {
 
 	document.body.appendChild(jump)
 
+	var topButtons = document.createElement('div')
+	topButtons.id = 'game_mobile_topbuttons'
+	document.body.appendChild(topButtons)
+
 
 	var chat = document.createElement('div')
 	chat.id = 'game_mobile_chat'
@@ -196,6 +200,17 @@ export function setupMobile(noa) {
 		noa.inputs.down.emit('chat')
 	}
 
-	document.body.appendChild(chat)
+	topButtons.appendChild(chat)
+
+	var menu = document.createElement('div')
+	menu.id = 'game_mobile_menu'
+	menu.innerHTML = 'P'
+
+	menu.ontouchstart = function(ev) {
+		ev.preventDefault()
+		noa.inputs.down.emit('menu')
+	}
+
+	topButtons.appendChild(menu)
 
 }
