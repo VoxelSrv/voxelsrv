@@ -91,8 +91,43 @@ export function setupControls(noa, socket) {
 					return
 				} 
 			}, 500)
-			
+		}	
+	})
+
+	var pause = false
+	noa.inputs.down.on('menu', (e) => {
+		console.log(e)
+
+		var inv = document.getElementById('game_inventory_screen')
+		var input = document.getElementById('game_chatinput')
+		var menu = document.getElementById('menu_pause')
+
+
+		if (input.style.display != 'none') {
+			noa.container.canvas.requestPointerLock()
+			input.style.display = 'none'
+			return
+		} else if (inv.style.display != 'none') {
+			noa.container.canvas.requestPointerLock()
+			inv.style.display = 'none'
+			return
+		} else if (menu.style.display != 'none') {
+			noa.container.canvas.requestPointerLock()
+			menu.style.display = 'none'
+			return
+		} else{
+			menu.style.display = 'initial'
+			return
 		}
+	})
+
+	document.addEventListener('pointerlockchange', function() {
+		if (document.pointerLockElement == noa.container.canvas) {
+			var menu = document.getElementById('menu_pause')
+			menu.style.display = 'none'
+		}
+	}, false)
+
 
 	noa.inputs.down.on('chatenter', function() {
 		var input = document.getElementById('game_chatinput')
@@ -102,8 +137,6 @@ export function setupControls(noa, socket) {
 			input.style.display = 'none'
 			noa.setPaused(false)
 		}
-	})
-		
 	})
 
 	noa.inputs.down.on('tab', function () {
@@ -118,18 +151,6 @@ export function setupControls(noa, socket) {
 		screenshot(noa.container.canvas, {filename: 'VoxelSRV-' + Date.now() + '.png'})
 	})
 
-	var debug = false
-	var scene = noa.rendering.getScene()
-    noa.inputs.bind('debug', 'Z')
-    noa.inputs.down.on('debug', () => {
-        // inspector is very heavy, so load it via dynamic import
-        import('@babylonjs/inspector').then(data => {
-            debug = !debug
-            if (debug) scene.debugLayer.show()
-            else scene.debugLayer.hide()
-        })
-    })
-
 	// each tick, consume any scroll events and use them to zoom camera
 	noa.on('tick', async function () {
 		var scroll = noa.inputs.state.scrolly
@@ -142,7 +163,20 @@ export function setupControls(noa, socket) {
 			socket.emit('inventory-click', {slot: pickedID, type: 'select'} )
 			noa.ents.getState(noa.playerEntity, 'inventory').selected = pickedID
 		}
+
 	})
+
+	// Tempfix
+	
+	noa.on('beforeRender', () => {
+		if (document.pointerLockElement != noa.container.canvas) {
+			noa.inputs.state.left = false
+			noa.inputs.state.right = false
+			noa.inputs.state.forward = false
+			noa.inputs.state.backward = false
+		}
+	})
+
 
 
 

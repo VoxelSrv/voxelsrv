@@ -76,6 +76,35 @@ export function createSettingsWindow(noa) {
 
 	menu.appendChild(stepDiv)
 
+	// Mouse sensitivity
+
+	var mouseDiv = document.createElement('div')
+	mouseDiv.classList.add('form-check')
+	
+	var mouseLabel = document.createElement('label')
+	mouseLabel.id = 'menu_mouse_info'
+	mouseLabel.classList.add('form-check-label')
+	mouseLabel.htmlFor = 'menu_mouse'
+	mouseLabel.innerHTML = 'Mouse sensitivity: <span id="menu_mouse_number">' + localStorage.getItem('mouse') + '</span> (Def: 15)'
+
+		
+	var mouseInput = document.createElement('input')
+	mouseInput.id = 'menu_mouse'
+	mouseInput.classList.add('form-range')
+	mouseInput.value = localStorage.getItem('mouse')
+	mouseInput.max = 50
+	mouseInput.min = 1
+	mouseInput.step = 1
+	mouseInput.type = 'range'
+	mouseInput.oninput = () => {
+		document.getElementById('menu_mouse_number').innerHTML = mouseInput.value
+	}
+	
+	mouseDiv.appendChild(mouseInput)
+	mouseDiv.appendChild(mouseLabel)
+	
+	menu.appendChild(mouseDiv)
+
 
 	// Enable gamepad support
 
@@ -132,6 +161,7 @@ export function createSettingsWindow(noa) {
 		localStorage.setItem('nickname', nicknameInput.value)
 		localStorage.setItem('singleplayer', singleplayerInput.checked)
 		localStorage.setItem('autostep', stepInput.checked)
+		localStorage.setItem('mouse', mouseInput.value)
 		localStorage.setItem('gamepad', gamepadInput.checked)
 		localStorage.setItem('allowcustom', allowCustomInput.checked)
 
@@ -139,7 +169,9 @@ export function createSettingsWindow(noa) {
 
 
 		if (noa != undefined) {
-
+			( noa.ents.getPhysicsBody(noa.playerEntity) ).autoStep = stepInput.checked
+			noa.camera.sensitivityX = parseInt( mouseInput.value )
+			noa.camera.sensitivityY = parseInt( mouseInput.value )
 		}
 	}
 	

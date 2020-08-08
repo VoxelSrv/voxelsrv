@@ -25,8 +25,8 @@ const engineParams = {
 	showFPS: true,
 	inverseY: false,
 	inverseX: false,
-	sensitivityX: ( isMobile ? 50 : 15 ), // Make it changeable?
-	sensitivityY: ( isMobile ? 50 : 15 ), // ^
+	sensitivityX: parseInt( localStorage.getItem('mouse') ),
+	sensitivityY: parseInt( localStorage.getItem('mouse') ),
 	chunkSize: 24, // Don't touch this
 	chunkAddDistance: 5.5, // Make it changeable?
 	chunkRemoveDistance: 6.0, // ^
@@ -62,6 +62,7 @@ const engineParams = {
 		"chatenter": ["<enter>"],
 		"chat": ["T"],
 		"tab": ["<tab>"],
+		"menu": ["<escape>"],
 		"screenshot": ["P"]
 
 	}
