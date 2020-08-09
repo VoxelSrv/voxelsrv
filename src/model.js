@@ -1,5 +1,3 @@
-import { normalizeReference } from "markdown-it/lib/common/utils"
-
 var models = {}
 
 var noa
@@ -13,7 +11,7 @@ export function defineModelComp(noa2) {
 	})
 }
 
-export function applyModel(eid, model, texture, offset, nametag, name) {
+export function applyModel(eid, model, texture, offset, nametag, name, hitbox) {
 	if (models[model] == undefined) {
 		fetch('./models/' + model + '.jem').then(response => response.json()).then(function(data) {
 			var builded = buildModel(data, texture)
@@ -21,6 +19,21 @@ export function applyModel(eid, model, texture, offset, nametag, name) {
 			if (nametag) builded.nametag = addNametag(builded.main, name, noa.ents.getPositionData(eid).height)
 
 			noa.ents.addComponent(eid, 'model', builded)
+
+			var hitboxMesh = new BABYLON.MeshBuilder.CreateBox('hitbox', {
+				height: hitbox[1],
+				width: hitbox[0],
+				depth: hitbox[2],
+			}, scene)
+
+
+			hitboxMesh.setParent(builded.main)
+			hitboxMesh.setPositionWithLocalVector(new BABYLON.Vector3(0, hitbox[1] / 2, 0) )
+			hitboxMesh.material = noa.rendering.makeStandardMaterial()
+			hitboxMesh.material.wireframe = true
+
+
+			noa.rendering.addMeshToScene(hitboxMesh, false)
 
 			noa.entities.addComponent(eid, noa.entities.names.mesh, {
 				mesh: builded.main,
@@ -96,7 +109,6 @@ function buildModel(model, texture) {
 
 			//part.locallyTranslate(new BABYLON.Vector3((cords[0] + add/2)/scale, (cords[1] + add/2)/scale, (cords[2] + add/2)/scale));
 			part[y].setPositionWithLocalVector(new BABYLON.Vector3((cords[0] + cords[3]/2 + add/2)/scale, (cords[1] + cords[4]/2 + add/2)/scale, (cords[2] + cords[5]/2 + add/2)/scale));
-
 
 			var mat = noa.rendering.makeStandardMaterial('modelmaterial-' + mdata.id + '-' + y)
 			part[y].material = mat

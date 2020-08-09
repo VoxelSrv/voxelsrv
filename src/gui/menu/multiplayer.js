@@ -32,7 +32,7 @@ export function createMultiplayerWindow() {
 
 		//history.replaceState({}, null, '?server=' + server)
 
-		startGame(nick, server, true)
+		startGame(nick, server, null)
 	}
 
 	connectButton.innerHTML = 'Join'

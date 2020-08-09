@@ -16,7 +16,7 @@ export function createSingleplayerWindow() {
 	connectButton.innerHTML = 'Test'
 	connectButton.onclick = function() {
 		var nick = localStorage.getItem('nickname')
-		startGame(nick, new singleplayer(), true)
+		startGame(nick, new singleplayer(), 'Test')
 	}
 
 	menu.appendChild(connectButton)

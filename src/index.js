@@ -31,7 +31,7 @@ game.allowCustom = (localStorage.getItem('allowcustom') == 'true')
 
 const options = new URLSearchParams(window.location.search)
 
-if (!!options.get('server')) { startGame(localStorage.getItem('nickname'), options.get('server') ) }
+if (!!options.get('server')) { startGame(localStorage.getItem('nickname'), options.get('server'), null) }
 
 
 // Main menu

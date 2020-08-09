@@ -12,17 +12,10 @@ var cfg = require('./config.json')
 require('./src/blocks').init()
 require('./src/items').init()
 
-if (!fs.existsSync('./players') ) fs.mkdirSync('./players')
-if (!fs.existsSync('./worlds') ) fs.mkdirSync('./worlds')
-
 
 const worldManager = require('./src/worlds')
-
-if (worldManager.exist('default') == false) worldManager.create('default', cfg.world.seed, cfg.world.generator)
-else worldManager.load('default') 
  
 const initProtocol = require('./src/protocol').init
-
 
 const io = new EventEmiter()
 io.emit2 = io.emit
@@ -43,23 +36,37 @@ io.emit = emitToClient
 socket.disconnect = function() { }
 
 
-initProtocol(io)
+emitToClient('get-world', true)
 
-setTimeout( () => { io.emit2('connection', socket) }, 100 )
+socket.on('select-world', function (x) {
+	console.log('Test: ', x)
+	fs.init(x).then( () => {
+		setTimeout(() => {
+			if (!fs.existsSync('./players') ) fs.mkdirSync('./players')
+			if (!fs.existsSync('./worlds') ) fs.mkdirSync('./worlds')
+
+			if (worldManager.exist('default') == false) worldManager.create('default', cfg.world.seed, cfg.world.generator)
+			else worldManager.load('default') 
+
+			initProtocol(io)
+			require('./src/player').setIO(io)
+			require('./src/entity').setIO(io)
+
+			const players = require('./src/player')
+			const items = require('./src/items') 
 
 
+			players.event.on('create', function(player) {
+				Object.keys( items.get() ).forEach(function(item) {
+					player.inventory.add(item, items.getStack(item) , {})
+				})	
+			})
+			setTimeout( () => { io.emit2('connection', socket) }, 1000 )
+		}, 500)
 
-const players = require('./src/player')
-const items = require('./src/items') 
+	})
 
-
-players.event.on('create', function(player) {
-	Object.keys( items.get() ).forEach(function(item) {
-		player.inventory.add(item, items.getStack(item) , {})
-	})	
 })
-
-
 
 
 

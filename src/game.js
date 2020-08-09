@@ -68,7 +68,7 @@ const engineParams = {
 	}
 }
 
-export function startGame(username, server, allowCustom) {
+export function startGame(username, server, world) {
 
 	if (typeof server == 'string') {
 
@@ -91,6 +91,10 @@ export function startGame(username, server, allowCustom) {
 		fromServer.emit = emitToServer
 
 		var socket = fromServer
+
+		fromServer.on('get-world', () => {
+			emitToServer('select-world', world)
+		})
 	}
 
 	console.log('Username: ' + username, 'Server: ' + server)
@@ -181,7 +185,7 @@ export function startGame(username, server, allowCustom) {
 				if (entityIgnore != data.id) {
 					entityList[data.id] = noa.ents.add(Object.values(data.data.position), 1, 2, null, null, false, true)
 
-					applyModel(entityList[data.id], data.data.model, data.data.texture, data.data.offset, data.data.nametag, data.data.name)
+					applyModel(entityList[data.id], data.data.model, data.data.texture, data.data.offset, data.data.nametag, data.data.name, data.data.hitbox)
 									
 				}
 			})
