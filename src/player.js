@@ -26,6 +26,7 @@ export function setupControls(noa, socket) {
 			//startBreakingBlock(noa.targetedBlock.position, noa.targetedBlock.blockID)
 			socket.emit('block-break', noa.targetedBlock.position)
 		}
+		socket.emit('click-left', true)
 	})
 
 	noa.inputs.up.on('fire', function () {
@@ -165,6 +166,15 @@ export function setupControls(noa, socket) {
 			noa.ents.getState(noa.playerEntity, 'inventory').selected = pickedID
 		}
 
+	})
+
+	noa.inputs.bind('numberkey', '1', '2', '3', '4', '5', '6', '7', '8', '9')
+	noa.inputs.down.on('numberkey', (e) => {
+		var num = parseInt(e.key)
+		var pickedID = noa.ents.getState(eid, 'inventory').selected
+		pickedID = num - 1 
+		socket.emit('inventory-click', {slot: pickedID, type: 'select'} )
+		noa.ents.getState(noa.playerEntity, 'inventory').selected = pickedID
 	})
 
 	// Tempfix

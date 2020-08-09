@@ -20,6 +20,7 @@
     "@babylonjs/core": "^4.1.0",
     "@babylonjs/inspector": "^4.1.0",
     "@babylonjs/materials": "^4.1.0",
+    "@sifrr/storage": "0.0.6",
     "babylonjs-loaders": "^4.1.0",
     "canvas-screenshot": "^3.0.0",
     "dompurify": "^2.0.12",
