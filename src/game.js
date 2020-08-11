@@ -190,11 +190,6 @@ export function startGame(username, server, world) {
 				}
 			})
 
-			/*socket.on('entity-update', function(data) {
-				if (data.index == '')
-				noa.ents.getState()
-			})*/
-
 			socket.on('entity-despawn', function(data) {
 				if (entityList[data] != undefined) noa.ents.deleteEntity(entityList[data]); delete entityList[data]
 

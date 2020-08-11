@@ -30,7 +30,7 @@ export function createSettingsWindow(noa) {
 
 	menu.appendChild(nicknameDiv)
 
-
+	
 	// Enable experimental singleplayer
 
 	var singleplayerDiv = document.createElement('div')
@@ -51,7 +51,7 @@ export function createSettingsWindow(noa) {
 	singleplayerDiv.appendChild(singleplayerInput)
 	singleplayerDiv.appendChild(singleplayerLabel)
 
-	menu.appendChild(singleplayerDiv)
+	//menu.appendChild(singleplayerDiv)
 
 
 	// Enable autostep
