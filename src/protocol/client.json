@@ -1,0 +1,105 @@
+{
+	"client": {
+		"loginResponse": {
+			"fields": {
+				"username": {
+					"type": "string",
+					"id": 1
+				},
+				"protocol": {
+					"type": "int32",
+					"id": 2
+				},
+				"mobile": {
+					"type": "bool",
+					"id": 3
+				}
+			}
+		},
+
+		"actionMove": {
+			"fields": {
+				"x": {
+					"type": "int32",
+					"id": 1
+				},
+				"y": {
+					"type": "int32",
+					"id": 2
+				},
+				"z": {
+					"type": "int32",
+					"id": 3
+				}
+			}
+		},
+
+		"actionMessage": {
+			"fields": {
+				"message": {
+					"type": "string",
+					"id": 1
+				}
+			}
+		},
+
+		"actionBlockPlace": {
+			"fields": {
+				"x": {
+					"type": "int32",
+					"id": 1
+				},
+				"y": {
+					"type": "int32",
+					"id": 2
+				},
+				"z": {
+					"type": "int32",
+					"id": 3
+				},
+				"x2": {
+					"type": "int32",
+					"id": 4
+				},
+				"y2": {
+					"type": "int32",
+					"id": 5
+				},
+				"z2": {
+					"type": "int32",
+					"id": 6
+				}
+			}
+		},
+
+		"actionBlockBreak": {
+			"fields": {
+				"x": {
+					"type": "int32",
+					"id": 1
+				},
+				"y": {
+					"type": "int32",
+					"id": 2
+				},
+				"z": {
+					"type": "int32",
+					"id": 3
+				}
+			}
+		},
+
+		"actionInventoryClick": {
+			"fields": {
+				"slot": {
+					"type": "int32",
+					"id": 1
+				},
+				"type": {
+					"type": "int32",
+					"id": 2
+				}
+			}
+		}
+	}
+}

@@ -1,0 +1,216 @@
+{
+	"server": {
+
+		"loginRequest": {
+			"fields": {
+				"name": {
+					"type": "string",
+					"id": 1
+				},
+				"protocol": {
+					"type": "int32",
+					"id": 2
+				},
+				"maxplayers": {
+					"type": "int32",
+					"id": 3
+				},
+				"mobile": {
+					"type": "bool",
+					"id": 4
+				}
+			}
+		},
+
+		"loginSuccess": {
+			"fields": {
+				"x-pos": {
+					"type": "int32",
+					"id": 1
+				},
+				"y-pos": {
+					"type": "int32",
+					"id": 2
+				},
+				"z-pos": {
+					"type": "int32",
+					"id": 3
+				},
+				"items-def": {
+					"type": "string",
+					"id": 4
+				},
+				"blocks-def": {
+					"type": "string",
+					"id": 5
+				},
+				"blocksid-def": {
+					"type": "string",
+					"id": 6
+				},
+				"inventory": {
+					"type": "string",
+					"id": 6
+				}
+			}
+		},
+
+		"playerEntity": {
+			"fields": {
+				"uuid": {
+					"type": "string",
+					"id": 1
+				}
+			}
+		},
+
+
+		"playerTeleport": {
+			"fields": {
+				"x": {
+					"type": "int32",
+					"id": 1
+				},
+				"y": {
+					"type": "int32",
+					"id": 2
+				},
+				"z": {
+					"type": "int32",
+					"id": 3
+				}
+			}
+		},
+
+		"playerInventory": {
+			"fields": {
+				"main": {
+					"type": "string",
+					"id": 1
+				}
+			}
+		},
+
+		"playerKick": {
+			"fields": {
+				"reason": {
+					"type": "string",
+					"id": 1
+				}
+			}
+		},
+
+		"soundPlay": {
+			"fields": {
+				"sound": {
+					"type": "string",
+					"id": 1
+				},
+				"volume": {
+					"type": "int32",
+					"id": 2
+				}
+			}
+		},
+
+		"chatMessage": {
+			"fields": {
+				"message": {
+					"type": "string",
+					"id": 1
+				}
+			}
+		},
+
+		"tabUpdate": {
+			"fields": {
+				"message": {
+					"type": "string",
+					"id": 1
+				}
+			}
+		},
+
+		"entityCreate": {
+			"fields": {
+				"uuid": {
+					"type": "string",
+					"id": 1
+				},
+				"data": {
+					"type": "string",
+					"id": 2
+				}
+			}
+		},
+
+		"entityRemove": {
+			"fields": {
+				"uuid": {
+					"type": "string",
+					"id": 1
+				}
+			}
+		},
+
+		"entityMove": {
+			"fields": {
+				"uuid": {
+					"type": "string",
+					"id": 1
+				},
+				"x": {
+					"type": "int32",
+					"id": 2
+				},
+				"y": {
+					"type": "int32",
+					"id": 3
+				},
+				"z": {
+					"type": "int32",
+					"id": 4
+				}
+			}
+		},
+
+		"worldSetblock": {
+			"fields": {
+				"x": {
+					"type": "int32",
+					"id": 1
+				},
+				"y": {
+					"type": "int32",
+					"id": 2
+				},
+				"z": {
+					"type": "int32",
+					"id": 3
+				},
+				"id": {
+					"type": "int32",
+					"id": 4
+				}
+			}
+		},
+
+		"worldChunk": {
+			"fields": {
+				"x": {
+					"type": "int32",
+					"id": 1
+				},
+				"z": {
+					"type": "int32",
+					"id": 2
+				},
+				"data": {
+					"type": "bytes",
+					"id": 3
+				}
+			}
+		}
+
+	}
+}

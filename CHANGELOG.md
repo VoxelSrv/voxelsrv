@@ -1,10 +1,10 @@
-# 0.1.8 (Master/WIP)
+# 0.1.8 (Stable)
 - New main menu screen
 - Added pause screen
 - Added options
 - Added gamepad support
 
-# 0.1.7 (Stable)
+# 0.1.7 
 - You can now use textures loaded from other websites (like imgur/own website)
 - Replaced Howler with Babylon Audio
 - Block limit changed to 65535 (Change in Noa)
