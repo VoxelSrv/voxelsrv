@@ -2,6 +2,8 @@
 var path = require('path')
 var buildPath = path.resolve('..', 'docs')
 
+var webpack = require('webpack')
+
 
 
 module.exports = (env) => ({
@@ -21,9 +23,11 @@ module.exports = (env) => ({
          * github link then this setting shouldn't be necessary 
          * (though I don't think it breaks anything..)
         */
-        symlinks: false,
+		symlinks: false,
+		
 
-    },
+
+	},
     performance: {
         // change the default size warnings
         maxEntrypointSize: 1.5e6,

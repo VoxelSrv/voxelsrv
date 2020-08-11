@@ -1,6 +1,10 @@
+import { setupGamepad } from "./gamepad"
 import { sendFromInput } from "./gui/chat"
+import { isMobile } from 'mobile-device-detect'
 
 var noa
+
+const screenshot = require("canvas-screenshot")
 
 
 export function setupControls(noa, socket) {
@@ -22,6 +26,7 @@ export function setupControls(noa, socket) {
 			//startBreakingBlock(noa.targetedBlock.position, noa.targetedBlock.blockID)
 			socket.emit('block-break', noa.targetedBlock.position)
 		}
+		socket.emit('click-left', true)
 	})
 
 	noa.inputs.up.on('fire', function () {
@@ -54,8 +59,11 @@ export function setupControls(noa, socket) {
 
 	// 3rd person view
 	noa.inputs.down.on('thirdprsn', function () {
+		if (document.pointerLockElement == noa.container.canvas) {
+
 		//if (noa.camera.zoomDistance == 15) noa.camera.zoomDistance = 0
 		//else if (noa.camera.zoomDistance == 0) noa.camera.zoomDistance = 15
+		}
 	})
 
 	// Inventory
@@ -88,8 +96,43 @@ export function setupControls(noa, socket) {
 					return
 				} 
 			}, 500)
-			
+		}	
+	})
+
+	var pause = false
+	noa.inputs.down.on('menu', (e) => {
+		console.log(e)
+
+		var inv = document.getElementById('game_inventory_screen')
+		var input = document.getElementById('game_chatinput')
+		var menu = document.getElementById('menu_pause')
+
+
+		if (input.style.display != 'none') {
+			noa.container.canvas.requestPointerLock()
+			input.style.display = 'none'
+			return
+		} else if (inv.style.display != 'none') {
+			noa.container.canvas.requestPointerLock()
+			inv.style.display = 'none'
+			return
+		} else if (menu.style.display != 'none') {
+			noa.container.canvas.requestPointerLock()
+			menu.style.display = 'none'
+			return
+		} else{
+			menu.style.display = 'initial'
+			return
 		}
+	})
+
+	document.addEventListener('pointerlockchange', function() {
+		if (document.pointerLockElement == noa.container.canvas) {
+			var menu = document.getElementById('menu_pause')
+			menu.style.display = 'none'
+		}
+	}, false)
+
 
 	noa.inputs.down.on('chatenter', function() {
 		var input = document.getElementById('game_chatinput')
@@ -100,8 +143,6 @@ export function setupControls(noa, socket) {
 			noa.setPaused(false)
 		}
 	})
-		
-	})
 
 	noa.inputs.down.on('tab', function () {
 		document.getElementById('game_tab').style.display = 'initial'
@@ -111,17 +152,11 @@ export function setupControls(noa, socket) {
 		document.getElementById('game_tab').style.display = 'none'
 	})
 
-	var debug = false
-	var scene = noa.rendering.getScene()
-    noa.inputs.bind('debug', 'Z')
-    noa.inputs.down.on('debug', () => {
-        // inspector is very heavy, so load it via dynamic import
-        import('@babylonjs/inspector').then(data => {
-            debug = !debug
-            if (debug) scene.debugLayer.show()
-            else scene.debugLayer.hide()
-        })
-    })
+	noa.inputs.up.on('screenshot', function () {
+		if (document.pointerLockElement == noa.container.canvas) {
+			screenshot(noa.container.canvas, {filename: 'VoxelSRV-' + Date.now() + '.png'})
+		}
+	})
 
 	// each tick, consume any scroll events and use them to zoom camera
 	noa.on('tick', async function () {
@@ -135,7 +170,36 @@ export function setupControls(noa, socket) {
 			socket.emit('inventory-click', {slot: pickedID, type: 'select'} )
 			noa.ents.getState(noa.playerEntity, 'inventory').selected = pickedID
 		}
+
 	})
+
+	noa.inputs.bind('numberkey', '1', '2', '3', '4', '5', '6', '7', '8', '9')
+	noa.inputs.down.on('numberkey', (e) => {
+		if (document.pointerLockElement == noa.container.canvas) {
+			var num = parseInt(e.key)
+			var pickedID = noa.ents.getState(eid, 'inventory').selected
+			pickedID = num - 1 
+			socket.emit('inventory-click', {slot: pickedID, type: 'select'} )
+			noa.ents.getState(noa.playerEntity, 'inventory').selected = pickedID
+		}
+	})
+
+	// Tempfix
+	
+	noa.on('beforeRender', async () => {
+		if (document.pointerLockElement != noa.container.canvas && !isMobile) {
+			noa.inputs.state.left = false
+			noa.inputs.state.right = false
+			noa.inputs.state.forward = false
+			noa.inputs.state.backward = false
+			noa.inputs.state.jump = false
+		}
+	})
+
+
+
+
+	if (localStorage.getItem('gamepad') == 'true') setupGamepad(noa)
 
 }
 
@@ -199,7 +263,7 @@ function inventoryHasItem(eid, item, count) {
 	var items = Object.entries(inventory.main)
 
 	for (var [slot, data] of items) {
-		if (data.id == item && data.count >= count) return slot
+		if (data.id == item && data.count >= count) return parseInt(slot)
 	}
 	return -1
 }
