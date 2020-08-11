@@ -8,7 +8,7 @@ import { startGame } from './game'
 
 global.game = {
 	name: 'VoxelSRV',
-	version: '0.1.8-dev',
+	version: '0.1.8',
 	allowCustom: true
 }
 

@@ -59,8 +59,11 @@ export function setupControls(noa, socket) {
 
 	// 3rd person view
 	noa.inputs.down.on('thirdprsn', function () {
+		if (document.pointerLockElement == noa.container.canvas) {
+
 		//if (noa.camera.zoomDistance == 15) noa.camera.zoomDistance = 0
 		//else if (noa.camera.zoomDistance == 0) noa.camera.zoomDistance = 15
+		}
 	})
 
 	// Inventory
@@ -150,7 +153,9 @@ export function setupControls(noa, socket) {
 	})
 
 	noa.inputs.up.on('screenshot', function () {
-		screenshot(noa.container.canvas, {filename: 'VoxelSRV-' + Date.now() + '.png'})
+		if (document.pointerLockElement == noa.container.canvas) {
+			screenshot(noa.container.canvas, {filename: 'VoxelSRV-' + Date.now() + '.png'})
+		}
 	})
 
 	// each tick, consume any scroll events and use them to zoom camera
@@ -170,21 +175,24 @@ export function setupControls(noa, socket) {
 
 	noa.inputs.bind('numberkey', '1', '2', '3', '4', '5', '6', '7', '8', '9')
 	noa.inputs.down.on('numberkey', (e) => {
-		var num = parseInt(e.key)
-		var pickedID = noa.ents.getState(eid, 'inventory').selected
-		pickedID = num - 1 
-		socket.emit('inventory-click', {slot: pickedID, type: 'select'} )
-		noa.ents.getState(noa.playerEntity, 'inventory').selected = pickedID
+		if (document.pointerLockElement == noa.container.canvas) {
+			var num = parseInt(e.key)
+			var pickedID = noa.ents.getState(eid, 'inventory').selected
+			pickedID = num - 1 
+			socket.emit('inventory-click', {slot: pickedID, type: 'select'} )
+			noa.ents.getState(noa.playerEntity, 'inventory').selected = pickedID
+		}
 	})
 
 	// Tempfix
 	
-	noa.on('beforeRender', () => {
+	noa.on('beforeRender', async () => {
 		if (document.pointerLockElement != noa.container.canvas && !isMobile) {
 			noa.inputs.state.left = false
 			noa.inputs.state.right = false
 			noa.inputs.state.forward = false
 			noa.inputs.state.backward = false
+			noa.inputs.state.jump = false
 		}
 	})
 
