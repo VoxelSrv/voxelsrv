@@ -91,14 +91,20 @@ export function createMultiplayerWindow() {
 					cell1.innerHTML = item.ip
 					cell2.innerHTML = item.name
 					cell3.innerHTML = item.motd
-	
-					var button = document.createElement('button')
-					button.innerHTML = 'Select'
-					button.classList.add("btn")
-					button.classList.add("btn-outline-secondary")
-					button.classList.add("btn-sm")
-					cell4.appendChild(button)
-					button.onclick = function(){ serverInput.value = item.ip }
+
+					if (item.protocol == game || item.protcol == 0) {
+						var button = document.createElement('button')
+						button.innerHTML = 'Select'
+						button.classList.add("btn")
+						button.classList.add("btn-outline-secondary")
+						button.classList.add("btn-sm")
+						cell4.appendChild(button)
+						button.onclick = function(){ serverInput.value = item.ip }
+					} else if (item.protocol < game || item.protocol == undefined) {
+						cell4.innerHTML = 'Outdated server'
+					} else if (item.protocol > game) {
+						cell4.innerHTML = 'Outdated client'
+					}
 	
 				})
 				

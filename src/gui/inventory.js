@@ -1,7 +1,9 @@
 import { isMobile } from 'mobile-device-detect'
 
+const protocol = require('../protocol')
 
-export function setupHotbar(noa, socket) {
+
+export function setupHotbar(noa, send) {
 	var eid = noa.playerEntity
 	var inventory = noa.ents.getState(eid, 'inventory')
 	game.hotbarsize = isMobile ? 7 : 9
@@ -17,7 +19,7 @@ export function setupHotbar(noa, socket) {
 		hotbar[x] = document.createElement('th')
 		hotbar[x].id = x
 		hotbar[x].addEventListener('click', function(){
-			socket.emit('inventory-click', {slot: parseInt(this.id), type: 'select'} )
+			send('actionInventoryClick', {slot: parseInt(this.id), type: 'select'} )
 			noa.ents.getState(eid, 'inventory').selected = parseInt(this.id) 
 		})
 		hotbar[x].classList.add('hotbar_item')
@@ -60,7 +62,7 @@ var tempslot = {}
 var invslot = {}
 var inventoryscreen
 
-export async function setupInventory(noa, socket) { // Opens inventory
+export async function setupInventory(noa, send) { // Opens inventory
 	var inventory = noa.ents.getState(1, 'inventory')
 	var invItems = Object.entries(inventory.main)
 	var inv = inventory.main
@@ -109,8 +111,8 @@ export async function setupInventory(noa, socket) { // Opens inventory
 		for (var y = 0; y < 9; y++) {
 			invslot[slot] = document.createElement('th')
 			invslot[slot].id = slot
-			invslot[slot].addEventListener( 'click', function(){ socket.emit('inventory-click', {type: 'left', slot: parseInt(this.id)}) } )
-			invslot[slot].addEventListener( 'contextmenu', function(){ socket.emit('inventory-click', {type: 'right', slot: parseInt(this.id)}); return false  } )
+			invslot[slot].addEventListener( 'click', function(){ send('actionInventoryClick', {type: 'left', slot: parseInt(this.id)}) } )
+			invslot[slot].addEventListener( 'contextmenu', function(){ send('actionInventoryClick', {type: 'right', slot: parseInt(this.id)}); return false  } )
 			invslot[slot].classList.add('inventory_item')
 			invslot[slot].innerHTML = await renderItem(inv[slot])
 			row.appendChild(invslot[slot])
@@ -126,8 +128,8 @@ export async function setupInventory(noa, socket) { // Opens inventory
 		invslot[x] = document.createElement('th')
 		invslot[x].id = x
 		invslot[x].classList.add('inventory_item_hotbar')
-		invslot[x].addEventListener( 'click', function(){ socket.emit('inventory-click', {type: 'left', slot: parseInt(this.id) }) } )
-		invslot[x].addEventListener( 'contextmenu', function(){ socket.emit('inventory-click', {type: 'right', slot: parseInt(this.id) }); return false  } )
+		invslot[x].addEventListener( 'click', function(){ send('actionInventoryClick', {type: 'left', slot: parseInt(this.id) }) } )
+		invslot[x].addEventListener( 'contextmenu', function(){ send('actionInventoryClick', {type: 'right', slot: parseInt(this.id) }); return false  } )
 		invslot[x].innerHTML = await renderItem(inv[x])
 		row_hotbar.appendChild(invslot[x])
 	}

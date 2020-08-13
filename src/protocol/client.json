@@ -1,5 +1,5 @@
 {
-	"client": {
+	"nested": {
 		"loginResponse": {
 			"fields": {
 				"username": {
@@ -30,6 +30,10 @@
 				"z": {
 					"type": "int32",
 					"id": 3
+				},
+				"rotation": {
+					"type": "int32",
+					"id": 4
 				}
 			}
 		},
@@ -96,7 +100,7 @@
 					"id": 1
 				},
 				"type": {
-					"type": "int32",
+					"type": "string",
 					"id": 2
 				}
 			}

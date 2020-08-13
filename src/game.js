@@ -1,10 +1,13 @@
 
 const cruncher = require('voxel-crunch')
+
 const protocol = require('./protocol')
+
 const ndarray = require('ndarray')
 var vec3 = require('gl-vec3')
 const EventEmiter = require('events')
 
+protocol
 
 import Engine from 'noa-engine'
 import { isMobile } from 'mobile-device-detect'
@@ -72,7 +75,7 @@ export function startGame(username, server, world) {
 
 	if (typeof server == 'string') {
 
-		socket = new WebSocket(server) 
+		var socket = new WebSocket('ws://' + server) 
 
 	} else {
 		const fromServer = new EventEmiter()
@@ -98,171 +101,181 @@ export function startGame(username, server, world) {
 	console.log('Username: ' + username, 'Server: ' + server)
 	var discreason
 
-	socket.onmessage = (data) => {
-		socket.on('login-request', function(dataLogin) {
-			socket.emit('login', {
-				username: username,
-				protocol: 1,
-				mobile: isMobile
-			})
-
-			socket.on('kick', function(data) {
-				console.log('You has been kicked from server \nReason: ' + data)
-				discreason = data
-				return
-			})
-
-			var entityIgnore = 0
-			var entityList = {}
-
-			socket.on('entity-ignore', function(data) {
-				console.log('Ignoring player-entity: ' + data)
-				entityIgnore = data
-				if (entityList[data] != undefined) noa.ents.deleteEntity(entityList[data]); delete entityList[data]
-			})
-
-			socket.on('login-success', function(dataPlayer) {
-				document.body.innerHTML = ""
-
-				if (dataPlayer.pos != undefined) engineParams.playerStart = dataPlayer.pos
-				var noa = new Engine(engineParams)
-				var moveState = noa.inputs.state
-				var lastPos = {}
-				var lastRot = 0
-				var chunkList = []
-
-				registerBlocks(noa, dataPlayer.blocks, dataPlayer.blockIDs)
-				registerItems(noa, dataPlayer.items)
-				defineModelComp(noa)
-
-				setupControls(noa, socket)
-				setupPlayer(noa, dataPlayer.inv)
-
-				setupGuis(noa, server, socket, dataPlayer, dataLogin)
-				
-				socket.on('chunkdata', function(data) {
-					var chunkdata = cruncher.decode(Object.values(data.chunk), new Uint16Array(24 * 120 * 24))
-					var array = new ndarray(chunkdata, [24, 120, 24])
-					
-					chunkList.push([data.id, array])
-				})
-
-				socket.on('block-update', function(data) {
-					noa.setBlock(data.id, data.pos)
-				})
-
-				socket.on('inventory-update', function(data) {
-					noa.ents.getState(noa.playerEntity, 'inventory').main = data.main
-					noa.ents.getState(noa.playerEntity, 'inventory').tempslot = data.tempslot
-					updateInventory(noa)
-				})
-
-				socket.on('chat', function(data) { 
-					addToChat(data)
-					console.log('Chat: ' + data)
-				})
-
-				socket.on('tab-update', function(data) {
-					setTab(data)
-				})
-
-				socket.on('teleport', function(data) {
-					noa.ents.setPosition(noa.playerEntity, data)
-					console.log('Teleport: ', data)
-				})
-
-				socket.on('movement-change', function(data) {
-					var move = noa.ents.getMovement(noa.playerEntity)
-					move = data
-				})
-
-				socket.on('skybox-colors', function(data) {
-					
-				})
-
-				socket.on('entity-spawn', async function(data) {
-					if (entityIgnore != data.id) {
-						entityList[data.id] = noa.ents.add(Object.values(data.data.position), 1, 2, null, null, false, true)
-
-						applyModel(entityList[data.id], data.data.model, data.data.texture, data.data.offset, data.data.nametag, data.data.name, data.data.hitbox)
-										
-					}
-				})
-
-				socket.on('entity-despawn', function(data) {
-					if (entityList[data] != undefined) noa.ents.deleteEntity(entityList[data]); delete entityList[data]
-
-				})
-
-				socket.on('entity-move', function(data) {
-					if (entityList[data.id] != undefined) {
-						var pos = Object.values(data.data.pos)
-						noa.ents.getState(entityList[data.id], 'position').newPosition = data.data.pos
-						noa.ents.getState(entityList[data.id], 'position').rotation = data.data.rot * 2
-					}
-				})
-
-				socket.on('sound-play', function(data) { playSound(data.sound, data.volume, data.position, noa) } )
+	var srvEvent = protocol.eventServer
+	var clnEvent = protocol.eventClient
 
 
-				socket.emit('move', {pos: noa.ents.getState(noa.playerEntity, 'position').position, rot: noa.camera.heading})
-				var timerPos = 0
-
-				setTimeout(function() {
-					setInterval(async function() {
-						if (chunkList.length != 0) {
-							setChunk(chunkList[0][0], chunkList[0][1], noa)
-							chunkList.shift()
-						}
-					}, 50)
-				}, 500)
-
-				noa.on('tick', function() {
-					timerPos = timerPos + 1
-					if (timerPos == 1) {
-						timerPos = 0
-						var pos = noa.ents.getState(noa.playerEntity, 'position').position
-						var rot = noa.camera.heading
-						if (JSON.stringify(lastPos) != JSON.stringify(pos) || JSON.stringify(lastRot) != JSON.stringify(rot) ) {
-							lastPos = [...pos]
-							lastRot = JSON.parse( JSON.stringify(rot) )
-
-							socket.emit('move', {pos: pos, rot: rot})
-						}
-					}
-
-				})
-				noa.on('beforeRender', async function() {
-					Object.values(entityList).forEach(async function (id) {
-						var pos = noa.ents.getState(id, 'position').position
-						var newPos = noa.ents.getState(id, 'position').newPosition
-						if (noa.ents.getState(id, noa.entities.names.mesh) != undefined && newPos != undefined && pos != undefined) {
-							var move = vec3.create()	
-							vec3.lerp(move, pos, newPos, 0.1)			
-							var rot = noa.ents.getState(id, 'position').rotation
-							noa.ents.setPosition(id, move)
-
-							var oldRot = noa.ents.getState(id, noa.entities.names.mesh).mesh.rotation.y
-
-							if (rot/2 - oldRot > 5) noa.ents.getState(id, noa.entities.names.mesh).mesh.rotation.y = rot/2
-							else noa.ents.getState(id, noa.entities.names.mesh).mesh.rotation.y = (rot/2 + oldRot)/2
-							
-							
-
-							if (noa.ents.getState(id, 'model').nametag != undefined) {
-								noa.ents.getState(id, 'model').nametag.rotation.y = noa.camera.heading - noa.ents.getState(id, noa.entities.names.mesh).mesh.rotation.y
-								noa.ents.getState(id, 'model').nametag.rotation.x = noa.camera.pitch
-
-							}
-						}
-					})
-				})
-
-			})
-		})
+	function send(type, data) {
+		var packet = protocol.parseToMessage('client', type, data)
+		if (packet != null) {
+			socket.send(packet)
+			clnEvent.emit(type, data)
+		}
 	}
 
-	socket.once('disconnect', function() {
+	socket.onmessage = (data) => {
+		var packet = protocol.parseToObject('server', data)
+		if (packet != null) srvEvent.emit(packet.type, packet.data)
+	}
+
+	srvEvent.on('loginRequest', function(dataLogin) {
+		send('loginResponce', {
+			username: username,
+			protocol: 2,
+			mobile: isMobile
+		})
+
+		srvEvent.on('playerKick', function(data) {
+			console.log('You has been kicked from server \nReason: ' + data.reason)
+			discreason = data.reason
+			return
+		})
+
+		var entityIgnore = 0
+		var entityList = {}
+
+		srvEvent.on('playerEntity', function(data) {
+			console.log('Ignoring player-entity: ' + data.uuid)
+			entityIgnore = data.uuid
+			if (entityList[data.uuid] != undefined) noa.ents.deleteEntity(entityList[data.uuid]); delete entityList[data.uuid]
+		})
+
+		srvEvent.on('loginSuccess', function(dataPlayer) {
+			document.body.innerHTML = ""
+
+			engineParams.playerStart = [dataPlayer.xPos, dataPlayer.yPos, dataPlayer.zPos]
+			var noa = new Engine(engineParams)
+			var moveState = noa.inputs.state
+			var lastPos = {}
+			var lastRot = 0
+			var chunkList = []
+
+			registerBlocks(noa, JSON.parse(dataPlayer.blocksDef), JSON.parse(dataPlayer.blockIDsDef))
+			registerItems(noa, JSON.parse(dataPlayer.itemsDef) )
+			defineModelComp(noa)
+
+			setupControls(noa, send)
+			setupPlayer(noa, JSON.parse(dataPlayer.inventory) )
+
+			setupGuis(noa, server, send, dataPlayer, dataLogin)
+				
+			srvEvent.on('worldChunk', function(data) {
+				var chunkdata = cruncher.decode(Object.values(data.chunk), new Uint16Array(24 * 120 * 24))
+				var array = new ndarray(chunkdata, [24, 120, 24])
+				
+				chunkList.push([data.id, array])
+			})
+
+			srvEvent.on('worldBlockUpdate', function(data) {
+				noa.setBlock(data.id, [data.x, data.y, data.z])
+			})
+
+			srvEvent.on('playerInventory', function(data) {
+				var inv = JSON.parse(data.inventory)
+				noa.ents.getState(noa.playerEntity, 'inventory').main = inv.main
+				noa.ents.getState(noa.playerEntity, 'inventory').tempslot = inv.tempslot
+				updateInventory(noa)
+			})
+
+			srvEvent.on('chatMessage', function(data) { 
+				addToChat(data.message)
+				console.log('Chat: ' + data.message)
+			})
+
+			srvEvent.on('tabUpdate', function(data) {
+				setTab(data.message)
+			})
+
+			srvEvent.on('playerTeleport', function(data) {
+				noa.ents.setPosition(noa.playerEntity, [data.x, data.y, data.z])
+				console.log('Teleport: ', data)
+			})
+
+			srvEvent.on('playerMovementChange', function(data) {
+				var move = noa.ents.getMovement(noa.playerEntity)
+				move[data.key] = data.value
+			})
+
+			srvEvent.on('entityCreate', async function(data) {
+				if (entityIgnore != data.uuid) {
+					entData = JSON.parse(data.data)
+					entityList[data.uuid] = noa.ents.add(Object.values(entData.position), 1, 2, null, null, false, true)
+					
+					applyModel(entityList[data.uuid], entData.model, entData.texture, entData.offset, entData.nametag, entData.name, entData.hitbox)
+									
+				}
+			})
+
+			srvEvent.on('entityRemove', function(data) {
+				if (entityList[data.uuid] != undefined) noa.ents.deleteEntity(entityList[data.uuid]); delete entityList[data.uuid]
+			})
+
+			srvEvent.on('entityMove', function(data) {
+				if (entityList[data.uuid] != undefined) {
+					var pos = [data.x, data.y, data.z]
+					noa.ents.getState(entityList[data.uuid], 'position').newPosition = pos
+					noa.ents.getState(entityList[data.uuid], 'position').rotation = data.rotation * 2
+				}
+			})
+
+			srvEvent.on('soundPlay', function(data) { playSound(data.sound, data.volume, ( (data.x != undefined) ? [data.x, data.y, data.z] : null), noa) } )
+
+			var pos = noa.ents.getState(noa.playerEntity, 'position').position
+			send('actionMove', {x: pos[0], y: pos[1], z: pos[2], rotation: noa.camera.heading})
+			var timerPos = 0
+
+			setTimeout(function() {
+				setInterval(async function() {
+					if (chunkList.length != 0) {
+						setChunk(chunkList[0][0], chunkList[0][1], noa)
+						chunkList.shift()
+					}
+				}, 50)
+			}, 500)
+
+			noa.on('tick', function() {
+				timerPos = timerPos + 1
+				if (timerPos == 1) {
+					timerPos = 0
+					var pos = noa.ents.getState(noa.playerEntity, 'position').position
+					var rot = noa.camera.heading
+					if (JSON.stringify(lastPos) != JSON.stringify(pos) || JSON.stringify(lastRot) != JSON.stringify(rot) ) {
+						lastPos = [...pos]
+						lastRot = JSON.parse( JSON.stringify(rot) )
+
+						send('actionMove', {x: pos[0], y: pos[1], z: pos[2], rotation: noa.camera.heading})
+					}
+				}
+
+			})
+			noa.on('beforeRender', async function() {
+				Object.values(entityList).forEach(async function (id) {
+					var pos = noa.ents.getState(id, 'position').position
+					var newPos = noa.ents.getState(id, 'position').newPosition
+					if (noa.ents.getState(id, noa.entities.names.mesh) != undefined && newPos != undefined && pos != undefined) {
+						var move = vec3.create()	
+						vec3.lerp(move, pos, newPos, 0.1)			
+						var rot = noa.ents.getState(id, 'position').rotation
+						noa.ents.setPosition(id, move)
+
+						var oldRot = noa.ents.getState(id, noa.entities.names.mesh).mesh.rotation.y
+
+						if (rot/2 - oldRot > 5) noa.ents.getState(id, noa.entities.names.mesh).mesh.rotation.y = rot/2
+						else noa.ents.getState(id, noa.entities.names.mesh).mesh.rotation.y = (rot/2 + oldRot)/2
+
+						if (noa.ents.getState(id, 'model').nametag != undefined) {
+							noa.ents.getState(id, 'model').nametag.rotation.y = noa.camera.heading - noa.ents.getState(id, noa.entities.names.mesh).mesh.rotation.y
+							noa.ents.getState(id, 'model').nametag.rotation.x = noa.camera.pitch
+
+						}
+					}
+				})
+			})
+		})
+	})
+
+
+	socket.onclose = function() {
 		document.body.innerHTML = '' 
 		var div = document.createElement('div')
 		var style = 'position:fixed; bottom:50%; left:50%; z-index:2;'
@@ -285,6 +298,6 @@ export function startGame(username, server, world) {
 
 		document.body.appendChild(div)
 		
-	})
+	}
 	
 }

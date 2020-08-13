@@ -1,3 +1,6 @@
+# 0.2.0 (Master)
+- Changed communication library from Socket.io to ProtobufJS
+
 # 0.1.8 (Stable)
 - New main menu screen
 - Added pause screen

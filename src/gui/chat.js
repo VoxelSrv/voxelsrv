@@ -36,7 +36,6 @@ export function parseText(text) {
 
 var chatbox
 var input
-var socket
 
 export function setupChatbox() {
 	chatbox = document.createElement('div')
@@ -61,9 +60,9 @@ export function addToChat(text) {
 	chatbox.insertBefore(msg, chatbox.firstElementChild)
 }
 
-export function sendFromInput(socket) {
+export function sendFromInput(send) {
 	var msg = input.value
-	socket.emit('chat-send', msg)
+	send('actionMessage', {message: msg})
 
 	input.value = ""
 }

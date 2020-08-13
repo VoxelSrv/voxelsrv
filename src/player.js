@@ -2,12 +2,14 @@ import { setupGamepad } from "./gamepad"
 import { sendFromInput } from "./gui/chat"
 import { isMobile } from 'mobile-device-detect'
 
+const protocol = require('./protocol')
+
 var noa
 
 const screenshot = require("canvas-screenshot")
 
 
-export function setupControls(noa, socket) {
+export function setupControls(noa, send) {
 	var eid = noa.playerEntity
 
 	noa.blockTargetIdCheck = function(id) {
@@ -24,9 +26,9 @@ export function setupControls(noa, socket) {
 	noa.inputs.down.on('fire', function () {
 		if (noa.targetedBlock) {
 			//startBreakingBlock(noa.targetedBlock.position, noa.targetedBlock.blockID)
-			socket.emit('block-break', noa.targetedBlock.position)
+			var pos = noa.targetedBlock.position
+			send('actionBlockBreak', {x: pos[0], y: pos[1], z: pos[2] } )
 		}
-		socket.emit('click-left', true)
 	})
 
 	noa.inputs.up.on('fire', function () {
@@ -38,7 +40,10 @@ export function setupControls(noa, socket) {
 	noa.inputs.down.on('alt-fire', function () {
 		if (noa.targetedBlock != undefined) {
 			var pos = noa.targetedBlock.adjacent
-			if (noa.ents.isTerrainBlocked(pos[0], pos[1], pos[2]) == false) socket.emit('block-place', pos)
+			var pos2 = noa.targetedBlock.position
+			if (noa.ents.isTerrainBlocked(pos[0], pos[1], pos[2]) == false) { 
+				send('actionBlockPlace', {x: pos[0], y: pos[1], z: pos[2], x2: pos2[0], y2: pos2[1], z2: pos2[2]} ) 
+			}
 		}
 	})
 
@@ -50,10 +55,10 @@ export function setupControls(noa, socket) {
 			var slot = inventoryHasItem(noa.playerEntity, item, 1)
 			var sel = noa.ents.getState(eid, 'inventory').selected
 			if (slot != -1 && slot < 9) {
-				socket.emit('inventory-click', { type: 'select', slot: slot })
+				send('actionInventoryClick', { type: 'select', slot: slot })
 				noa.ents.getState(eid, 'inventory').selected = slot
 			}
-			else if (slot != -1) socket.emit('inventory-click', { type: 'switch', slot: slot, slot2: sel })
+			else if (slot != -1) send('actionInventoryClick', { type: 'switch', slot: slot, slot2: sel })
 		}
 	})
 
@@ -137,7 +142,7 @@ export function setupControls(noa, socket) {
 	noa.inputs.down.on('chatenter', function() {
 		var input = document.getElementById('game_chatinput')
 		if (input.style.display != 'none') { 
-			sendFromInput(socket)
+			sendFromInput(send)
 			noa.container.canvas.requestPointerLock()
 			input.style.display = 'none'
 			noa.setPaused(false)
@@ -167,7 +172,7 @@ export function setupControls(noa, socket) {
 			pickedID = pickedID + change
 			if (pickedID >= game.hotbarsize) pickedID = 0
 			else if (pickedID < 0) pickedID = 8
-			socket.emit('inventory-click', {slot: pickedID, type: 'select'} )
+			send('actionInventoryClick', {slot: pickedID, type: 'select'} )
 			noa.ents.getState(noa.playerEntity, 'inventory').selected = pickedID
 		}
 
@@ -179,7 +184,7 @@ export function setupControls(noa, socket) {
 			var num = parseInt(e.key)
 			var pickedID = noa.ents.getState(eid, 'inventory').selected
 			pickedID = num - 1 
-			socket.emit('inventory-click', {slot: pickedID, type: 'select'} )
+			send('actionInventoryClick', {slot: pickedID, type: 'select'} )
 			noa.ents.getState(noa.playerEntity, 'inventory').selected = pickedID
 		}
 	})

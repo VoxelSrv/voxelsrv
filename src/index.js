@@ -9,6 +9,7 @@ import { startGame } from './game'
 global.game = {
 	name: 'VoxelSRV',
 	version: '0.2.0-dev',
+	protocol: 2,
 	allowCustom: true
 }
 

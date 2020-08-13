@@ -1,6 +1,5 @@
 {
-	"server": {
-
+	"nested": {
 		"loginRequest": {
 			"fields": {
 				"name": {
@@ -14,43 +13,39 @@
 				"maxplayers": {
 					"type": "int32",
 					"id": 3
-				},
-				"mobile": {
-					"type": "bool",
-					"id": 4
 				}
 			}
 		},
 
 		"loginSuccess": {
 			"fields": {
-				"x-pos": {
+				"xPos": {
 					"type": "int32",
 					"id": 1
 				},
-				"y-pos": {
+				"yPos": {
 					"type": "int32",
 					"id": 2
 				},
-				"z-pos": {
+				"zPos": {
 					"type": "int32",
 					"id": 3
 				},
-				"items-def": {
+				"itemsDef": {
 					"type": "string",
 					"id": 4
 				},
-				"blocks-def": {
+				"blocksDef": {
 					"type": "string",
 					"id": 5
 				},
-				"blocksid-def": {
+				"blockIDsDef": {
 					"type": "string",
 					"id": 6
 				},
 				"inventory": {
 					"type": "string",
-					"id": 6
+					"id": 7
 				}
 			}
 		},
@@ -84,9 +79,22 @@
 
 		"playerInventory": {
 			"fields": {
-				"main": {
+				"inventory": {
 					"type": "string",
 					"id": 1
+				}
+			}
+		},
+
+		"playerMovementChange": {
+			"fields": {
+				"key": {
+					"type": "string",
+					"id": 1
+				},
+				"value": {
+					"type": "string",
+					"id": 2
 				}
 			}
 		},
@@ -109,6 +117,21 @@
 				"volume": {
 					"type": "int32",
 					"id": 2
+				},
+				"x": {
+					"type": "int32",
+					"id": 3,
+					"optional": true
+				},
+				"y": {
+					"type": "int32",
+					"id": 4,
+					"optional": true
+				},
+				"z": {
+					"type": "int32",
+					"id": 5,
+					"optional": true
 				}
 			}
 		},
@@ -170,11 +193,15 @@
 				"z": {
 					"type": "int32",
 					"id": 4
+				},
+				"rotation": {
+					"type": "int32",
+					"id": 5
 				}
 			}
 		},
 
-		"worldSetblock": {
+		"worldBlockUpdate": {
 			"fields": {
 				"x": {
 					"type": "int32",
