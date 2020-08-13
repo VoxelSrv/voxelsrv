@@ -20,19 +20,19 @@
 		"actionMove": {
 			"fields": {
 				"x": {
-					"type": "int32",
+					"type": "double",
 					"id": 1
 				},
 				"y": {
-					"type": "int32",
+					"type": "double",
 					"id": 2
 				},
 				"z": {
-					"type": "int32",
+					"type": "double",
 					"id": 3
 				},
 				"rotation": {
-					"type": "int32",
+					"type": "float",
 					"id": 4
 				}
 			}

@@ -29,22 +29,24 @@ var clientNameToID = reverse(clientIDtoName)
 function parseToObject(pType, data) {
 	if (pType == 'server') {
 		var type = serverIDtoName[ data[0] ]
+		if (type == undefined) return null
 		var packet = server.lookupType(type)
 	} else {
 		var type = clientIDtoName[ data[0] ]
+		if (type == undefined) return null
 		var packet = client.lookupType(type)
+		pType = 'client'
 	}
-
-	console.log(pType, data)
 
 	var rawData = data.slice(1)
 
 	var message = packet.decode(rawData)
 
-	var error = packet.verify(message)
-
+	if (packet != undefined) var error = packet.verify(message)
+	else var error = 'Invalid packet'
+	
 	if (error) { 
-		console.error('Invalid server packet! Type: ' + type, error )
+		console.error('Invalid ' + pType + ' packet! Type: ' + type, error )
 		return null
 	}
 
@@ -54,16 +56,21 @@ function parseToObject(pType, data) {
 function parseToMessage(pType, type, data) {
 	if (pType == 'server') {
 		var typeRaw = serverNameToID[ type ]
+		if (typeRaw == undefined) return null
 		var packet = server.lookupType(type)
 	} else {
 		var typeRaw = clientNameToID[ type ]
+		if (typeRaw == undefined) return null
 		var packet = client.lookupType(type)
+		pType = 'client'
 	}
 
-	var error = packet.verify(data)
+	if (packet != undefined) var error = packet.verify(data)
+	else var error = 'Invalid packet'
+
 
 	if (error) { 
-		console.error('Invalid client packet! Type: ' + type, error )
+		console.error('Invalid ' + pType + ' packet! Type: ' + type, data, error )
 		return null
 	}	
 

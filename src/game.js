@@ -151,6 +151,8 @@ export function startGame(username, server, world) {
 			var lastRot = 0
 			var chunkList = []
 
+			console.log(dataPlayer, dataPlayer.blockIDsDef)
+
 			registerBlocks(noa, JSON.parse(dataPlayer.blocksDef), JSON.parse(dataPlayer.blockIDsDef))
 			registerItems(noa, JSON.parse(dataPlayer.itemsDef) )
 			defineModelComp(noa)
@@ -161,10 +163,10 @@ export function startGame(username, server, world) {
 			setupGuis(noa, server, send, dataPlayer, dataLogin)
 				
 			srvEvent.on('worldChunk', function(data) {
-				var chunkdata = cruncher.decode(Object.values(data.chunk), new Uint16Array(24 * 120 * 24))
+				var chunkdata = cruncher.decode(Object.values(data.data), new Uint16Array(24 * 120 * 24))
 				var array = new ndarray(chunkdata, [24, 120, 24])
 				
-				chunkList.push([data.id, array])
+				chunkList.push([ [data.x, data.z ], array])
 			})
 
 			srvEvent.on('worldBlockUpdate', function(data) {
@@ -199,7 +201,7 @@ export function startGame(username, server, world) {
 
 			srvEvent.on('entityCreate', async function(data) {
 				if (entityIgnore != data.uuid) {
-					entData = JSON.parse(data.data)
+					var entData = JSON.parse(data.data)
 					entityList[data.uuid] = noa.ents.add(Object.values(entData.position), 1, 2, null, null, false, true)
 					
 					applyModel(entityList[data.uuid], entData.model, entData.texture, entData.offset, entData.nametag, entData.name, entData.hitbox)

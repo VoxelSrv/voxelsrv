@@ -20,15 +20,15 @@
 		"loginSuccess": {
 			"fields": {
 				"xPos": {
-					"type": "int32",
+					"type": "double",
 					"id": 1
 				},
 				"yPos": {
-					"type": "int32",
+					"type": "double",
 					"id": 2
 				},
 				"zPos": {
-					"type": "int32",
+					"type": "double",
 					"id": 3
 				},
 				"itemsDef": {
@@ -63,15 +63,15 @@
 		"playerTeleport": {
 			"fields": {
 				"x": {
-					"type": "int32",
+					"type": "double",
 					"id": 1
 				},
 				"y": {
-					"type": "int32",
+					"type": "double",
 					"id": 2
 				},
 				"z": {
-					"type": "int32",
+					"type": "double",
 					"id": 3
 				}
 			}
@@ -119,17 +119,17 @@
 					"id": 2
 				},
 				"x": {
-					"type": "int32",
+					"type": "double",
 					"id": 3,
 					"optional": true
 				},
 				"y": {
-					"type": "int32",
+					"type": "double",
 					"id": 4,
 					"optional": true
 				},
 				"z": {
-					"type": "int32",
+					"type": "double",
 					"id": 5,
 					"optional": true
 				}
@@ -183,19 +183,19 @@
 					"id": 1
 				},
 				"x": {
-					"type": "int32",
+					"type": "double",
 					"id": 2
 				},
 				"y": {
-					"type": "int32",
+					"type": "double",
 					"id": 3
 				},
 				"z": {
-					"type": "int32",
+					"type": "double",
 					"id": 4
 				},
 				"rotation": {
-					"type": "int32",
+					"type": "double",
 					"id": 5
 				}
 			}
