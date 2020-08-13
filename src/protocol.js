@@ -35,6 +35,8 @@ function parseToObject(pType, data) {
 		var packet = client.lookupType(type)
 	}
 
+	console.log(pType, data)
+
 	var rawData = data.slice(1)
 
 	var message = packet.decode(rawData)
@@ -65,11 +67,15 @@ function parseToMessage(pType, type, data) {
 		return null
 	}	
 
-	var encoded = packet.encode(data)
+	var message = packet.create(data)
+	var encoded = packet.encode(message).finish()
 
-	var message = new Uint8Array( [typeRaw].concat(encoded) )
 
-	return message
+	var out = new Uint8Array(1 + encoded.length)
+	out.set([typeRaw])
+	out.set(encoded, 1)
+
+	return out.buffer
 }
 
 module.exports = {

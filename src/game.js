@@ -75,7 +75,8 @@ export function startGame(username, server, world) {
 
 	if (typeof server == 'string') {
 
-		var socket = new WebSocket('ws://' + server) 
+		var socket = new WebSocket('ws://' + server)
+		socket.binaryType = 'arraybuffer'
 
 	} else {
 		const fromServer = new EventEmiter()
@@ -114,14 +115,14 @@ export function startGame(username, server, world) {
 	}
 
 	socket.onmessage = (data) => {
-		var packet = protocol.parseToObject('server', data)
+		var packet = protocol.parseToObject('server',  new Uint8Array(data.data) )
 		if (packet != null) srvEvent.emit(packet.type, packet.data)
 	}
 
 	srvEvent.on('loginRequest', function(dataLogin) {
-		send('loginResponce', {
+		send('loginResponse', {
 			username: username,
-			protocol: 2,
+			protocol: game.protocol,
 			mobile: isMobile
 		})
 
