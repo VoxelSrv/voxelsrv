@@ -27,13 +27,6 @@ if (localStorage.getItem('mouse') == undefined) localStorage.setItem('mouse', (i
 
 game.allowCustom = (localStorage.getItem('allowcustom') == 'true')
 
-// Default actions
-
-
-const options = new URLSearchParams(window.location.search)
-
-if (!!options.get('server')) { startGame(localStorage.getItem('nickname'), options.get('server'), null) }
-
 
 // Main menu
 
@@ -125,4 +118,14 @@ if (isMobile) {
 }
 
 
-window.onload = function() { document.body.appendChild(menuScreen) }
+window.onload = function() { 
+	document.body.appendChild(menuScreen)
+
+	// Default actions
+
+
+	const options = new URLSearchParams(window.location.search)
+
+	if (!!options.get('server')) { startGame(localStorage.getItem('nickname'), options.get('server'), null) }
+
+}

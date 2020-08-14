@@ -3,7 +3,7 @@ const EventEmiter = require('events')
 const fs = require('./src/fs')
 
 var version = '0.0.0'
-var protocol = 1
+var protocol = 2
 
 console.log('Starting VoxelSRV server version ' + version + ' [Protocol: ' + protocol + ']\n')
 
@@ -15,7 +15,6 @@ require('./src/items').init()
 
 const worldManager = require('./src/worlds')
  
-const initProtocol = require('./src/protocol').init
 
 const io = new EventEmiter()
 io.emit2 = io.emit
@@ -24,7 +23,7 @@ const socket = new EventEmiter()
 
 socket.emit2 = socket.emit
 
-self.onmessage = function(m) { socket.emit2(m.data[0], m.data[1]) }
+self.onmessage = function(m) { socket.emit2(m) }
 
 function emitToClient(type, packet) {
 	self.postMessage([type, packet])
@@ -48,9 +47,11 @@ socket.on('select-world', function (x) {
 			if (worldManager.exist('default') == false) worldManager.create('default', cfg.world.seed, cfg.world.generator)
 			else worldManager.load('default') 
 
-			initProtocol(io)
-			require('./src/player').setIO(io)
-			require('./src/entity').setIO(io)
+			require('./src/actions').init(wss)
+			require('./src/protocol-helper').setWS(wss)
+			require('./src/player').setIO(wss)
+			require('./src/entity').setIO(wss)
+			
 
 			const players = require('./src/player')
 			const items = require('./src/items') 
@@ -61,7 +62,7 @@ socket.on('select-world', function (x) {
 					player.inventory.add(item, items.getStack(item) , {})
 				})	
 			})
-			setTimeout( () => { io.emit2('connection', socket) }, 1000 )
+			setTimeout( () => { io.emit2('open', socket) }, 1000 )
 		}, 500)
 
 	})

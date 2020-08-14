@@ -2,8 +2,9 @@ import { isMobile } from 'mobile-device-detect'
 
 const protocol = require('../protocol')
 
+var hotbar = {}
 
-export function setupHotbar(noa, send) {
+export async function setupHotbar(noa, send) {
 	var eid = noa.playerEntity
 	var inventory = noa.ents.getState(eid, 'inventory')
 	game.hotbarsize = isMobile ? 7 : 9
@@ -14,7 +15,6 @@ export function setupHotbar(noa, send) {
 	document.body.appendChild(div)
 	var row = document.createElement('tr')
 
-	var hotbar = {}
 	for (var x = 0; x < game.hotbarsize; x++) { //Create hotbar items
 		hotbar[x] = document.createElement('th')
 		hotbar[x].id = x
@@ -23,6 +23,7 @@ export function setupHotbar(noa, send) {
 			noa.ents.getState(eid, 'inventory').selected = parseInt(this.id) 
 		})
 		hotbar[x].classList.add('hotbar_item')
+		hotbar[x].innerHTML = await renderItem( inventory.main[x] )
 		row.appendChild(hotbar[x])
 	}
 	if (isMobile) {
@@ -43,16 +44,15 @@ export function setupHotbar(noa, send) {
 	div.appendChild(row)
 	var inv = {}
 	var sel = inventory.selected
-	noa.on('tick', async function(){ //Hotbar updates
+	noa.on('tick', async function() { //Hotbar updates
 		var newsel = inventory.selected
 		var newinv = Object.values(inventory.main)
 		if (newsel != sel || JSON.stringify(inv) != JSON.stringify(newinv) ) {
-			inv = Object.values(inventory.main)
+			inv = [...newinv]
 			sel = inventory.selected
 			for (var x = 0; x < game.hotbarsize; x++) {
 				if (x == sel && !hotbar[x].classList.contains('hotbar_selected')) hotbar[x].classList.add('hotbar_selected')
 				else if (x != sel && hotbar[x].classList.contains('hotbar_selected'))  hotbar[x].classList.remove('hotbar_selected')
-				hotbar[x].innerHTML = await renderItem(inv[x])
 			}
 		}
 	});
@@ -177,16 +177,42 @@ export async function updateInventory(noa) { // Update slots
 		if (json != oldInv) {
 			oldInv = json
 			for (var x = 0; x < Object.entries(inv).length; x++) {
-				invslot[x].innerHTML = await renderItem(inv[x])
+				let item = await renderItem(inv[x])
+				invslot[x].innerHTML = item
+				if (slot < game.hotbarsize) hotbar[slot].innerHTML = item
 			}
 			tempslot.innerHTML = await renderItem(inventory.tempslot)
 		}
 	}
 }
 
+export async function updateHotbar(noa) { // Update slots
+	var inventory = noa.ents.getState(noa.playerEntity, 'inventory')
+	var inv = inventory.main
+
+	for (var x = 0; x < game.hotbarsize; x++) {
+		hotbar[slot].innerHTML = await renderItem(inv[x])
+	}
+}
+
+export async function updateSlot(noa, slot, type) { // Update slots
+	var inventory = noa.ents.getState(noa.playerEntity, 'inventory')
+	var inv = inventory.main
+
+	var itemlook = await renderItem( inv[slot] )
+
+	if (type == 'temp') tempslot.innerHTML = await renderItem(inventory.tempslot)
+	else {
+		if (invslot[slot] != undefined) invslot[slot].innerHTML = itemlook
+		if (slot < game.hotbarsize && slot >= 0) { 
+			hotbar[slot].innerHTML = itemlook
+		}
+	}
+
+}
 
 async function renderItem(item) { // Inventory item rendering
-	if (item.id == undefined) return ''
+	if (item == undefined || item.id == undefined) return ''
 
 	var count = ''
 	if (item.count == Infinity) count = 'Inf'

@@ -15,7 +15,7 @@ import * as BABYLON from '@babylonjs/core/Legacy/legacy'
 import 'babylonjs-loaders'
 import { registerBlocks, registerItems } from './registry'
 import { setupGuis } from './gui/setup'
-import { updateInventory } from './gui/inventory'
+import { updateHotbar, updateInventory, updateSlot } from './gui/inventory'
 import { setTab } from './gui/tab'
 import { setChunk } from './world'
 import { setupPlayer, setupControls } from './player'
@@ -178,6 +178,21 @@ export function startGame(username, server, world) {
 				noa.ents.getState(noa.playerEntity, 'inventory').main = inv.main
 				noa.ents.getState(noa.playerEntity, 'inventory').tempslot = inv.tempslot
 				updateInventory(noa)
+				updateHotbar(noa)
+			})
+
+			srvEvent.on('playerSlotUpdate', function(data) {
+				var item = JSON.parse(data.data)
+				var inv = noa.ents.getState(noa.playerEntity, 'inventory')
+				if (inv.tempslot == undefined) inv.tempslot = {}
+				if (inv.main[data.slot] == undefined) inv.main[data.slot] = {}
+
+				if (data.type == 'temp') inv.tempslot = item
+				else if (data.type == 'main') inv.main[data.slot] = item
+				setTimeout( () => {
+					updateSlot(noa, data.slot, data.type)
+				}, 10)
+
 			})
 
 			srvEvent.on('chatMessage', function(data) { 

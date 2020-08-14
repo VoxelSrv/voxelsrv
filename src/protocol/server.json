@@ -86,6 +86,23 @@
 			}
 		},
 
+		"playerSlotUpdate": {
+			"fields": {
+				"slot": {
+					"type": "int32",
+					"id": 1
+				},
+				"type": {
+					"type": "string",
+					"id": 2
+				},
+				"data": {
+					"type": "string",
+					"id": 3
+				}
+			}
+		},
+
 		"playerMovementChange": {
 			"fields": {
 				"key": {
