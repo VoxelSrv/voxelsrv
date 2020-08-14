@@ -1,109 +1,115 @@
 {
-	"nested": {
-		"loginResponse": {
-			"fields": {
-				"username": {
-					"type": "string",
-					"id": 1
-				},
-				"protocol": {
-					"type": "int32",
-					"id": 2
-				},
-				"mobile": {
-					"type": "bool",
-					"id": 3
-				}
-			}
-		},
-
-		"actionMove": {
-			"fields": {
-				"x": {
-					"type": "double",
-					"id": 1
-				},
-				"y": {
-					"type": "double",
-					"id": 2
-				},
-				"z": {
-					"type": "double",
-					"id": 3
-				},
-				"rotation": {
-					"type": "float",
-					"id": 4
-				}
-			}
-		},
-
-		"actionMessage": {
-			"fields": {
-				"message": {
-					"type": "string",
-					"id": 1
-				}
-			}
-		},
-
-		"actionBlockPlace": {
-			"fields": {
-				"x": {
-					"type": "int32",
-					"id": 1
-				},
-				"y": {
-					"type": "int32",
-					"id": 2
-				},
-				"z": {
-					"type": "int32",
-					"id": 3
-				},
-				"x2": {
-					"type": "int32",
-					"id": 4
-				},
-				"y2": {
-					"type": "int32",
-					"id": 5
-				},
-				"z2": {
-					"type": "int32",
-					"id": 6
-				}
-			}
-		},
-
-		"actionBlockBreak": {
-			"fields": {
-				"x": {
-					"type": "int32",
-					"id": 1
-				},
-				"y": {
-					"type": "int32",
-					"id": 2
-				},
-				"z": {
-					"type": "int32",
-					"id": 3
-				}
-			}
-		},
-
-		"actionInventoryClick": {
-			"fields": {
-				"slot": {
-					"type": "int32",
-					"id": 1
-				},
-				"type": {
-					"type": "string",
-					"id": 2
-				}
-			}
-		}
-	}
+  "nested": {
+    "loginResponse": {
+      "fields": {
+        "username": {
+          "type": "string",
+          "id": 1
+        },
+        "protocol": {
+          "type": "uint32",
+          "id": 2
+        },
+        "mobile": {
+          "type": "bool",
+          "id": 3
+        }
+      }
+    },
+    "actionMove": {
+      "fields": {
+        "x": {
+          "type": "double",
+          "id": 1
+        },
+        "y": {
+          "type": "double",
+          "id": 2
+        },
+        "z": {
+          "type": "double",
+          "id": 3
+        },
+        "rotation": {
+          "type": "float",
+          "id": 4
+        }
+      }
+    },
+    "actionMessage": {
+      "fields": {
+        "message": {
+          "type": "string",
+          "id": 1
+        }
+      }
+    },
+    "actionBlockPlace": {
+      "fields": {
+        "x": {
+          "type": "int32",
+          "id": 1
+        },
+        "y": {
+          "type": "int32",
+          "id": 2
+        },
+        "z": {
+          "type": "int32",
+          "id": 3
+        },
+        "x2": {
+          "type": "int32",
+          "id": 4
+        },
+        "y2": {
+          "type": "int32",
+          "id": 5
+        },
+        "z2": {
+          "type": "int32",
+          "id": 6
+        }
+      }
+    },
+    "actionBlockBreak": {
+      "fields": {
+        "x": {
+          "type": "int32",
+          "id": 1
+        },
+        "y": {
+          "type": "int32",
+          "id": 2
+        },
+        "z": {
+          "type": "int32",
+          "id": 3
+        }
+      }
+    },
+    "actionInventoryClick": {
+      "fields": {
+        "slot": {
+          "type": "int32",
+          "id": 1
+        },
+        "type": {
+          "type": "string",
+          "id": 2
+        }
+      },
+      "nested": {
+        "ClickType": {
+          "values": {
+            "left": 0,
+            "right": 1,
+            "select": 2,
+            "leftshift": 3,
+            "rightshift": 4
+          }
+        }
+      }
+    }
+  }
 }

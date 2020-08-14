@@ -153,7 +153,7 @@ export function startGame(username, server, world) {
 
 			console.log(dataPlayer, dataPlayer.blockIDsDef)
 
-			registerBlocks(noa, JSON.parse(dataPlayer.blocksDef), JSON.parse(dataPlayer.blockIDsDef))
+			registerBlocks(noa, JSON.parse(dataPlayer.blocksDef), JSON.parse(dataPlayer.blockidsDef))
 			registerItems(noa, JSON.parse(dataPlayer.itemsDef) )
 			defineModelComp(noa)
 

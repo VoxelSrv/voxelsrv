@@ -1,260 +1,249 @@
 {
-	"nested": {
-		"loginRequest": {
-			"fields": {
-				"name": {
-					"type": "string",
-					"id": 1
-				},
-				"protocol": {
-					"type": "int32",
-					"id": 2
-				},
-				"maxplayers": {
-					"type": "int32",
-					"id": 3
-				}
-			}
-		},
-
-		"loginSuccess": {
-			"fields": {
-				"xPos": {
-					"type": "double",
-					"id": 1
-				},
-				"yPos": {
-					"type": "double",
-					"id": 2
-				},
-				"zPos": {
-					"type": "double",
-					"id": 3
-				},
-				"itemsDef": {
-					"type": "string",
-					"id": 4
-				},
-				"blocksDef": {
-					"type": "string",
-					"id": 5
-				},
-				"blockIDsDef": {
-					"type": "string",
-					"id": 6
-				},
-				"inventory": {
-					"type": "string",
-					"id": 7
-				}
-			}
-		},
-
-		"playerEntity": {
-			"fields": {
-				"uuid": {
-					"type": "string",
-					"id": 1
-				}
-			}
-		},
-
-
-		"playerTeleport": {
-			"fields": {
-				"x": {
-					"type": "double",
-					"id": 1
-				},
-				"y": {
-					"type": "double",
-					"id": 2
-				},
-				"z": {
-					"type": "double",
-					"id": 3
-				}
-			}
-		},
-
-		"playerInventory": {
-			"fields": {
-				"inventory": {
-					"type": "string",
-					"id": 1
-				}
-			}
-		},
-
-		"playerSlotUpdate": {
-			"fields": {
-				"slot": {
-					"type": "int32",
-					"id": 1
-				},
-				"type": {
-					"type": "string",
-					"id": 2
-				},
-				"data": {
-					"type": "string",
-					"id": 3
-				}
-			}
-		},
-
-		"playerMovementChange": {
-			"fields": {
-				"key": {
-					"type": "string",
-					"id": 1
-				},
-				"value": {
-					"type": "string",
-					"id": 2
-				}
-			}
-		},
-
-		"playerKick": {
-			"fields": {
-				"reason": {
-					"type": "string",
-					"id": 1
-				}
-			}
-		},
-
-		"soundPlay": {
-			"fields": {
-				"sound": {
-					"type": "string",
-					"id": 1
-				},
-				"volume": {
-					"type": "int32",
-					"id": 2
-				},
-				"x": {
-					"type": "double",
-					"id": 3,
-					"optional": true
-				},
-				"y": {
-					"type": "double",
-					"id": 4,
-					"optional": true
-				},
-				"z": {
-					"type": "double",
-					"id": 5,
-					"optional": true
-				}
-			}
-		},
-
-		"chatMessage": {
-			"fields": {
-				"message": {
-					"type": "string",
-					"id": 1
-				}
-			}
-		},
-
-		"tabUpdate": {
-			"fields": {
-				"message": {
-					"type": "string",
-					"id": 1
-				}
-			}
-		},
-
-		"entityCreate": {
-			"fields": {
-				"uuid": {
-					"type": "string",
-					"id": 1
-				},
-				"data": {
-					"type": "string",
-					"id": 2
-				}
-			}
-		},
-
-		"entityRemove": {
-			"fields": {
-				"uuid": {
-					"type": "string",
-					"id": 1
-				}
-			}
-		},
-
-		"entityMove": {
-			"fields": {
-				"uuid": {
-					"type": "string",
-					"id": 1
-				},
-				"x": {
-					"type": "double",
-					"id": 2
-				},
-				"y": {
-					"type": "double",
-					"id": 3
-				},
-				"z": {
-					"type": "double",
-					"id": 4
-				},
-				"rotation": {
-					"type": "double",
-					"id": 5
-				}
-			}
-		},
-
-		"worldBlockUpdate": {
-			"fields": {
-				"x": {
-					"type": "int32",
-					"id": 1
-				},
-				"y": {
-					"type": "int32",
-					"id": 2
-				},
-				"z": {
-					"type": "int32",
-					"id": 3
-				},
-				"id": {
-					"type": "int32",
-					"id": 4
-				}
-			}
-		},
-
-		"worldChunk": {
-			"fields": {
-				"x": {
-					"type": "int32",
-					"id": 1
-				},
-				"z": {
-					"type": "int32",
-					"id": 2
-				},
-				"data": {
-					"type": "bytes",
-					"id": 3
-				}
-			}
-		}
-
-	}
+  "nested": {
+    "loginRequest": {
+      "fields": {
+        "name": {
+          "type": "string",
+          "id": 1
+        },
+        "protocol": {
+          "type": "int32",
+          "id": 2
+        },
+        "maxplayers": {
+          "type": "int32",
+          "id": 3
+        }
+      }
+    },
+    "loginSuccess": {
+      "fields": {
+        "xPos": {
+          "type": "double",
+          "id": 1
+        },
+        "yPos": {
+          "type": "double",
+          "id": 2
+        },
+        "zPos": {
+          "type": "double",
+          "id": 3
+        },
+        "itemsDef": {
+          "type": "string",
+          "id": 4
+        },
+        "blocksDef": {
+          "type": "string",
+          "id": 5
+        },
+        "blockidsDef": {
+          "type": "string",
+          "id": 6
+        },
+        "inventory": {
+          "type": "string",
+          "id": 7
+        }
+      }
+    },
+    "playerEntity": {
+      "fields": {
+        "uuid": {
+          "type": "string",
+          "id": 1
+        }
+      }
+    },
+    "playerTeleport": {
+      "fields": {
+        "x": {
+          "type": "double",
+          "id": 1
+        },
+        "y": {
+          "type": "double",
+          "id": 2
+        },
+        "z": {
+          "type": "double",
+          "id": 3
+        }
+      }
+    },
+    "playerInventory": {
+      "fields": {
+        "inventory": {
+          "type": "string",
+          "id": 1
+        }
+      }
+    },
+    "playerSlotUpdate": {
+      "fields": {
+        "slot": {
+          "type": "int32",
+          "id": 1
+        },
+        "type": {
+          "type": "string",
+          "id": 2
+        },
+        "data": {
+          "type": "string",
+          "id": 3
+        }
+      },
+      "nested": {
+        "SlotType": {
+          "values": {
+            "main": 0,
+            "temp": 1,
+            "hook": 2
+          }
+        }
+      }
+    },
+    "playerMovementChange": {
+      "fields": {
+        "key": {
+          "type": "string",
+          "id": 1
+        },
+        "value": {
+          "type": "double",
+          "id": 2
+        }
+      }
+    },
+    "playerKick": {
+      "fields": {
+        "reason": {
+          "type": "string",
+          "id": 1
+        }
+      }
+    },
+    "soundPlay": {
+      "fields": {
+        "sound": {
+          "type": "string",
+          "id": 1
+        },
+        "volume": {
+          "type": "int32",
+          "id": 2
+        },
+        "x": {
+          "type": "double",
+          "id": 3
+        },
+        "y": {
+          "type": "double",
+          "id": 4
+        },
+        "z": {
+          "type": "double",
+          "id": 5
+        }
+      }
+    },
+    "chatMessage": {
+      "fields": {
+        "message": {
+          "type": "string",
+          "id": 1
+        }
+      }
+    },
+    "tabUpdate": {
+      "fields": {
+        "message": {
+          "type": "string",
+          "id": 1
+        }
+      }
+    },
+    "entityCreate": {
+      "fields": {
+        "uuid": {
+          "type": "string",
+          "id": 1
+        },
+        "data": {
+          "type": "string",
+          "id": 2
+        }
+      }
+    },
+    "entityRemove": {
+      "fields": {
+        "uuid": {
+          "type": "string",
+          "id": 1
+        }
+      }
+    },
+    "entityMove": {
+      "fields": {
+        "uuid": {
+          "type": "string",
+          "id": 1
+        },
+        "x": {
+          "type": "double",
+          "id": 2
+        },
+        "y": {
+          "type": "double",
+          "id": 3
+        },
+        "z": {
+          "type": "double",
+          "id": 4
+        },
+        "rotation": {
+          "type": "float",
+          "id": 5
+        }
+      }
+    },
+    "worldBlockUpdate": {
+      "fields": {
+        "x": {
+          "type": "int32",
+          "id": 1
+        },
+        "y": {
+          "type": "int32",
+          "id": 2
+        },
+        "z": {
+          "type": "int32",
+          "id": 3
+        },
+        "id": {
+          "type": "uint32",
+          "id": 4
+        }
+      }
+    },
+    "worldChunk": {
+      "fields": {
+        "x": {
+          "type": "int32",
+          "id": 1
+        },
+        "z": {
+          "type": "int32",
+          "id": 2
+        },
+        "data": {
+          "type": "bytes",
+          "id": 3
+        }
+      }
+    }
+  }
 }
