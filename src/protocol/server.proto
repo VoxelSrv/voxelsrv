@@ -5,9 +5,12 @@ syntax = "proto3";
 */
 
 message loginRequest {
-    string name = 1;           // Server's name
+	string name = 1;           // Server's name
     int32 protocol = 2;
-    int32 maxplayers = 3;
+	int32 maxplayers = 3;
+	int32 numberplayers = 4;
+	string motd = 5;
+	string software = 6;
 }
 
 /* 

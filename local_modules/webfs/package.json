@@ -1,0 +1,21 @@
+{
+	"name": "webfs",
+	"version": "0.0.1",
+	"description": "Virtual FS for browsers",
+	"scripts": {
+
+	},
+	"keywords": [
+
+	],
+	"author": "Patbox",
+	"license": "ISC",
+	"dependencies": {
+	  "@sifrr/storage": "0.0.6",
+	  "protobufjs": "^6.10.1"
+	},
+	"devDependencies": {
+
+	}
+  }
+  

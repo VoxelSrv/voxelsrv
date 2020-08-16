@@ -1,6 +1,6 @@
 const EventEmiter = require('events')
 
-const fs = require('./src/fs')
+const fs = require('fs')
 
 var version = '0.0.0'
 var protocol = 2
@@ -15,29 +15,36 @@ require('./src/items').init()
 
 const worldManager = require('./src/worlds')
  
-
+const serverMsg = new EventEmiter()
 const io = new EventEmiter()
-io.emit2 = io.emit
 
 const socket = new EventEmiter()
 
 socket.emit2 = socket.emit
 
-self.onmessage = function(m) { socket.emit2(m) }
+self.onmessage = function(m) { 
+	if (m[0] == 'message') socket.emit(m[1]) 
+	else serverMsg.emit(m[0], m[1])
+}
 
-function emitToClient(type, packet) {
+function packetToClient(packet) {
+	self.postMessage(['message', packet])
+}
+
+function sendToClient(type, packet) {
 	self.postMessage([type, packet])
 }
 
-socket.emit = emitToClient
-io.emit = emitToClient
 
-socket.disconnect = function() { }
+socket.send = packetToClient
+io.clients = [socket]
+
+socket.close = function() { }
 
 
-emitToClient('get-world', true)
+sendToClient('get-world', true)
 
-socket.on('select-world', function (x) {
+serverMsg.on('select-world', function (x) {
 	console.log('Test: ', x)
 	fs.init(x).then( () => {
 		setTimeout(() => {
@@ -62,7 +69,7 @@ socket.on('select-world', function (x) {
 					player.inventory.add(item, items.getStack(item) , {})
 				})	
 			})
-			setTimeout( () => { io.emit2('open', socket) }, 1000 )
+			setTimeout( () => { io.emit('connection', socket) }, 1000 )
 		}, 500)
 
 	})
