@@ -74,7 +74,7 @@ export function createMultiplayerWindow() {
 	
 
 	setTimeout(function() {
-		fetch('http://pb4.eu:9000').then(response => response.json())
+		fetch('http://pb4.eu:9001').then(response => response.json())
 			.then(function(data) {
 				var x = 0
 				var array = Object.values(data)
