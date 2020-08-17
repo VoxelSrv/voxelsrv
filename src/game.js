@@ -151,9 +151,7 @@ export function startGame(username, server, world) {
 			var lastRot = 0
 			var chunkList = []
 
-			console.log(dataPlayer, dataPlayer.blockIDsDef)
-
-			registerBlocks(noa, JSON.parse(dataPlayer.blocksDef), JSON.parse(dataPlayer.blockidsDef))
+			registerBlocks(noa, JSON.parse(dataPlayer.blocksDef) )
 			registerItems(noa, JSON.parse(dataPlayer.itemsDef) )
 			defineModelComp(noa)
 

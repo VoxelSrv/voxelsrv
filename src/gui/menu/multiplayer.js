@@ -56,6 +56,8 @@ export function createMultiplayerWindow() {
 			<th scope="col">Address</th>
 			<th scope="col">Name</th>
 			<th scope="col">Motd</th>
+			<th scope="col">Players</th>
+			<th scope="col">Software</th>
 			<th scope="col"></th>
 		</tr>
 		`
@@ -70,7 +72,7 @@ export function createMultiplayerWindow() {
 	serverList.appendChild(serverListBody)
 
 
-	var multiplayerWindow = createWindow('menu_multiplayer', 'Multiplayer servers', ['800px', '500px'], multiplayerMenu)
+	var multiplayerWindow = createWindow('menu_multiplayer', 'Multiplayer servers', ['900px', '550px'], multiplayerMenu)
 	
 
 	setTimeout(function() {
@@ -86,24 +88,29 @@ export function createMultiplayerWindow() {
 					var cell2 = row.insertCell(1)
 					var cell3 = row.insertCell(2)
 					var cell4 = row.insertCell(3)
-	
+					var cell5 = row.insertCell(4)
+					var cell6 = row.insertCell(5)
+
 	
 					cell1.innerHTML = item.ip
 					cell2.innerHTML = item.name
 					cell3.innerHTML = item.motd
+					cell4.innerHTML = `<b>${item.numberplayers}</b>\\<b>${item.maxplayers}</b>`
+					cell5.innerHTML = item.software
 
-					if (item.protocol == game || item.protcol == 0) {
+
+					if (item.protocol == game.protocol || item.protocol == 0) {
 						var button = document.createElement('button')
 						button.innerHTML = 'Select'
 						button.classList.add("btn")
 						button.classList.add("btn-outline-secondary")
 						button.classList.add("btn-sm")
-						cell4.appendChild(button)
+						cell6.appendChild(button)
 						button.onclick = function(){ serverInput.value = item.ip }
 					} else if (item.protocol < game || item.protocol == undefined) {
-						cell4.innerHTML = 'Outdated server'
+						cell6.innerHTML = 'Outdated server'
 					} else if (item.protocol > game) {
-						cell4.innerHTML = 'Outdated client'
+						cell6.innerHTML = 'Outdated client'
 					}
 	
 				})

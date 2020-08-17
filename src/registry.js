@@ -1,8 +1,9 @@
-import { MaxBlock } from "babylonjs"
 
-global.blockIDs = {}
 global.blocks = {}
 global.items = {}
+global.blockIDs = {}
+global.blockIDmap = {}
+
 
 export function getBlocks() { return blocks}
 export function getItems() { return items}
@@ -10,25 +11,31 @@ export function getBlockIDs() { return blockIDs}
 
 
 
-export function registerBlocks(noa, blockList, idList) {
+export function registerBlocks(noa, blockList) {
 	var scene = noa.rendering.getScene()
 
-	blockIDs = idList
 	blocks = blockList
+
+	const list = Object.values(blockList);
+	list.forEach( (x) => { 
+		blockIDs[ x.id ] = x.rawid 
+		blockIDmap[ x.rawid ] = x.id 
+
+	});
 
 	// Temponary
 	noa.registry.registerMaterial('water', [0.5, 0.5, 0.8, 0.7], null, true)
 	noa.registry.registerMaterial('barrier', [0.0, 0.0, 0.0, 0.0], null, true)
 
 	console.log('Blocks: ', blockIDs)
-	var entries = Object.entries(blockList)
+	var entries = Object.values(blockList)
 
 	entries.forEach(function(item) {
-		createBlock(item[0], item[1].name, item[1].type, item[1].texture, item[1].options, item[1].data)
+		createBlock(item.rawid, item.id, item.type, item.texture, item.options, item.hardness, item.miningtime, item.tool)
 	})
 
 
-	function createBlock(id, name, type, texture, options, data) {
+	function createBlock(id, name, type, texture, options, hardness, miningtime, tool) {
 		if (type == 0) {
 			var mat = []
 			if (options.opaque == false) var txtTransparent = true
@@ -84,7 +91,7 @@ export function registerBlocks(noa, blockList, idList) {
 
 export function registerItems(noa, itemList) {
 	items = itemList
-	console.log('Items: ', Object.keys(itemList))
+	console.log('Items: ', itemList)
 }
 
 

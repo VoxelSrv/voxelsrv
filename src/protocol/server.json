@@ -50,13 +50,9 @@
 			"type": "string",
 			"id": 5
 		  },
-		  "blockidsDef": {
-			"type": "string",
-			"id": 6
-		  },
 		  "inventory": {
 			"type": "string",
-			"id": 7
+			"id": 6
 		  }
 		}
 	  },

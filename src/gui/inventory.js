@@ -218,12 +218,11 @@ async function renderItem(item) { // Inventory item rendering
 	if (item.count == Infinity) count = 'Inf'
 	else if (item.count != 1) count = item.count
 
-	if (items[item.id].type == 'block') {
-		var block = blockIDs[item.id]
+	if (items[item.id].type == 'ItemBlock' && items[item.id].flat == false) {
 		var url = new Array(3)
 		var preUrl = new Array(3)
 		try {
-			var txt = blocks[block].texture
+			var txt = blocks[ items[item.id].block ].texture
 			preUrl[0] = txt[txt.length - 1]
 			preUrl[1] = txt[txt.length - 1]
 			preUrl[2] = txt[0]

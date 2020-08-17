@@ -5,13 +5,14 @@ syntax = "proto3";
 */
 
 message loginRequest {
-	string name = 1;           // Server's name
+    string name = 1;           // Server's name
     int32 protocol = 2;
 	int32 maxplayers = 3;
 	int32 numberplayers = 4;
 	string motd = 5;
 	string software = 6;
 }
+
 
 /* 
  * loginSuccess is send after successful login.
@@ -26,8 +27,7 @@ message loginSuccess {
     double z_pos = 3;
     string items_def = 4;
     string blocks_def = 5;
-    string blockids_def = 6;
-    string inventory = 7;
+    string inventory = 6;
 }
 
 /* 
@@ -67,9 +67,9 @@ message playerSlotUpdate {
 	int32 slot = 1;
 
 	enum SlotType {
-		main = 0;
-		temp = 1;
-		hook = 2;
+		MAIN = 0;
+		TEMP = 1;
+		HOOK = 2;
 	}
 
     string type = 2;

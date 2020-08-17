@@ -13,8 +13,9 @@ export function setupControls(noa, send) {
 	var eid = noa.playerEntity
 
 	noa.blockTargetIdCheck = function(id) {
-		if (blocks[id] != undefined) {
-			if (blocks[id].options.fluid == true) return false
+
+		if (blockIDmap[ id ] != undefined) {
+			if (blocks[ blockIDmap[ id ] ].options.fluid == true) return false
 			return true
 		}
 		else return false
