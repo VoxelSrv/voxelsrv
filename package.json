@@ -23,6 +23,7 @@
     "babylonjs-loaders": "^4.1.0",
     "canvas-screenshot": "^3.0.0",
     "dompurify": "^2.0.12",
+    "fs": "file:./local_modules/webfs",
     "howler": "^2.2.0",
     "markdown-it": "^11.0.0",
     "markdown-it-inline-text-color": "github:ScopiCisco/markdown-it-inline-text-color",
@@ -30,14 +31,16 @@
     "mobile-device-detect": "^0.4.3",
     "murmur-numbers": "0.0.1",
     "ndarray": "^1.0.19",
-    "noa-engine": "github:andyhall/noa#develop",
+    "noa-engine": "github:VoxelSrv/noa-engine",
     "open-simplex-noise": "^2.3.1",
     "protobufjs": "^6.10.1",
     "uuid": "^8.3.0",
     "voxel-crunch": "^0.2.1",
-    "fs": "file:./local_modules/webfs"
+    "voxelsrv-protocol": "github:VoxelSrv/protocol"
   },
   "devDependencies": {
+    "ts-loader": "^8.0.2",
+    "typescript": "^3.9.7",
     "webpack": "^4.44.1",
     "webpack-cli": "^3.3.12",
     "webpack-dev-server": "^3.11.0",

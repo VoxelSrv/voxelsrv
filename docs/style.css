@@ -1,24 +1,6 @@
-
-
-.hotbar_selected {
-	background-image: url(./textures/gui/selected.png);
-	image-rendering: pixelated;
-	background-size: cover;
-	background-color: #55000088 !important;
-	bottom:15px;
-}
-
-.hotbar_item {
-	z-index:2;
-	display: inline-block;
-	color:white;
-	background-color: #00000088;
-	height:64px;
-	width:64px;
-	font-size:20px;
-	text-align:center; 
-	margin: 2px;
-	padding:8px;
+@font-face {
+	font-family: 'silkscreen';
+	src:  url('./fonts/silkscreen.ttf') format('truetype')
 }
 
 .inventory_item {
@@ -87,24 +69,6 @@
 
 .inventory_item_hotbar:hover {
 	background-color: #97979788;
-}
-
-
-.hotbar {
-	position:fixed;
-	bottom:5px;
-	left:50%;
-	z-index:0;
-	color:white;
-	height:auto;
-	width:auto;
-	font-size:40px;
-	text-align:center;
-	padding:3px;
-	min-width:2em;
-	transform: translateX(-50%);
-	transition: background-color 0.1s;
-
 }
 
 .item_count {
@@ -225,11 +189,6 @@
     margin-bottom: 0.2rem;
 }
 
-
-@font-face {
-	font-family: 'silkscreen';
-	src:  url('./fonts/silkscreen.ttf') format('truetype')
-  }
 
 body {
 	background-image: url("./textures/block/birch_planks.png");
