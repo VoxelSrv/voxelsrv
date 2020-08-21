@@ -1,9 +1,11 @@
-import { getLayer, getUI, getScreen, ShadowText } from './main';
+import { getLayer, getUI, getScreen } from './main';
 import { items } from '../lib/registry';
 import * as BABYLON from '@babylonjs/core/Legacy/legacy';
 import * as GUI from '@babylonjs/gui/';
 import { Socket } from '../socket';
 import { buildMain } from '../html-gui/menu/main';
+
+const scale = 3;
 
 export function buildHotbar(noa) {
 	function getInv() {
@@ -12,7 +14,6 @@ export function buildHotbar(noa) {
 
 	const ui = getUI(0);
 	const scene = getLayer(0);
-	const scale = 3;
 
 	const hotbar = new GUI.Rectangle();
 	hotbar.zIndex = 20;
@@ -50,13 +51,17 @@ export function buildHotbar(noa) {
 
 		for (let x = 0; x < 9; x++) {
 			if (inv.items[x] != null && inv.items[x].id != undefined) {
-				let txt = items[inv.items[x].id].texture + '.png';
-				if (!txt.startsWith('https://') || !txt.startsWith('http://')) txt = './textures/' + txt;
+				const item = items[inv.items[x].id]
+				let txt: string;
+				if (item.blockTexture != undefined) txt = item.blockTexture
+				else if (!item.texture.startsWith('https://') || !item.texture.startsWith('http://')) txt = './textures/' + item.texture + '.png';
+				else txt = item.texture
+
 				hotbarSlots[x].item.source = txt;
 
-				if (inv.items[x].count == 1) hotbarSlots[x].count.set('text', '');
-				else if (inv.items[x].count <= 10) hotbarSlots[x].count.set('text', ' ' + inv.items[x].count.toString());
-				else hotbarSlots[x].count.set('text', inv.items[x].count.toString());
+				if (item.count == 1) hotbarSlots[x].count.text = '';
+				else if (inv.items[x].count <= 10) hotbarSlots[x].count.text = ' ' + inv.items[x].count.toString() ;
+				else hotbarSlots[x].count.text = inv.items[x].count.toString();
 			} else {
 				hotbarSlots[x].item.source = '';
 				hotbarSlots[x].count.text = '';
@@ -75,7 +80,6 @@ export function buildInventory(noa, socket) {
 
 	const ui = getScreen(1);
 	const scene = getLayer(1);
-	const scale = 3;
 
 	inventory = new GUI.Rectangle();
 	inventory.zIndex = 20;
@@ -140,6 +144,14 @@ export function buildInventory(noa, socket) {
 
 				socket.send('actionInventoryClick', { slot: y + 27 * page, type: click, inventory: 'main' });
 			});
+
+			container.onPointerEnterObservable.add((e) => {
+				container.background = '#ffffff22';
+			});
+
+			container.onPointerOutObservable.add((e) => {
+				container.background = '#00000000';
+			});
 			container.isPointerBlocker = true;
 			row.addControl(container);
 		}
@@ -173,6 +185,14 @@ export function buildInventory(noa, socket) {
 
 			socket.send('actionInventoryClick', { slot: x, type: click, inventory: 'main' });
 		});
+
+		container.onPointerEnterObservable.add((e) => {
+			container.background = '#ffffff22';
+		});
+
+		container.onPointerOutObservable.add((e) => {
+			container.background = '#00000000';
+		});
 		container.isPointerBlocker = true;
 		hotbar.addControl(container);
 	}
@@ -181,7 +201,7 @@ export function buildInventory(noa, socket) {
 	armor.zIndex = 30;
 	armor.verticalAlignment = 2;
 	armor.top = `${-39 * scale}px`;
-	armor.left = `${-72 * scale}px`
+	armor.left = `${-72 * scale}px`;
 	armor.height = `${72 * scale}px`;
 	armor.width = `${18 * scale}px`;
 	armor.thickness = 0;
@@ -209,10 +229,18 @@ export function buildInventory(noa, socket) {
 					click = 'right';
 					break;
 			}
-
-			console.log({ slot: x, type: click, inventory: 'armor' })
+			console.log({ slot: x, type: click, inventory: 'armor' });
 			socket.send('actionInventoryClick', { slot: x, type: click, inventory: 'armor' });
 		});
+
+		container.onPointerEnterObservable.add((e) => {
+			container.background = '#ffffff22';
+		});
+
+		container.onPointerOutObservable.add((e) => {
+			container.background = '#00000000';
+		});
+
 		container.isPointerBlocker = true;
 		armor.addControl(container);
 	}
@@ -262,78 +290,104 @@ export function buildInventory(noa, socket) {
 		const inv = getInv();
 
 		if (inv.tempslot != null && inv.tempslot.id != undefined) {
-			tempslot.container.alpha = 1;
+			tempslot.item.alpha = 1;
+			tempslot.count.alpha = 1;
 
 			let txt = items[inv.tempslot.id].texture + '.png';
 			if (!txt.startsWith('https://') || !txt.startsWith('http://')) txt = './textures/' + txt;
 			tempslot.item.source = txt;
 
-			if (inv.tempslot.count == 1) tempslot.count.set('text', '');
-			else if (inv.tempslot.count <= 10) tempslot.count.set('text', ' ' + inv.tempslot.count.toString());
-			else tempslot.count.set('text', inv.tempslot.count.toString());
+			if (inv.tempslot.count == 1) tempslot.count.text = '';
+			else if (inv.tempslot.count <= 10) tempslot.count.text = ' ' + inv.tempslot.count.toString();
+			else tempslot.count.text = inv.tempslot.count.toString();
 		} else {
-			tempslot.container.alpha = 0;
+			tempslot.item.alpha = 0;
+			tempslot.count.alpha = 0;
+
 			tempslot.item.source = '';
-			tempslot.count.set('text', '');
+			tempslot.count.text = '';
 		}
 
 		for (let x = 0; x < 9; x++) {
 			if (inv.items[x] != null && inv.items[x].id != undefined) {
-				hotbarSlots[x].container.alpha = 1;
+				hotbarSlots[x].item.alpha = 1;
+				hotbarSlots[x].count.alpha = 1;
 
 				let txt = items[inv.items[x].id].texture + '.png';
 				if (!txt.startsWith('https://') || !txt.startsWith('http://')) txt = './textures/' + txt;
 				hotbarSlots[x].item.source = txt;
 
-				if (inv.items[x].count == 1) hotbarSlots[x].count.set('text', '');
-				else if (inv.items[x].count <= 10) hotbarSlots[x].count.set('text', ' ' + inv.items[x].count.toString());
-				else hotbarSlots[x].count.set('text', inv.items[x].count.toString());
+				if (inv.items[x].count == 1) hotbarSlots[x].count.text = '';
+				else if (inv.items[x].count <= 10) hotbarSlots[x].count.text = ' ' + inv.items[x].count.toString();
+				else hotbarSlots[x].count.text = inv.items[x].count.toString();
 			} else {
-				hotbarSlots[x].container.alpha = 0;
+				hotbarSlots[x].item.alpha = 0;
+				hotbarSlots[x].count.alpha = 0;
+
 				hotbarSlots[x].item.source = '';
-				hotbarSlots[x].count.set('text', '');
+				hotbarSlots[x].count.text = '';
 			}
 		}
 
 		for (let x = 9; x < 36; x++) {
 			const y = 27 * page + x;
 			if (inv.items[y] != null && inv.items[y].id != undefined) {
-				inventorySlots[x].container.alpha = 1;
+				inventorySlots[x].item.alpha = 1;
+				inventorySlots[x].count.alpha = 1;
 
 				let txt = items[inv.items[y].id].texture + '.png';
 				if (!txt.startsWith('https://') || !txt.startsWith('http://')) txt = './textures/' + txt;
 				inventorySlots[x].item.source = txt;
 
-				if (inv.items[y].count == 1) inventorySlots[x].count.set('text', '');
-				else if (inv.items[y].count <= 10) inventorySlots[x].count.set('text', ' ' + inv.items[y].count.toString());
-				else inventorySlots[x].count.set('text', inv.items[y].count.toString());
+				if (inv.items[y].count == 1) inventorySlots[x].count.text = '';
+				else if (inv.items[y].count <= 10) inventorySlots[x].count.text = ' ' + inv.items[y].count.toString();
+				else inventorySlots[x].count.text = inv.items[y].count.toString();
 			} else if (y > inv.size) {
-				inventorySlots[x].container.alpha = 1;
+				inventorySlots[x].item.alpha = 1;
+				inventorySlots[x].count.alpha = 1;
 				inventorySlots[x].item.source = './textures/gui/noslot.png';
-				inventorySlots[x].count.set('text', '');
+				inventorySlots[x].count.text = '';
 			} else {
-				inventorySlots[x].container.alpha = 0;
+				inventorySlots[x].item.alpha = 0;
+				inventorySlots[x].count.alpha = 0;
 				inventorySlots[x].item.source = '';
-				inventorySlots[x].count.set('text', '');
+				inventorySlots[x].count.text = '';
 			}
 		}
 
 		for (let x = 0; x < 4; x++) {
 			if (inv.armor.items[x] != null && inv.armor.items[x].id != undefined) {
-				armorSlots[x].container.alpha = 1;
+				armorSlots[x].count.alpha = 1;
 
 				let txt = items[inv.armor.items[x].id].texture + '.png';
 				if (!txt.startsWith('https://') || !txt.startsWith('http://')) txt = './textures/' + txt;
 				armorSlots[x].item.source = txt;
 
-				if (inv.armor.items[x].count == 1) armorSlots[x].count.set('text', '');
+				if (inv.armor.items[x].count == 1) armorSlots[x].count.text = '';
 				else if (inv.armor.items[x].count <= 10)
-					armorSlots[x].count.set('text', ' ' + inv.armor.items[x].count.toString());
-				else armorSlots[x].count.set('text', inv.armor.items[x].count.toString());
+					armorSlots[x].count.text = ' ' + inv.armor.items[x].count.toString();
+				else armorSlots[x].count.text = inv.armor.items[x].count.toString();
 			} else {
-				armorSlots[x].container.alpha = 0;
-				armorSlots[x].item.source = '';
-				armorSlots[x].count.set('text', '');
+				armorSlots[x].count.alpha = 0;
+
+				let txt: string;
+
+				switch (x) {
+					case 0:
+						txt = './textures/item/empty_armor_slot_helmet.png'
+						break;
+					case 1:
+						txt = './textures/item/empty_armor_slot_chestplate.png'
+						break;
+					case 2:
+						txt = './textures/item/empty_armor_slot_leggings.png'
+						break;
+					case 3:
+						txt = './textures/item/empty_armor_slot_boots.png'
+						break;
+				}
+				armorSlots[x].item.source = txt;
+				armorSlots[x].count.text = '';
 			}
 		}
 	};
@@ -345,7 +399,7 @@ export function createSlot(scale: number) {
 	const slot = {
 		item: new GUI.Image('hotbar', ''),
 		container: new GUI.Rectangle(),
-		count: new ShadowText(50),
+		count: new GUI.TextBlock(),
 	};
 
 	const container = slot.container;
@@ -361,16 +415,20 @@ export function createSlot(scale: number) {
 	container.addControl(item);
 
 	const count = slot.count;
-	count.set('text', '');
-	count.set('fontFamily', `silkscreen`);
-	count.main.color = '#f0f0f0';
-	count.shadow.color = '#111111';
+	count.text = '';
+	count.fontFamily = `silkscreen`;
+	count.color = '#f0f0f0';
 
-	count.set('fontSize', `${8 * scale}px`);
-	count.set('left', `${3 * scale}px`);
-	count.set('top', `${5 * scale}px`);
+	count.fontSize = `${8 * scale}px`;
+	count.left = `${2 * scale}px`;
+	count.top = `${4 * scale}px`;
 
-	container.addControl(count.main);
+	count.shadowColor = '#111111';
+	count.shadowOffsetX = scale
+	count.shadowOffsetY = scale
+
+
+	container.addControl(count);
 
 	return slot;
 }

@@ -84,19 +84,3 @@ export function getScreen(n: number) {
 	else throw 'Invalid number';
 }
 
-export class ShadowText {
-	main: GUI.TextBlock;
-	shadow: GUI.TextBlock;
-
-	constructor(index: number) {
-		this.main = new GUI.TextBlock();
-		this.shadow = new GUI.TextBlock();
-		this.main.zIndex = index + 1;
-		this.shadow.zIndex = index;
-	}
-
-	set(item: string, value: any) {
-		this.main[item] = value;
-		this.shadow[item] = value;
-	}
-}

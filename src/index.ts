@@ -59,11 +59,7 @@ function connect(socket) {
 		});
 
 		socket.on('loginSuccess', function (dataPlayer) {
-			noa.ents.setPosition(noa.playerEntity, dataPlayer.xPos, dataPlayer.yPos, dataPlayer.zPos);
-
 			const moveState = noa.inputs.state;
-			let lastPos = {};
-			let lastRot = 0;
 			const chunkList = [];
 
 			registerBlocks(noa, JSON.parse(dataPlayer.blocksDef));
@@ -71,10 +67,11 @@ function connect(socket) {
 
 			defineModelComp(noa);
 			setupControls(noa, socket);
-			console.log(dataPlayer.armor)
 			setupPlayer(noa, JSON.parse(dataPlayer.inventory), JSON.parse(dataPlayer.armor));
 
 			setupGuis(noa, socket, dataPlayer, dataLogin);
+
+			noa.ents.setPosition(noa.playerEntity, dataPlayer.xPos, dataPlayer.yPos, dataPlayer.zPos);
 
 			socket.on('worldChunk', function (data) {
 				chunkList.push(data);
@@ -162,8 +159,7 @@ function connect(socket) {
 				playSound(data.sound, data.volume, data.x != undefined ? [data.x, data.y, data.z] : null, noa);
 			});
 
-			let pos = noa.ents.getState(noa.playerEntity, 'position').position;
-			socket.send('actionMove', { x: pos[0], y: pos[1], z: pos[2], rotation: noa.camera.heading });
+			const pos = noa.ents.getState(noa.playerEntity, 'position');
 			let timerPos = 0;
 
 			setTimeout(function () {
@@ -175,22 +171,24 @@ function connect(socket) {
 				}, 50);
 			}, 500);
 
+			let lastPos = [];
+			let lastRot = 0;
+
 			noa.on('tick', function () {
 				const rot = noa.camera.heading;
-				if (JSON.stringify(lastPos) != JSON.stringify(pos) || JSON.stringify(lastRot) != JSON.stringify(rot)) {
-					lastPos = [...pos];
-					lastRot = JSON.parse(JSON.stringify(rot));
-
-					socket.send('actionMove', { x: pos[0], y: pos[1], z: pos[2], rotation: noa.camera.heading });
+				if (JSON.stringify(lastPos) != JSON.stringify(pos.position) || lastRot != rot) {
+					lastPos = [...pos.position];
+					lastRot = rot;
+					socket.send('actionMove', { x: pos.position[0], y: pos.position[1], z: pos.position[2], rotation: noa.camera.heading });
 				}
 			});
 			noa.on('beforeRender', async function () {
 				Object.values(entityList).forEach(async function (id: number) {
-					pos = noa.ents.getState(id, 'position').position;
+					const posx = noa.ents.getState(id, 'position').position;
 					const newPos = noa.ents.getState(id, 'position').newPosition;
-					if (noa.ents.getState(id, noa.entities.names.mesh) != undefined && newPos != undefined && pos != undefined) {
+					if (noa.ents.getState(id, noa.entities.names.mesh) != undefined && newPos != undefined && posx != undefined) {
 						let move = vec3.create();
-						vec3.lerp(move, pos, newPos, 0.1);
+						vec3.lerp(move, posx, newPos, 0.1);
 						const rot = noa.ents.getState(id, 'position').rotation;
 						noa.ents.setPosition(id, move[0], move[1], move[2]);
 

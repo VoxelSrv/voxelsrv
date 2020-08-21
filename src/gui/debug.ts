@@ -1,4 +1,4 @@
-import { getLayer, getUI, ShadowText } from './main';
+import { getLayer, getUI } from './main';
 
 import * as GUI from '@babylonjs/gui';
 import { gameVersion } from '../values';
@@ -10,20 +10,21 @@ export function setupDebug(noa, server) {
 	const eid = noa.playerEntity;
 	const dat = noa.entities.getPositionData(eid);
 
-	const debug = new ShadowText(100);
-	ui.addControl(debug.main);
-	ui.addControl(debug.shadow);
+	const debug = new GUI.TextBlock();
+	ui.addControl(debug);
 
-	debug.set('text', '');
-	debug.main.color = '#f0f0f0';
-	debug.shadow.color = '#111111';
-	debug.set('fontSize', '24px');
-	debug.main.left = '5px';
-	debug.main.top = '5px';
-	debug.shadow.left = `6px`;
-	debug.shadow.top = `6px`;
-	debug.set('textHorizontalAlignment', GUI.Control.HORIZONTAL_ALIGNMENT_LEFT);
-	debug.set('textVerticalAlignment', GUI.Control.VERTICAL_ALIGNMENT_TOP);
+	debug.text = '';
+	debug.color = '#f0f0f0';
+	debug.fontSize = '24px';
+	debug.left = '5px';
+	debug.top = '5px';
+	
+	debug.shadowColor = '#111111';
+	debug.shadowOffsetX = 1
+	debug.shadowOffsetY = 1
+
+	debug.textHorizontalAlignment = GUI.Control.HORIZONTAL_ALIGNMENT_LEFT;
+	debug.textVerticalAlignment = GUI.Control.VERTICAL_ALIGNMENT_TOP;
 
 	let serverText: string
 
@@ -33,7 +34,7 @@ export function setupDebug(noa, server) {
 	noa.on('tick', async function () {
 		const pos = `${dat.position[0].toFixed(1)}, ${dat.position[1].toFixed(1)}, ${dat.position[2].toFixed(1)}`;
 		const text = `VoxelSrv ${gameVersion}\nNoa: ${noa.version}\nXYZ: ${pos}\n${serverText}`;
-		debug.set('text', text);
+		debug.text = text;
 	});
 }
 
