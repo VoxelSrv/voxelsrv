@@ -1,25 +1,39 @@
-//import { isMobile } from 'mobile-device-detect';
-const isMobile = false;
+import { saveSettings } from './lib/storage';
+import { isMobile } from 'mobile-device-detect';
 
-export const gameVersion = '0.2.0-dev';
+export const gameVersion = '0.2.0-alpha';
 
 export const gameProtocol = 2;
 
 export const defaultSettings = {
-	nickname: `Player${Math.round(Math.random() * 1000)}`,
+	version: '0.0.0',
+	nickname: `Player${Math.round(Math.random() * 100000)}`,
 	autostep: isMobile,
 	gamepad: false,
 	singleplayer: false,
 	allowcustom: false,
 	mouse: isMobile ? 50 : 15,
-	hotbarsize: 9
+	hotbarsize: 9,
 };
 
-export let gameSettings = {...defaultSettings};
+export let gameSettings = { ...defaultSettings, version: gameVersion };
 
 export function updateSettings(data: Object) {
-	gameSettings = {...defaultSettings, ...data};
-} 
+	gameSettings = { ...defaultSettings, ...data };
+	saveSettings(gameSettings);
+}
+
+export const defaultServerSettings = {
+	cheats: false,
+	control: false,
+	ingame: false
+};
+
+export let serverSettings = { ...defaultServerSettings };
+
+export function updateServerSettings(data: Object) {
+	serverSettings = { ...serverSettings, ...data };
+}
 
 export function noaOpts() {
 	return {
@@ -30,8 +44,8 @@ export function noaOpts() {
 		sensitivityX: gameSettings.mouse,
 		sensitivityY: gameSettings.mouse,
 		chunkSize: 32, // Don't touch this
-		chunkAddDistance: 8.5, // Make it changeable?
-		chunkRemoveDistance: 9.0, // ^
+		chunkAddDistance: 5, // Make it changeable?
+		chunkRemoveDistance: 6, // ^
 		blockTestDistance: 7, // Per Gamemode?
 		tickRate: isMobile ? 65 : 50, // Maybe make it lower
 		texturePath: '',
@@ -63,9 +77,10 @@ export function noaOpts() {
 			thirdprsn: ['M'],
 			chatenter: ['<enter>'],
 			chat: ['T'],
+			cmd: ['/'],
 			tab: ['<tab>'],
 			menu: ['<escape>'],
 			screenshot: ['P'],
-		}
-	}
-};
+		},
+	};
+}

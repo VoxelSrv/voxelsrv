@@ -1,5 +1,5 @@
 import { gameSettings } from '../values';
-import * as BABYLON from 'babylonjs';
+import * as BABYLON from '@babylonjs/core/Legacy/legacy';
 
 export let blocks = {};
 export let items = {};

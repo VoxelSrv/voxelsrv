@@ -1,20 +1,28 @@
+import * as BABYLON from '@babylonjs/core/Legacy/legacy';
+
 import { setupGamepad } from './gamepad';
 import { isMobile } from 'mobile-device-detect';
 import { gameSettings } from '../values';
 import { blockIDmap, blockIDs, blocks } from './registry';
 import { inventory } from '../gui/inventory';
+import { input as chatInput } from '../gui/chat';
+import { getUI } from '../gui/main';
 
 const screenshot = require('canvas-screenshot');
 
 export function setupControls(noa: any, socket: any) {
 	const eid = noa.playerEntity;
 	const scene = noa.rendering.getScene();
+	const ui = getUI(0);
 
 	noa.container.canvas.requestPointerLock();
 
 	noa.container.canvas.addEventListener('click', () => {
-		if (inventory.isVisible) return;
+		if (inventory.isVisible || chatInput.isVisible) return;
 		else noa.container.canvas.requestPointerLock();
+
+		chatInput.isVisible = false;
+		chatInput.text = '';
 	});
 
 	function inventoryHasItem(item: string, count: number) {
@@ -33,8 +41,6 @@ export function setupControls(noa: any, socket: any) {
 			return true;
 		} else return false;
 	};
-
-	noa.inputs.preventDefaults = true;
 
 	// on left mouse, set targeted block to be air
 	noa.inputs.down.on('fire', function () {
@@ -81,7 +87,8 @@ export function setupControls(noa: any, socket: any) {
 
 	// Inventory
 	noa.inputs.down.on('inventory', function () {
-		if (inventory.isVisible == true) {
+		if (chatInput.isVisible) return;
+		if (inventory.isVisible) {
 			inventory.isVisible = false;
 			noa.container.canvas.requestPointerLock();
 		} else {
@@ -90,10 +97,35 @@ export function setupControls(noa: any, socket: any) {
 		}
 	});
 
-	noa.inputs.down.on('chat', function () {});
+	noa.inputs.down.on('chat', function () {
+		if (inventory.isVisible || chatInput.isVisible) return;
+		chatInput.isVisible = true;
+		document.exitPointerLock();
+		ui.moveFocusToControl(chatInput);
+		chatInput.text = '';
+		
+	});
+
+	document.addEventListener("keydown", event => {
+		if (!chatInput.isVisible) return
+
+		if (event.key.length == 1) chatInput.text = chatInput.text + event.key
+		if (event.key == 'Backspace') chatInput.text = chatInput.text.substring(0, chatInput.text.length - 1)
+	});
+
+	noa.inputs.down.on('cmd', function () {
+		if (inventory.isVisible || chatInput.isVisible) return;
+		chatInput.isVisible = true;
+		document.exitPointerLock();
+		ui.moveFocusToControl(chatInput);
+		chatInput.text = '/';
+	});
 
 	let pause = false;
-	noa.inputs.down.on('menu', (e) => {});
+	noa.inputs.down.on('menu', (e) => {
+		chatInput.isVisible = false;
+		chatInput.text = '';
+	});
 
 	document.addEventListener(
 		'pointerlockchange',
@@ -104,13 +136,18 @@ export function setupControls(noa: any, socket: any) {
 		false
 	);
 
-	noa.inputs.down.on('chatenter', function () {});
+	noa.inputs.down.on('chatenter', function () {
+		chatInput.isVisible = false;
+		socket.send('actionMessage', { message: chatInput.text });
+		chatInput.text = '';
+	});
 
 	noa.inputs.down.on('tab', function () {});
 
 	noa.inputs.up.on('tab', function () {});
 
 	noa.inputs.up.on('screenshot', function () {
+		if (chatInput.isVisible) return;
 		if (document.pointerLockElement == noa.container.canvas) {
 			screenshot(noa.container.canvas, { filename: 'VoxelSRV-' + Date.now() + '.png' });
 		}
@@ -144,7 +181,7 @@ export function setupControls(noa: any, socket: any) {
 	// Tempfix
 
 	noa.on('tick', async () => {
-		if (document.pointerLockElement != noa.container.canvas && !isMobile) {
+		if ((document.pointerLockElement != noa.container.canvas && !isMobile) || chatInput.isVisible) {
 			noa.ents.getState(noa.playerEntity, 'receivesInputs').ignore = true;
 		} else {
 			noa.ents.getState(noa.playerEntity, 'receivesInputs').ignore = false;
@@ -154,7 +191,7 @@ export function setupControls(noa: any, socket: any) {
 	if (localStorage.getItem('gamepad') == 'true') setupGamepad(noa);
 }
 
-export function setupPlayer(noa: any, invData: Object, arrData: Object,) {
+export function setupPlayer(noa: any, invData: Object, arrData: Object) {
 	const eid = noa.playerEntity;
 	const dat = noa.entities.getPositionData(eid);
 
@@ -180,12 +217,10 @@ export function setupPlayer(noa: any, invData: Object, arrData: Object,) {
 	// Create inventory, move it to global entities js in future
 	noa.ents.createComponent({
 		name: 'inventory',
-		state: { items: {}, selected: 0, tempslot: {}, armor:{} },
+		state: { items: {}, selected: 0, tempslot: {}, armor: {} },
 	});
 	if (invData != undefined) noa.ents.addComponent(eid, 'inventory', invData);
-	if (arrData != undefined) noa.ents.getState(eid, 'inventory').armor =  arrData;
-
-
+	if (arrData != undefined) noa.ents.getState(eid, 'inventory').armor = arrData;
 
 	noa.entities.addComponent(eid, noa.entities.names.mesh, {
 		mesh: new BABYLON.Mesh('main', scene),

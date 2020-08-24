@@ -4,7 +4,6 @@ import * as GUI from '@babylonjs/gui';
 import { gameVersion } from '../values';
 
 export function setupDebug(noa, server) {
-	const scene = getLayer(0);
 	const ui = getUI(0);
 
 	const eid = noa.playerEntity;

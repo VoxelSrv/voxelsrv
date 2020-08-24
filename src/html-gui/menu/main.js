@@ -19,6 +19,14 @@ export function buildMain(connect) {
 
 	menuContainer.appendChild(menuLogo);
 
+	var warn = document.createElement('h2'); // Logo
+	warn.id = 'menu_warn';
+	warn.innerHTML = 'Warning! This is non-stable version which is under ongoing rewrite!<br>Many things may not work! Check our discord if you have ideas we could add!'
+	warn.style = 'margin-top: 200px'
+	warn.src = './textures/gui/logo.png';
+
+	menuContainer.appendChild(warn);
+
 	var multiplayerWindow = createMultiplayerWindow(connect); // Creates and sets multiplayerWindow
 	multiplayerWindow.style.display = 'none';
 	menuScreen.appendChild(multiplayerWindow);

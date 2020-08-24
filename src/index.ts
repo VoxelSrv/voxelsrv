@@ -1,7 +1,5 @@
-//import { isMobile } from 'mobile-device-detect';
-const isMobile = false;
+import { isMobile } from 'mobile-device-detect';
 
-import * as cruncher from 'voxel-crunch';
 import * as protocol from './lib/protocol';
 const ndarray = require('ndarray');
 import vec3 = require('gl-vec3');
@@ -9,25 +7,33 @@ import { EventEmitter } from 'events';
 import Engine from 'noa-engine';
 import * as BABYLON from '@babylonjs/core/Legacy/legacy';
 import { registerBlocks, registerItems } from './lib/registry';
-import { setChunk } from './lib/world';
+import { setChunk, setupAutoload } from './lib/world';
 import { setupPlayer, setupControls } from './lib/player';
 import { playSound } from './lib/sound';
 import { applyModel, defineModelComp } from './lib/model';
 
-import { gameSettings, gameProtocol, gameVersion, noaOpts } from './values';
+import { gameSettings, gameProtocol, gameVersion, noaOpts, updateSettings, serverSettings, updateServerSettings } from './values';
 import { constructScreen } from './gui/main';
 import setupGuis from './gui/setup';
 
 import { buildMain } from './html-gui/menu/main';
 import { Socket } from './socket';
+import { getSettings } from './lib/storage';
+import { addMessage } from './gui/chat';
+import { setupClouds, setupSkybox } from './lib/sky';
 
 const noa: any = new Engine(noaOpts());
+noa.ents.getPhysics(noa.playerEntity).body.airDrag = 9999;
 constructScreen(noa);
+setupClouds(noa);
+//setupSkybox(noa)
 
 //@ts-ignore
 document.fonts.load('10pt "silkscreen"');
 
 buildMain(connect);
+
+getSettings().then((data) => updateSettings(data));
 
 function connect(socket) {
 	console.log('Username: ' + gameSettings.nickname, 'Server: ' + socket.server);
@@ -35,6 +41,7 @@ function connect(socket) {
 
 	socket.on('loginRequest', function (dataLogin) {
 		document.getElementById('gui-container').innerHTML = '';
+		updateServerSettings({ ingame: true });
 
 		socket.send('loginResponse', {
 			username: gameSettings.nickname,
@@ -71,6 +78,8 @@ function connect(socket) {
 
 			setupGuis(noa, socket, dataPlayer, dataLogin);
 
+			setupAutoload(noa, socket);
+
 			noa.ents.setPosition(noa.playerEntity, dataPlayer.xPos, dataPlayer.yPos, dataPlayer.zPos);
 
 			socket.on('worldChunk', function (data) {
@@ -85,7 +94,6 @@ function connect(socket) {
 				const inv = JSON.parse(data.inventory);
 				if (data.type == 'armor') {
 					noa.ents.getState(noa.playerEntity, 'inventory').armor = inv;
-
 				} else if (data.type == 'hook') {
 					noa.ents.getState(noa.playerEntity, 'inventory').hook = inv;
 				} else {
@@ -96,19 +104,17 @@ function connect(socket) {
 
 			socket.on('playerSlotUpdate', function (data) {
 				const item = JSON.parse(data.data);
-				console.log(data)
+				console.log(data);
 				const inv = noa.ents.getState(noa.playerEntity, 'inventory');
 
 				if (data.type == 'temp') inv.tempslot = item;
 				else if (data.type == 'main') inv.items[data.slot] = item;
 				else if (data.type == 'armor') inv.armor.items[data.slot] = item;
 				else if (data.type == 'hook') inv.hook.items[data.slot] = item;
-
 			});
 
 			socket.on('chatMessage', function (data) {
-				//addToChat(data.message);
-				console.log('Chat: ' + data.message);
+				addMessage(data.message);
 			});
 
 			socket.on('tabUpdate', function (data) {
@@ -130,15 +136,7 @@ function connect(socket) {
 					const entData = JSON.parse(data.data);
 					entityList[data.uuid] = noa.ents.add(Object.values(entData.position), 1, 2, null, null, false, true);
 
-					applyModel(
-						entityList[data.uuid],
-						entData.model,
-						entData.texture,
-						entData.offset,
-						entData.nametag,
-						entData.name,
-						entData.hitbox
-					);
+					applyModel(entityList[data.uuid], entData.model, entData.texture, entData.offset, entData.nametag, entData.name, entData.hitbox);
 				}
 			});
 
@@ -198,18 +196,33 @@ function connect(socket) {
 						else noa.ents.getState(id, noa.entities.names.mesh).mesh.rotation.y = (rot / 2 + oldRot) / 2;
 
 						if (noa.ents.getState(id, 'model').nametag != undefined) {
-							noa.ents.getState(id, 'model').nametag.rotation.y =
-								noa.camera.heading - noa.ents.getState(id, noa.entities.names.mesh).mesh.rotation.y;
+							noa.ents.getState(id, 'model').nametag.rotation.y = noa.camera.heading - noa.ents.getState(id, noa.entities.names.mesh).mesh.rotation.y;
 							noa.ents.getState(id, 'model').nametag.rotation.x = noa.camera.pitch;
 						}
 					}
 				});
 			});
+
+			let checker = setInterval(() => {
+				if (noa.world.playerChunkLoaded) {
+					noa.ents.getPhysics(noa.playerEntity).body.airDrag = -1;
+					clearInterval(checker);
+				}
+			}, 1);
 		});
 	});
 
 	socket.onclose = function () {};
 }
+
+let x = 0;
+noa.on('beforeRender', async() => {
+	if (!serverSettings.ingame) {
+		x++
+
+		noa.camera.heading = x/1000
+	}
+})
 
 window['connect'] = (x) => {
 	connect(new Socket(x));

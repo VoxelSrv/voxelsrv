@@ -1,11 +1,6 @@
-import { getLayer, getUI, getScreen } from './main';
+import { getLayer, getUI, getScreen, scale, event } from './main';
 import { items } from '../lib/registry';
-import * as BABYLON from '@babylonjs/core/Legacy/legacy';
 import * as GUI from '@babylonjs/gui/';
-import { Socket } from '../socket';
-import { buildMain } from '../html-gui/menu/main';
-
-const scale = 3;
 
 export function buildHotbar(noa) {
 	function getInv() {
@@ -13,7 +8,6 @@ export function buildHotbar(noa) {
 	}
 
 	const ui = getUI(0);
-	const scene = getLayer(0);
 
 	const hotbar = new GUI.Rectangle();
 	hotbar.zIndex = 20;
@@ -51,21 +45,44 @@ export function buildHotbar(noa) {
 
 		for (let x = 0; x < 9; x++) {
 			if (inv.items[x] != null && inv.items[x].id != undefined) {
-				const item = items[inv.items[x].id]
+				const item = items[inv.items[x].id];
 				let txt: string;
-				if (item.blockTexture != undefined) txt = item.blockTexture
+				if (item.blockTexture != undefined) txt = item.blockTexture;
 				else if (!item.texture.startsWith('https://') || !item.texture.startsWith('http://')) txt = './textures/' + item.texture + '.png';
-				else txt = item.texture
+				else txt = item.texture;
 
 				hotbarSlots[x].item.source = txt;
 
-				if (item.count == 1) hotbarSlots[x].count.text = '';
-				else if (inv.items[x].count <= 10) hotbarSlots[x].count.text = ' ' + inv.items[x].count.toString() ;
+				if (inv.items[x].count == 1) hotbarSlots[x].count.text = '';
+				else if (inv.items[x].count <= 10) hotbarSlots[x].count.text = ' ' + inv.items[x].count.toString();
 				else hotbarSlots[x].count.text = inv.items[x].count.toString();
 			} else {
 				hotbarSlots[x].item.source = '';
 				hotbarSlots[x].count.text = '';
 			}
+		}
+	});
+
+	event.on('scale-change', (x) => {
+		hotbar.width = `${184 * x}px`;
+		hotbar.height = `${24 * x}px`;
+		hotbarTexture.width = `${184 * x}px`;
+		hotbarTexture.height = `${24 * x}px`;
+		hotbarSelected.width = `${24 * x}px`;
+		hotbarSelected.height = `${24 * x}px`;
+		hotbarSelected.left = `${-19 * x * 4}px`;
+
+		for (let x = 0; x < 9; x++) {
+			hotbarSlots[x].container.height = `${16 * scale}px`;
+			hotbarSlots[x].container.width = `${16 * scale}px`;
+			hotbarSlots[x].container.left = `${-20 * scale * 4 + 20 * scale * x}px`;
+			hotbarSlots[x].item.width = `${16 * scale}px`;
+			hotbarSlots[x].item.height = `${16 * scale}px`;
+			hotbarSlots[x].count.fontSize = `${8 * scale}px`;
+			hotbarSlots[x].count.left = `${2 * scale}px`;
+			hotbarSlots[x].count.top = `${4 * scale}px`;
+			hotbarSlots[x].count.shadowOffsetX = scale;
+			hotbarSlots[x].count.shadowOffsetY = scale;
 		}
 	});
 }
@@ -79,7 +96,6 @@ export function buildInventory(noa, socket) {
 	}
 
 	const ui = getScreen(1);
-	const scene = getLayer(1);
 
 	inventory = new GUI.Rectangle();
 	inventory.zIndex = 20;
@@ -140,7 +156,6 @@ export function buildInventory(noa, socket) {
 						click = 'right';
 						break;
 				}
-				console.log({ slot: y + 27 * page, type: click });
 
 				socket.send('actionInventoryClick', { slot: y + 27 * page, type: click, inventory: 'main' });
 			});
@@ -229,7 +244,6 @@ export function buildInventory(noa, socket) {
 					click = 'right';
 					break;
 			}
-			console.log({ slot: x, type: click, inventory: 'armor' });
 			socket.send('actionInventoryClick', { slot: x, type: click, inventory: 'armor' });
 		});
 
@@ -250,8 +264,11 @@ export function buildInventory(noa, socket) {
 		tempslot.container.top = data.y;
 	});
 
+	const button: { [index: string]: any } = {};
+
 	if (getInv().size > 36) {
 		const box = new GUI.Rectangle();
+		button.box = box;
 		box.height = `${15 * scale}px`;
 		box.width = `${22 * scale}px`;
 		box.zIndex = 25;
@@ -262,6 +279,7 @@ export function buildInventory(noa, socket) {
 
 		const inv = getInv();
 		const button1 = new GUI.Image('button1', './textures/gui/button-right.png');
+		button.button1 = button1;
 		button1.zIndex = 25;
 		button1.horizontalAlignment = 1;
 		button1.height = `${15 * scale}px`;
@@ -274,6 +292,7 @@ export function buildInventory(noa, socket) {
 		box.addControl(button1);
 
 		const button2 = new GUI.Image('button2', './textures/gui/button-left.png');
+		button.button2 = button2;
 		button2.zIndex = 25;
 		button2.horizontalAlignment = 0;
 		button2.height = `${15 * scale}px`;
@@ -364,8 +383,7 @@ export function buildInventory(noa, socket) {
 				armorSlots[x].item.source = txt;
 
 				if (inv.armor.items[x].count == 1) armorSlots[x].count.text = '';
-				else if (inv.armor.items[x].count <= 10)
-					armorSlots[x].count.text = ' ' + inv.armor.items[x].count.toString();
+				else if (inv.armor.items[x].count <= 10) armorSlots[x].count.text = ' ' + inv.armor.items[x].count.toString();
 				else armorSlots[x].count.text = inv.armor.items[x].count.toString();
 			} else {
 				armorSlots[x].count.alpha = 0;
@@ -374,16 +392,16 @@ export function buildInventory(noa, socket) {
 
 				switch (x) {
 					case 0:
-						txt = './textures/item/empty_armor_slot_helmet.png'
+						txt = './textures/item/empty_armor_slot_helmet.png';
 						break;
 					case 1:
-						txt = './textures/item/empty_armor_slot_chestplate.png'
+						txt = './textures/item/empty_armor_slot_chestplate.png';
 						break;
 					case 2:
-						txt = './textures/item/empty_armor_slot_leggings.png'
+						txt = './textures/item/empty_armor_slot_leggings.png';
 						break;
 					case 3:
-						txt = './textures/item/empty_armor_slot_boots.png'
+						txt = './textures/item/empty_armor_slot_boots.png';
 						break;
 				}
 				armorSlots[x].item.source = txt;
@@ -393,6 +411,81 @@ export function buildInventory(noa, socket) {
 	};
 
 	noa.on('beforeRender', update);
+
+	event.on('scale-change', (scale2) => {
+		inventoryTexture.width = `${180 * scale2}px`;
+		inventoryTexture.height = `${176 * scale2}px`;
+		hotbar.top = `${67 * scale2}px`;
+		hotbar.height = `${20 * scale2}px`;
+		hotbar.width = `${164 * scale2}px`;
+		armor.top = `${-39 * scale2}px`;
+		armor.left = `${-72 * scale2}px`;
+		armor.height = `${72 * scale2}px`;
+		armor.width = `${18 * scale2}px`;
+		button.box.height = `${15 * scale2}px`;
+		button.box.width = `${22 * scale2}px`;
+		button.box.top = `${-6 * scale2}px`;
+		button.box.left = `${71 * scale2}px`;
+
+		button.button1.height = `${15 * scale2}px`;
+		button.button1.width = `${11 * scale2}px`;
+		button.button2.height = `${15 * scale2}px`;
+		button.button2.width = `${11 * scale2}px`;
+
+		tempslot.container.height = `${16 * scale2}px`;
+		tempslot.container.width = `${16 * scale2}px`;
+		tempslot.item.width = `${16 * scale2}px`;
+		tempslot.item.height = `${16 * scale2}px`;
+		tempslot.count.fontSize = `${8 * scale2}px`;
+		tempslot.count.left = `${2 * scale2}px`;
+		tempslot.count.top = `${4 * scale2}px`;
+		tempslot.count.shadowOffsetX = scale2;
+		tempslot.count.shadowOffsetY = scale2;
+
+		for (let x = 0; x < hotbarSlots.length; x++) {
+			hotbarSlots[x].container.height = `${16 * scale2}px`;
+			hotbarSlots[x].container.width = `${16 * scale2}px`;
+			hotbarSlots[x].container.left = `${-18 * scale2 * 4 + 18 * scale2 * (x % 9)}px`;
+			hotbarSlots[x].item.width = `${16 * scale2}px`;
+			hotbarSlots[x].item.height = `${16 * scale2}px`;
+			hotbarSlots[x].count.fontSize = `${8 * scale2}px`;
+			hotbarSlots[x].count.left = `${2 * scale2}px`;
+			hotbarSlots[x].count.top = `${4 * scale2}px`;
+			hotbarSlots[x].count.shadowOffsetX = scale2;
+			hotbarSlots[x].count.shadowOffsetY = scale2;
+		}
+
+		for (let x = 0; x < armorSlots.length; x++) {
+			armorSlots[x].container.height = `${16 * scale2}px`;
+			armorSlots[x].container.width = `${16 * scale2}px`;
+			armorSlots[x].item.width = `${16 * scale2}px`;
+			armorSlots[x].item.height = `${16 * scale2}px`;
+			armorSlots[x].count.fontSize = `${8 * scale2}px`;
+			armorSlots[x].count.left = `${2 * scale2}px`;
+			armorSlots[x].count.top = `${4 * scale2}px`;
+			armorSlots[x].count.shadowOffsetX = scale2;
+			armorSlots[x].count.shadowOffsetY = scale2;
+		}
+
+		for (let x = 1; x < 4; x++) {
+			inventoryRow[x].height = `${20 * scale2}px`;
+			inventoryRow[x].width = `${164 * scale2}px`;
+			inventoryRow[x].top = `${9 * scale2 + (x - 1) * 18 * scale2}px`;
+
+			for (let y = 9 * x; y < 9 * x + 9; y++) {
+				inventorySlots[y].container.left = `${-18 * scale2 * 4 + 18 * scale2 * (y % 9)}px`;
+				inventorySlots[y].container.height = `${16 * scale2}px`;
+				inventorySlots[y].container.width = `${16 * scale2}px`;
+				inventorySlots[y].item.width = `${16 * scale2}px`;
+				inventorySlots[y].item.height = `${16 * scale2}px`;
+				inventorySlots[y].count.fontSize = `${8 * scale2}px`;
+				inventorySlots[y].count.left = `${2 * scale2}px`;
+				inventorySlots[y].count.top = `${4 * scale2}px`;
+				inventorySlots[y].count.shadowOffsetX = scale2;
+				inventorySlots[y].count.shadowOffsetY = scale2;
+			}
+		}
+	});
 }
 
 export function createSlot(scale: number) {
@@ -424,9 +517,8 @@ export function createSlot(scale: number) {
 	count.top = `${4 * scale}px`;
 
 	count.shadowColor = '#111111';
-	count.shadowOffsetX = scale
-	count.shadowOffsetY = scale
-
+	count.shadowOffsetX = scale;
+	count.shadowOffsetY = scale;
 
 	container.addControl(count);
 
