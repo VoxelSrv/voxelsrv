@@ -20,7 +20,7 @@ export class BaseSocket {
 		this.listeners = {};
 	}
 
-	emit(type, data) {
+	protected emit(type, data) {
 		if (this.listeners[type] != undefined) {
 			this.listeners[type].forEach((func) => {
 				func(data);
@@ -44,11 +44,20 @@ export class Socket extends BaseSocket {
 		this.server = server;
 
 		this.socket = new WebSocket(server);
-		this.socket.binaryType = 'arraybuffer'
 
+		console.log(this.socket)
+		this.socket.binaryType = 'arraybuffer';
 
 		this.socket.onopen = () => {
 			this.emit('connection', {});
+		};
+
+		this.socket.onerror = () => {
+			this.emit('playerKick', { reason: `Can't connect to ${server}` });
+		};
+
+		this.socket.onclose = () => {
+			this.emit('playerKick', { reason: `Connection closed!` });
 		};
 
 		this.socket.onmessage = (data) => {
@@ -59,6 +68,6 @@ export class Socket extends BaseSocket {
 
 	close() {
 		this.listeners = {};
-		this.socket.close;
+		this.socket.close();
 	}
 }

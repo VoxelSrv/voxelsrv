@@ -17,9 +17,10 @@
   "author": "Patbox",
   "license": "ISC",
   "dependencies": {
-    "@babylonjs/core": "^4.1.0",
-    "@babylonjs/gui": "^4.1.0",
-    "@babylonjs/materials": "^4.1.0",
+    "@babylonjs/core": "^4.2.0-alpha.33",
+    "@babylonjs/gui": "^4.2.0-alpha.33",
+    "@babylonjs/materials": "^4.2.0-alpha.33",
+    "@types/css-font-loading-module": "0.0.4",
     "canvas-screenshot": "^3.0.0",
     "dexie": "^3.0.2",
     "dompurify": "^2.0.12",

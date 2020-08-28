@@ -1,13 +1,23 @@
-import { setupDebug, setupDot } from './debug';
-import { buildHotbar, buildInventory } from './inventory';
+import { setupDebug, setupDot, debug, dot } from './debug';
+import { buildHotbar, buildInventory, inventory, hotbar } from './inventory';
 import { setupHand } from './hand';
-import { setupChat } from './chat';
+import { setupChat, chatContainer, input } from './chat';
+import buildPause from './pause';
 
-export default function setupGuis(noa, socket, dataPlayer, dataLogin) {
+export function setupGuis(noa, socket, dataPlayer, dataLogin) {
 	buildHotbar(noa);
 	setupDot();
 	setupDebug(noa, socket.server);
 	buildInventory(noa, socket);
 	setupChat();
+	buildPause(noa);
 	//setupHand(noa);
+}
+
+export function destroyGuis() {
+	if (inventory != null) inventory.dispose();
+	if (hotbar != null) hotbar.dispose();
+	if (chatContainer != null) chatContainer.dispose();
+	if (debug != null) debug.dispose();
+	if (dot != null) dot.dispose();
 }

@@ -26,7 +26,7 @@ export function updateSettings(data: Object) {
 export const defaultServerSettings = {
 	cheats: false,
 	control: false,
-	ingame: false
+	ingame: false,
 };
 
 export let serverSettings = { ...defaultServerSettings };
@@ -83,4 +83,23 @@ export function noaOpts() {
 			screenshot: ['P'],
 		},
 	};
+}
+
+export const defaultFonts = [
+	'silkscreen',
+	'Lato',
+	'Lato-Italic',
+	'Lato-Black',
+	'Lato-BlackItalic',
+	'Lato-Bold',
+	'Lato-BoldItalic',
+	'Lato-Light',
+	'Lato-LightItalic',
+	'Lato-Thin',
+	'Lato-ThinItalic',
+];
+
+export let noa = null;
+export function setNoa(x) {
+	noa = x;
 }

@@ -2,6 +2,8 @@ import { getLayer, getUI, getScreen, scale, event } from './main';
 import { items } from '../lib/registry';
 import * as GUI from '@babylonjs/gui/';
 
+export let hotbar: GUI.Rectangle;
+
 export function buildHotbar(noa) {
 	function getInv() {
 		return noa.ents.getState(noa.playerEntity, 'inventory');
@@ -9,7 +11,7 @@ export function buildHotbar(noa) {
 
 	const ui = getUI(0);
 
-	const hotbar = new GUI.Rectangle();
+	hotbar = new GUI.Rectangle();
 	hotbar.zIndex = 20;
 	hotbar.verticalAlignment = 1;
 	hotbar.width = `${184 * scale}px`;
@@ -39,7 +41,7 @@ export function buildHotbar(noa) {
 		hotbar.addControl(container);
 	}
 
-	noa.on('beforeRender', async () => {
+	const update = async () => {
 		const inv = getInv();
 		hotbarSelected.left = `${-20 * scale * 4 + 20 * scale * inv.selected}px`;
 
@@ -61,9 +63,11 @@ export function buildHotbar(noa) {
 				hotbarSlots[x].count.text = '';
 			}
 		}
-	});
+	}
 
-	event.on('scale-change', (x) => {
+	noa.on('beforeRender', update)
+
+	const scaleEvent = (x) => {
 		hotbar.width = `${184 * x}px`;
 		hotbar.height = `${24 * x}px`;
 		hotbarTexture.width = `${184 * x}px`;
@@ -84,6 +88,13 @@ export function buildHotbar(noa) {
 			hotbarSlots[x].count.shadowOffsetX = scale;
 			hotbarSlots[x].count.shadowOffsetY = scale;
 		}
+	}
+
+	event.on('scale-change', scaleEvent)
+
+	hotbar.onDisposeObservable.add(() => {
+		event.off('scake-change', scaleEvent);
+		noa.off('beforeRender', update);
 	});
 }
 
@@ -412,7 +423,7 @@ export function buildInventory(noa, socket) {
 
 	noa.on('beforeRender', update);
 
-	event.on('scale-change', (scale2) => {
+	const scaleEvent = (scale2) => {
 		inventoryTexture.width = `${180 * scale2}px`;
 		inventoryTexture.height = `${176 * scale2}px`;
 		hotbar.top = `${67 * scale2}px`;
@@ -485,6 +496,13 @@ export function buildInventory(noa, socket) {
 				inventorySlots[y].count.shadowOffsetY = scale2;
 			}
 		}
+	};
+
+	event.on('scale-change', scaleEvent);
+
+	inventory.onDisposeObservable.add(() => {
+		event.off('scake-change', scaleEvent);
+		noa.off('beforeRender', update);
 	});
 }
 

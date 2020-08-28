@@ -3,6 +3,60 @@
 	src:  url('./fonts/silkscreen.ttf') format('truetype')
 }
 
+@font-face {
+	font-family: 'Lato';
+	src:  url('./fonts/Lato/Lato-Regular.ttf') format('truetype')
+}
+
+@font-face {
+	font-family: 'Lato-Italic';
+	src:  url('./fonts/Lato/Lato-Regular.ttf') format('truetype')
+}
+
+@font-face {
+	font-family: 'Lato-Black';
+	src:  url('./fonts/Lato/Lato-Black.ttf') format('truetype')
+}
+
+@font-face {
+	font-family: 'Lato-BlackItalic';
+	src:  url('./fonts/Lato/Lato-BlackItalic.ttf') format('truetype')
+}
+
+@font-face {
+	font-family: 'Lato-Bold';
+	src:  url('./fonts/Lato/Lato-Black.ttf') format('truetype')
+}
+
+@font-face {
+	font-family: 'Lato-BoldItalic';
+	src:  url('./fonts/Lato/Lato-BlackItalic.ttf') format('truetype')
+}
+
+@font-face {
+	font-family: 'Lato-Light';
+	src:  url('./fonts/Lato/Lato-Black.ttf') format('truetype')
+}
+
+@font-face {
+	font-family: 'Lato-LightItalic';
+	src:  url('./fonts/Lato/Lato-BlackItalic.ttf') format('truetype')
+}
+
+@font-face {
+	font-family: 'Lato-Thin';
+	src:  url('./fonts/Lato/Lato-Black.ttf') format('truetype')
+}
+
+@font-face {
+	font-family: 'Lato-ThinItalic';
+	src:  url('./fonts/Lato/Lato-BlackItalic.ttf') format('truetype')
+}
+
+*:focus {
+	outline: none;
+}
+
 .inventory_item {
 	z-index:2;
 	display: inline-block;

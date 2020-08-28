@@ -7,13 +7,14 @@ import { Observable } from '@babylonjs/core/Misc/observable';
 import { Measure } from '@babylonjs/gui/2D/measure';
 import { ValueAndUnit } from '@babylonjs/gui/2D/valueAndUnit';
 import { Control } from '@babylonjs/gui/2D/controls/control';
-import { _TypeStore } from '@babylonjs/core/Misc/typeStore';
 import { Nullable } from '@babylonjs/core/types';
 
 export interface IFormatedText {
 	text: string;
 	color?: string;
 	font?: string;
+	underline?: boolean;
+	linethrough?: boolean;
 }
 
 /**
@@ -27,7 +28,6 @@ export class FormTextBlock extends Control {
 	private _lines: any[];
 	private _resizeToFit: boolean = false;
 	private _lineSpacing: ValueAndUnit = new ValueAndUnit(0);
-	private _outlineWidth: number = 0;
 	private _outlineColor: string = 'white';
 
 	public shouldhide: boolean = false;
@@ -152,42 +152,6 @@ export class FormTextBlock extends Control {
 	}
 
 	/**
-	 * Gets or sets outlineWidth of the text to display
-	 */
-	public get outlineWidth(): number {
-		return this._outlineWidth;
-	}
-
-	/**
-	 * Gets or sets outlineWidth of the text to display
-	 */
-	public set outlineWidth(value: number) {
-		if (this._outlineWidth === value) {
-			return;
-		}
-		this._outlineWidth = value;
-		this._markAsDirty();
-	}
-
-	/**
-	 * Gets or sets outlineColor of the text to display
-	 */
-	public get outlineColor(): string {
-		return this._outlineColor;
-	}
-
-	/**
-	 * Gets or sets outlineColor of the text to display
-	 */
-	public set outlineColor(value: string) {
-		if (this._outlineColor === value) {
-			return;
-		}
-		this._outlineColor = value;
-		this._markAsDirty();
-	}
-
-	/**
 	 * Creates a new TextBlock object
 	 * @param name defines the name of the control
 	 * @param text defines the text to display (emptry string by default)
@@ -272,10 +236,58 @@ export class FormTextBlock extends Control {
 			context.shadowOffsetY = this.shadowOffsetY;
 		}
 
-		if (this.outlineWidth) {
-			//context.strokeText(text, this._currentMeasure.left + x, y);
-		}
-		fillMixedText(context, text, this._currentMeasure.left + x, y, this);
+		/*if (this.outlineWidth) {
+			context.strokeText(text, this._currentMeasure.left + x, y);
+		}*/
+
+		if (text == undefined) return;
+
+		const defaultFillStyle = context.fillStyle;
+		const defaultFont = context.font;
+		const defaultStrokeStyle = context.strokeStyle;
+		const defaultLineWitdh = context.lineWidth;
+
+		text.forEach((txt) => {
+			if (txt.text == undefined) return;
+			if (txt.font == undefined) txt.font = defaultFont;
+
+			context.font = `${this.fontSize} ${txt.font}`;
+			context.fillStyle = txt.color || defaultFillStyle;
+			const measure = context.measureText(txt.text);
+
+			context.lineWidth = Math.round(this.fontSizeInPixels * 0.05);
+			context.lineCap = 'square';
+			context.strokeStyle = context.fillStyle;
+
+			if (txt.underline) {
+				context.beginPath();
+				context.moveTo(this._currentMeasure.left + x, y + 3);
+				context.lineTo(this._currentMeasure.left + x + measure.width, y + 3);
+				context.stroke();
+				context.closePath();
+			}
+
+			context.fillText(txt.text, this._currentMeasure.left + x, y);
+
+			if (txt.linethrough) {
+				context.beginPath();
+				context.moveTo(this._currentMeasure.left + x, y - this.fontSizeInPixels / 3);
+				context.lineTo(this._currentMeasure.left + x + measure.width, y - this.fontSizeInPixels / 3);
+				context.stroke();
+				context.closePath();
+			}
+
+			context.font = defaultFont;
+			context.strokeStyle = defaultStrokeStyle;
+			context.lineWidth = defaultLineWitdh;
+
+			x = x + measure.width;
+		});
+
+		context.fillStyle = defaultFillStyle;
+		context.font = defaultFont;
+		context.strokeStyle = defaultStrokeStyle;
+		context.lineWidth = defaultLineWitdh;
 	}
 
 	/** @hidden */
@@ -292,10 +304,6 @@ export class FormTextBlock extends Control {
 
 	protected _applyStates(context: CanvasRenderingContext2D): void {
 		super._applyStates(context);
-		if (this.outlineWidth) {
-			context.lineWidth = this.outlineWidth;
-			context.strokeStyle = this.outlineColor;
-		}
 	}
 
 	protected _breakLines(refWidth: number, context: CanvasRenderingContext2D): object[] {
@@ -306,9 +314,9 @@ export class FormTextBlock extends Control {
 			let x = val.text.split('\n');
 
 			if (x.length > 1) {
-				textList[textList.length - 1].push({ text: x[0], color: val.color, font: val.font });
+				textList[textList.length - 1].push({ text: x[0], color: val.color, font: val.font, underline: val.underline, linethrough: val.linethrough });
 				for (let y = 1; y < x.length; y++) {
-					textList.push([{ text: x[y], color: val.color, font: val.font }]);
+					textList.push([{ text: x[y], color: val.color, font: val.font, underline: val.underline, linethrough: val.linethrough }]);
 				}
 			} else textList[textList.length - 1].push(val);
 		});
@@ -335,8 +343,8 @@ export class FormTextBlock extends Control {
 			let localWords = val.text.split(' ');
 			localWords.forEach((x) => {
 				if (x.length == 0) return;
-				
-				context.font = `${this.fontSize} ${val.font}`
+
+				context.font = `${this.fontSize} ${val.font}`;
 				let metrics = context.measureText(x);
 				context.font = defaultFont;
 
@@ -345,7 +353,7 @@ export class FormTextBlock extends Control {
 					const s1 = x.substring(0, Math.ceil(x.length / 2));
 					const s2 = x.substring(Math.floor(x.length / 2));
 
-					context.font = `${this.fontSize} ${val.font}`
+					context.font = `${this.fontSize} ${val.font}`;
 					metrics = context.measureText(s1);
 					let metrics2 = context.measureText(s2);
 					context.font = defaultFont;
@@ -353,7 +361,7 @@ export class FormTextBlock extends Control {
 					if (metrics.width < width) words.push({ text: s1 + ' ', font: val.font, color: val.color });
 					else words.push({ text: ' [...] ', font: val.font, color: val.color });
 					if (metrics2.width < width) words.push({ text: s2 + ' ', font: val.font, color: val.color });
-					else words.push({ text: ' [...] ', font: val.font, color: val.color });
+					else words.push({ text: ' [...] ', font: val.font, color: val.color, underline: val.underline, linethrough: val.linethrough });
 				}
 			});
 			textOnly = textOnly + val.text;
@@ -361,12 +369,12 @@ export class FormTextBlock extends Control {
 
 		var lineWidth = 0;
 
-		context.font = `${this.fontSize} ${line[0].font}`
+		context.font = `${this.fontSize} ${line[0].font}`;
 		let metrics = context.measureText(textOnly);
 		context.font = defaultFont;
 
 		if (metrics.width < width) {
-			return [{ text: line, width: lineWidth }];
+			return [{ text: line, width: metrics.width }];
 		}
 
 		let lastText = '';
@@ -376,7 +384,7 @@ export class FormTextBlock extends Control {
 		for (var n = 0; n < words.length; n++) {
 			let tempText = n == 0 ? words[0].text : lastText + words[n].text;
 
-			context.font = `${this.fontSize} ${ words[n].font}`
+			context.font = `${this.fontSize} ${words[n].font}`;
 			let metrics = context.measureText(tempText);
 			context.font = defaultFont;
 
@@ -402,7 +410,6 @@ export class FormTextBlock extends Control {
 	protected _renderLines(context: CanvasRenderingContext2D): void {
 		var height = this._currentMeasure.height;
 		var rootY = 0;
-		var rootX = 0;
 		switch (this._textVerticalAlignment) {
 			case Control.VERTICAL_ALIGNMENT_TOP:
 				rootY = this._fontOffset.ascent;
@@ -428,7 +435,7 @@ export class FormTextBlock extends Control {
 				}
 			}
 
-			this._drawText(line.text, rootX, rootY, context);
+			this._drawText(line.text, line.width, rootY, context);
 			rootY += this._fontOffset.height;
 		}
 	}
@@ -474,25 +481,3 @@ export class FormTextBlock extends Control {
 		this.onTextChangedObservable.clear();
 	}
 }
-
-const fillMixedText = (ctx: CanvasRenderingContext2D, arg: Array<IFormatedText>, x: number, y: number, self) => {
-	if (arg == undefined) return;
-
-	let defaultFillStyle = ctx.fillStyle;
-	let defaultFont = ctx.font;
-
-	ctx.save();
-	arg.forEach((txt) => {
-		if (txt.text == undefined) return;
-		if (txt.font == undefined) txt.font = defaultFont;
-
-		ctx.font = `${self.fontSize} ${txt.font}`
-		ctx.fillStyle = txt.color || defaultFillStyle;
-		ctx.fillText(txt.text, x, y);
-
-		ctx.font = defaultFont;
-
-		x = x + ctx.measureText(txt.text).width;
-	});
-	ctx.restore();
-};

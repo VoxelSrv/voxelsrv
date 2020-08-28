@@ -10,8 +10,8 @@ let layer0: any;
 let layer1: any;
 let ui0: any;
 let ui1: any;
-let screen0: any;
-let screen1: any;
+let screen0: GUI.Rectangle;
+let screen1: GUI.Rectangle;
 export let engine: any;
 
 export let scale = 3;
@@ -36,9 +36,11 @@ export function constructScreen(noa) {
 	ui1 = GUI.AdvancedDynamicTexture.CreateFullscreenUI('UI', false, layer0, BABYLON.Texture.NEAREST_SAMPLINGMODE);
 
 	screen0 = new GUI.Rectangle();
+	screen0.isPointerBlocker = false;
 	screen0.zIndex = 1000;
 	ui0.addControl(screen0);
 	screen1 = new GUI.Rectangle();
+	screen1.isPointerBlocker = false;
 	screen1.zIndex = 1000;
 	ui1.addControl(screen1);
 
@@ -46,6 +48,9 @@ export function constructScreen(noa) {
 		ui0.getContext().imageSmoothingEnabled = false;
 		ui1.getContext().imageSmoothingEnabled = false;
 		event.emit('resize', x);
+		setTimeout(() => {
+			event.emit('scale-change', scale);
+		}, 50);
 	});
 
 	ui0.getContext().imageSmoothingEnabled = false;

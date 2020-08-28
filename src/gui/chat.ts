@@ -1,15 +1,18 @@
 import { getLayer, getUI, scale, event } from './main';
-import { FormTextBlock, IFormatedText } from './formtextblock';
+import { FormTextBlock, IFormatedText } from '../gui-uni/formtextblock';
 
 import * as GUI from '@babylonjs/gui';
 
 export let input: GUI.InputText;
-export let chat: GUI.ScrollViewer;
 export let chatContainer: GUI.StackPanel;
 export let messages: Array<FormTextBlock> = [];
 let height = 0;
 
 let active = false;
+
+export function changeState(state: boolean) {
+	active = state;
+}
 
 export function setupChat() {
 	const ui = getUI(1);
@@ -19,7 +22,7 @@ export function setupChat() {
 	input.width = 100;
 	input.horizontalAlignment = 0;
 	input.verticalAlignment = 1;
-	input.zIndex = 50;
+	input.zIndex = 100;
 	input.height = '36px';
 	input.color = 'white';
 	input.background = '#111111aa';
@@ -45,7 +48,7 @@ export function setupChat() {
 
 	ui.addControl(chatContainer);
 
-	event.on('scale-change', (x) => {
+	const scaleEvent = (x) => {
 		chatContainer.top = `${-26 * x}px`;
 		chatContainer.width = `${176 * x}px`;
 
@@ -57,9 +60,11 @@ export function setupChat() {
 		});
 
 		calcHeight();
-	});
+	};
 
-	setInterval(async () => {
+	event.on('scale-change', scaleEvent);
+
+	const z = setInterval(async () => {
 		if (active) {
 			let x = 0;
 			messages.forEach((m) => {
@@ -79,15 +84,11 @@ export function setupChat() {
 		}
 	}, 100);
 
-	setInterval(async () => {
-		for (let x = messages.length - 1; x >= 0; x--) {
-			if (messages[x].isVisible == true) {
-				messages[x].isVisible = false;
-				break;
-			}
-		}
-		calcHeight();
-	}, 10000);
+	chatContainer.onDisposeObservable.add(() => {
+		clearInterval(z);
+		messages.forEach((m) => m.dispose());
+		event.off('scale-change', scaleEvent);
+	});
 }
 
 export async function addMessage(msg: Array<IFormatedText>) {
@@ -113,10 +114,16 @@ export async function addMessage(msg: Array<IFormatedText>) {
 
 	chatContainer.addControl(message);
 
-	while (messages.length > 40) {
+	while (messages.length > 50) {
 		messages[messages.length - 1].dispose();
 		messages.pop();
 	}
+
+	setInterval(async () => {
+		message.shouldhide = true;
+		if (!active) message.isVisible = false;
+		calcHeight();
+	}, 8000);
 
 	calcHeight();
 	console.log('Chat: ' + x);

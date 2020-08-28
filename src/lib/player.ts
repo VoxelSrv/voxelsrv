@@ -2,24 +2,28 @@ import * as BABYLON from '@babylonjs/core/Legacy/legacy';
 
 import { setupGamepad } from './gamepad';
 import { isMobile } from 'mobile-device-detect';
-import { gameSettings } from '../values';
+import { gameSettings, serverSettings } from '../values';
 import { blockIDmap, blockIDs, blocks } from './registry';
 import { inventory } from '../gui/inventory';
-import { input as chatInput } from '../gui/chat';
+import { input as chatInput, changeState as chanceChatState } from '../gui/chat';
+import { socketSend } from './connect';
 import { getUI } from '../gui/main';
+import { pauseScreen } from '../gui/pause';
 
 const screenshot = require('canvas-screenshot');
 
-export function setupControls(noa: any, socket: any) {
+export function setupControls(noa: any) {
 	const eid = noa.playerEntity;
 	const scene = noa.rendering.getScene();
-	const ui = getUI(0);
+	const ui = getUI(1);
 
 	noa.container.canvas.requestPointerLock();
 
 	noa.container.canvas.addEventListener('click', () => {
-		if (inventory.isVisible || chatInput.isVisible) return;
-		else noa.container.canvas.requestPointerLock();
+		if (!serverSettings.ingame) return;
+		if (inventory.isVisible || chatInput.isVisible || pauseScreen.isVisible) return;
+
+		noa.container.canvas.requestPointerLock();
 
 		chatInput.isVisible = false;
 		chatInput.text = '';
@@ -44,50 +48,56 @@ export function setupControls(noa: any, socket: any) {
 
 	// on left mouse, set targeted block to be air
 	noa.inputs.down.on('fire', function () {
+		if (!serverSettings.ingame) return;
 		if (noa.targetedBlock) {
 			//startBreakingBlock(noa.targetedBlock.position, noa.targetedBlock.blockID)
 			const pos = noa.targetedBlock.position;
-			socket.send('actionBlockBreak', { x: pos[0], y: pos[1], z: pos[2] });
+			socketSend('actionBlockBreak', { x: pos[0], y: pos[1], z: pos[2] });
 		}
 	});
 
 	noa.inputs.up.on('fire', function () {
+		if (!serverSettings.ingame) return;
 		//stopBreakingBlock()
 	});
 
 	// place block on alt-fire (RMB/E)
 	noa.inputs.down.on('alt-fire', function () {
+		if (!serverSettings.ingame) return;
 		if (noa.targetedBlock != undefined) {
 			const pos = noa.targetedBlock.adjacent;
 			const pos2 = noa.targetedBlock.position;
 			if (noa.ents.isTerrainBlocked(pos[0], pos[1], pos[2]) == false) {
-				socket.send('actionBlockPlace', { x: pos[0], y: pos[1], z: pos[2], x2: pos2[0], y2: pos2[1], z2: pos2[2] });
+				socketSend('actionBlockPlace', { x: pos[0], y: pos[1], z: pos[2], x2: pos2[0], y2: pos2[1], z2: pos2[2] });
 			}
 		}
 	});
 
 	// pick block on middle fire (MMB/Q)
 	noa.inputs.down.on('mid-fire', function () {
+		if (!serverSettings.ingame) return;
 		if (noa.targetedBlock && noa.targetedBlock.blockID != 0) {
 			const item = blocks[blockIDmap[noa.targetedBlock.blockID]].id;
 			const slot = inventoryHasItem(item, 1);
 			const sel = noa.ents.getState(eid, 'inventory').selected;
 			if (slot != -1 && slot < 9) {
-				socket.send('actionInventoryClick', { type: 'select', slot: slot });
+				socketSend('actionInventoryClick', { type: 'select', slot: slot });
 				noa.ents.getState(eid, 'inventory').selected = slot;
-			} else if (slot != -1) socket.send('actionInventoryClick', { type: 'switch', slot: slot, slot2: sel });
+			} else if (slot != -1) socketSend('actionInventoryClick', { type: 'switch', slot: slot, slot2: sel });
 		}
 	});
 
 	// 3rd person view
 	noa.inputs.down.on('thirdprsn', function () {
+		if (!serverSettings.ingame) return;
 		if (document.pointerLockElement == noa.container.canvas) {
 		}
 	});
 
 	// Inventory
 	noa.inputs.down.on('inventory', function () {
-		if (chatInput.isVisible) return;
+		if (!serverSettings.ingame) return;
+		if (chatInput.isVisible || pauseScreen.isVisible) return;
 		if (inventory.isVisible) {
 			inventory.isVisible = false;
 			noa.container.canvas.requestPointerLock();
@@ -98,24 +108,20 @@ export function setupControls(noa: any, socket: any) {
 	});
 
 	noa.inputs.down.on('chat', function () {
-		if (inventory.isVisible || chatInput.isVisible) return;
+		if (!serverSettings.ingame) return;
+		if (inventory.isVisible || chatInput.isVisible || pauseScreen.isVisible) return;
 		chatInput.isVisible = true;
+		chanceChatState(true);
 		document.exitPointerLock();
 		ui.moveFocusToControl(chatInput);
 		chatInput.text = '';
-		
-	});
-
-	document.addEventListener("keydown", event => {
-		if (!chatInput.isVisible) return
-
-		if (event.key.length == 1) chatInput.text = chatInput.text + event.key
-		if (event.key == 'Backspace') chatInput.text = chatInput.text.substring(0, chatInput.text.length - 1)
 	});
 
 	noa.inputs.down.on('cmd', function () {
-		if (inventory.isVisible || chatInput.isVisible) return;
+		if (!serverSettings.ingame) return;
+		if (inventory.isVisible || chatInput.isVisible || pauseScreen.isVisible) return;
 		chatInput.isVisible = true;
+		chanceChatState(true);
 		document.exitPointerLock();
 		ui.moveFocusToControl(chatInput);
 		chatInput.text = '/';
@@ -123,23 +129,35 @@ export function setupControls(noa: any, socket: any) {
 
 	let pause = false;
 	noa.inputs.down.on('menu', (e) => {
-		chatInput.isVisible = false;
-		chatInput.text = '';
+		if (!serverSettings.ingame) return;
+
+		if (chatInput.isVisible) {
+			chatInput.isVisible = false;
+			chatInput.text = '';
+			chanceChatState(false);
+			return;
+		}
+
+		if (inventory.isVisible) {
+			inventory.isVisible = false;
+			return;
+		}
+
+		if (pauseScreen.isVisible) {
+			pauseScreen.isVisible = false;
+			return;
+		} else {
+			pauseScreen.isVisible = true;
+			return;
+		}
 	});
 
-	document.addEventListener(
-		'pointerlockchange',
-		function () {
-			if (document.pointerLockElement == noa.container.canvas) {
-			}
-		},
-		false
-	);
-
 	noa.inputs.down.on('chatenter', function () {
+		if (!serverSettings.ingame) return;
 		chatInput.isVisible = false;
-		socket.send('actionMessage', { message: chatInput.text });
+		socketSend('actionMessage', { message: chatInput.text });
 		chatInput.text = '';
+		chanceChatState(false);
 	});
 
 	noa.inputs.down.on('tab', function () {});
@@ -155,6 +173,7 @@ export function setupControls(noa: any, socket: any) {
 
 	// each tick, consume any scroll events and use them to zoom camera
 	noa.on('tick', async function () {
+		if (!serverSettings.ingame) return;
 		const scroll = noa.inputs.state.scrolly;
 		if (scroll !== 0) {
 			let pickedID = noa.ents.getState(eid, 'inventory').selected;
@@ -162,18 +181,19 @@ export function setupControls(noa: any, socket: any) {
 			pickedID = pickedID + change;
 			if (pickedID >= gameSettings.hotbarsize) pickedID = 0;
 			else if (pickedID < 0) pickedID = 8;
-			socket.send('actionInventoryClick', { slot: pickedID, type: 'select' });
+			socketSend('actionInventoryClick', { slot: pickedID, type: 'select' });
 			noa.ents.getState(noa.playerEntity, 'inventory').selected = pickedID;
 		}
 	});
 
 	noa.inputs.bind('numberkey', '1', '2', '3', '4', '5', '6', '7', '8', '9');
 	noa.inputs.down.on('numberkey', (e) => {
+		if (!serverSettings.ingame) return;
 		if (document.pointerLockElement == noa.container.canvas) {
 			const num = parseInt(e.key);
 			let pickedID = noa.ents.getState(eid, 'inventory').selected;
 			pickedID = num - 1;
-			socket.send('actionInventoryClick', { slot: pickedID, type: 'select' });
+			socketSend('actionInventoryClick', { slot: pickedID, type: 'select' });
 			noa.ents.getState(noa.playerEntity, 'inventory').selected = pickedID;
 		}
 	});
@@ -181,6 +201,7 @@ export function setupControls(noa: any, socket: any) {
 	// Tempfix
 
 	noa.on('tick', async () => {
+		if (!serverSettings.ingame) return;
 		if ((document.pointerLockElement != noa.container.canvas && !isMobile) || chatInput.isVisible) {
 			noa.ents.getState(noa.playerEntity, 'receivesInputs').ignore = true;
 		} else {
@@ -215,14 +236,10 @@ export function setupPlayer(noa: any, invData: Object, arrData: Object) {
 	move.maxSpeed = 7.5;
 
 	// Create inventory, move it to global entities js in future
-	noa.ents.createComponent({
-		name: 'inventory',
-		state: { items: {}, selected: 0, tempslot: {}, armor: {} },
-	});
-	if (invData != undefined) noa.ents.addComponent(eid, 'inventory', invData);
+	if (invData != undefined) noa.ents.addComponentAgain(eid, 'inventory', invData);
 	if (arrData != undefined) noa.ents.getState(eid, 'inventory').armor = arrData;
 
-	noa.entities.addComponent(eid, noa.entities.names.mesh, {
+	noa.entities.addComponentAgain(eid, noa.entities.names.mesh, {
 		mesh: new BABYLON.Mesh('main', scene),
 		offset: offset,
 	});

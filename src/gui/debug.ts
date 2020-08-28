@@ -3,13 +3,15 @@ import { getLayer, getUI } from './main';
 import * as GUI from '@babylonjs/gui';
 import { gameVersion } from '../values';
 
+export let debug: GUI.TextBlock;
+
 export function setupDebug(noa, server) {
 	const ui = getUI(0);
 
 	const eid = noa.playerEntity;
 	const dat = noa.entities.getPositionData(eid);
 
-	const debug = new GUI.TextBlock();
+	debug = new GUI.TextBlock();
 	ui.addControl(debug);
 
 	debug.text = '';
@@ -37,11 +39,13 @@ export function setupDebug(noa, server) {
 	});
 }
 
+export let dot: GUI.Ellipse;
+
 export function setupDot() {
 	const scene = getLayer(0);
 	const ui = getUI(0);
 
-	const dot = new GUI.Ellipse();
+	dot = new GUI.Ellipse();
 	dot.background = '#eeeeee88';
 	dot.height = '6px'
 	dot.width = '6px'
