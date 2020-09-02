@@ -1,8 +1,8 @@
-import { scale, event } from '../gui/main';
+import { scale, event, setScale } from '../main';
 import * as GUI from '@babylonjs/gui/';
-import { FormTextBlock } from '../gui-uni/formtextblock';
-import { createItem, createInput, createSlider } from '../gui-uni/menu';
-import { gameSettings, updateSettings } from '../values';
+import { FormTextBlock } from '../../gui-uni/formtextblock';
+import { createItem, createInput, createSlider } from '../../gui-uni/menu';
+import { gameSettings, updateSettings } from '../../values';
 
 export default function buildSettings(noa, openMenu) {
 	const menu = new GUI.Rectangle();
@@ -35,6 +35,7 @@ export default function buildSettings(noa, openMenu) {
 	nickname.name.text = 'Nickname';
 	nickname.input.placeholderText = `Write your nickname`;
 	nickname.input.text = gameSettings.nickname;
+	nickname.input.promptMessage = 'Enter your nickname';
 
 	settings.addControl(nickname.main);
 
@@ -50,6 +51,18 @@ export default function buildSettings(noa, openMenu) {
 
 	settings.addControl(mouse.main);
 
+	const scaleS = createSlider();
+	scaleS.name.text = `GUI scale: ${gameSettings.scale}`;
+	scaleS.slider.value = gameSettings.scale;
+	scaleS.slider.minimum = 2;
+	scaleS.slider.maximum = 5;
+	scaleS.slider.step = 1;
+	scaleS.slider.onValueChangedObservable.add((x) => {
+		scaleS.name.text = `GUI scale: ${x}`;
+	});
+
+	settings.addControl(scaleS.main);
+
 	const back = createItem();
 	back.item.verticalAlignment = 1;
 	back.text.text = [{ text: 'Back', color: 'white', font: 'Lato' }];
@@ -58,6 +71,7 @@ export default function buildSettings(noa, openMenu) {
 		updateSettings({
 			nickname: nickname.input.text,
 			mouse: mouse.slider.value,
+			scale: scaleS.slider.value,
 		});
 
 		noa.camera.sensitivityX = mouse.slider.value;

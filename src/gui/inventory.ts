@@ -1,18 +1,18 @@
-import { getLayer, getUI, getScreen, scale, event } from './main';
+import { getScreen, scale, event } from './main';
 import { items } from '../lib/registry';
 import * as GUI from '@babylonjs/gui/';
 
 export let hotbar: GUI.Rectangle;
 
-export function buildHotbar(noa) {
+export function buildHotbar(noa, socket) {
 	function getInv() {
 		return noa.ents.getState(noa.playerEntity, 'inventory');
 	}
 
-	const ui = getUI(0);
+	const ui = getScreen(1);
 
 	hotbar = new GUI.Rectangle();
-	hotbar.zIndex = 20;
+	hotbar.zIndex = 5;
 	hotbar.verticalAlignment = 1;
 	hotbar.width = `${184 * scale}px`;
 	hotbar.height = `${24 * scale}px`;
@@ -25,7 +25,7 @@ export function buildHotbar(noa) {
 	hotbar.addControl(hotbarTexture);
 
 	const hotbarSelected = new GUI.Image('hotbar', './textures/gui/selected.png');
-	hotbarSelected.zIndex = 50;
+	hotbarSelected.zIndex = 8;
 	hotbarSelected.width = `${24 * scale}px`;
 	hotbarSelected.height = `${24 * scale}px`;
 	hotbarSelected.left = `${-19 * scale * 4}px`;
@@ -37,7 +37,12 @@ export function buildHotbar(noa) {
 		hotbarSlots[x] = createSlot(scale);
 		const container = hotbarSlots[x].container;
 		container.zIndex = 20;
+		container.isPointerBlocker = true
 		container.left = `${-20 * scale * 4 + 20 * scale * x}px`;
+		container.onPointerClickObservable.add((e) => {
+			noa.ents.getState(noa.playerEntity, 'inventory').selected = x;
+			socket.send('actionInventoryClick', { slot: x, type: 'select' });
+		});
 		hotbar.addControl(container);
 	}
 
@@ -65,7 +70,7 @@ export function buildHotbar(noa) {
 		}
 	}
 
-	noa.on('beforeRender', update)
+	noa.on('tick', update)
 
 	const scaleEvent = (x) => {
 		hotbar.width = `${184 * x}px`;
@@ -94,7 +99,7 @@ export function buildHotbar(noa) {
 
 	hotbar.onDisposeObservable.add(() => {
 		event.off('scake-change', scaleEvent);
-		noa.off('beforeRender', update);
+		noa.off('tick', update);
 	});
 }
 
@@ -421,7 +426,7 @@ export function buildInventory(noa, socket) {
 		}
 	};
 
-	noa.on('beforeRender', update);
+	noa.on('tick', update);
 
 	const scaleEvent = (scale2) => {
 		inventoryTexture.width = `${180 * scale2}px`;
@@ -502,7 +507,7 @@ export function buildInventory(noa, socket) {
 
 	inventory.onDisposeObservable.add(() => {
 		event.off('scake-change', scaleEvent);
-		noa.off('beforeRender', update);
+		noa.off('tick', update);
 	});
 }
 

@@ -52,8 +52,11 @@ export function setupControls(noa: any) {
 		if (noa.targetedBlock) {
 			//startBreakingBlock(noa.targetedBlock.position, noa.targetedBlock.blockID)
 			const pos = noa.targetedBlock.position;
+			socketSend('actionClick', { type: 'left', x: pos[0], y: pos[1], z: pos[2] });
 			socketSend('actionBlockBreak', { x: pos[0], y: pos[1], z: pos[2] });
 		}
+		else socketSend('actionClick', { type: 'left-air', x: 0, y: 0, z: 0 });
+
 	});
 
 	noa.inputs.up.on('fire', function () {
@@ -67,10 +70,12 @@ export function setupControls(noa: any) {
 		if (noa.targetedBlock != undefined) {
 			const pos = noa.targetedBlock.adjacent;
 			const pos2 = noa.targetedBlock.position;
+			socketSend('actionClick', { type: 'right', x: pos2[0], y: pos2[1], z: pos2[2] });
 			if (noa.ents.isTerrainBlocked(pos[0], pos[1], pos[2]) == false) {
 				socketSend('actionBlockPlace', { x: pos[0], y: pos[1], z: pos[2], x2: pos2[0], y2: pos2[1], z2: pos2[2] });
 			}
-		}
+		} else socketSend('actionClick', { type: 'right-air', x: 0, y: 0, z: 0 });
+
 	});
 
 	// pick block on middle fire (MMB/Q)

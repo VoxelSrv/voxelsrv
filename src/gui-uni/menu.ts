@@ -1,6 +1,5 @@
 import { scale, event } from '../gui/main';
 import { FormTextBlock } from './formtextblock';
-import { Slider } from './slider';
 import * as GUI from '@babylonjs/gui';
 
 export function createItem() {
@@ -96,7 +95,7 @@ export function createSlider() {
 
 	main.addControl(name);
 
-	const slider = new Slider();
+	const slider = new GUI.Slider();
 	slider.minimum = 0;
 	slider.maximum = 100;
 	slider.value = 0;
@@ -105,7 +104,7 @@ export function createSlider() {
 	slider.top = `${14 * scale}px`;
 	slider.verticalAlignment = 0;
 	slider.color = '#666666';
-	slider.thumbColor = '#888888'
+	slider.thumbColor = '#888888';
 	slider.background = '#ffffffaa';
 	slider.borderColor = '#00000000'
 	slider.barOffset = 6

@@ -4,7 +4,7 @@ import { FormTextBlock } from '../gui-uni/formtextblock';
 import { Socket } from '../socket';
 import { disconnect } from '../lib/connect';
 import { createItem } from '../gui-uni/menu';
-import buildSettings from '../gui-menu/settings'
+import buildSettings from './menu/settings'
 
 export let pauseScreen: GUI.Rectangle;
 
@@ -81,6 +81,13 @@ export default function buildPause(noa) {
 	});
 
 	items.addControl(settings.item);
+
+	const discord = createItem();
+	discord.text.text = [{ text: 'Discord', color: 'white', font: 'Lato' }];
+	discord.item.onPointerClickObservable.add((e) => {
+		window.open('https://discord.com/invite/K9PdsDh', '_blank');
+	});
+	items.addControl(discord.item);
 
 	const disconnectItem = createItem();
 	disconnectItem.item.verticalAlignment = 1;

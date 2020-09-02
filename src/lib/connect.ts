@@ -1,8 +1,8 @@
 import { gameSettings, gameProtocol, gameVersion, updateServerSettings } from '../values';
 import { isMobile } from 'mobile-device-detect';
-import { buildMainMenu, holder } from '../gui-menu/main';
+import { buildMainMenu, holder } from '../gui/menu/main';
 import { setupGuis, destroyGuis } from '../gui/setup';
-import buildDisconnect from '../gui-menu/disconnect';
+import buildDisconnect from '../gui/menu/disconnect';
 import { addMessage } from '../gui/chat';
 import { setupPlayer } from './player';
 import { applyModel } from './model';
@@ -139,6 +139,7 @@ export function connect(noax, socketx) {
 
 			socket.on('entityCreate', async function (data) {
 				if (entityIgnore != data.uuid) {
+					console.log(data)
 					const entData = JSON.parse(data.data);
 					entityList[data.uuid] = noa.ents.add(Object.values(entData.position), 1, 2, null, null, false, true);
 

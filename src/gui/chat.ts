@@ -1,4 +1,4 @@
-import { getLayer, getUI, scale, event } from './main';
+import { getLayer, getUI, scale, event, getScreen } from './main';
 import { FormTextBlock, IFormatedText } from '../gui-uni/formtextblock';
 
 import * as GUI from '@babylonjs/gui';
@@ -15,24 +15,23 @@ export function changeState(state: boolean) {
 }
 
 export function setupChat() {
-	const ui = getUI(1);
+	const ui = getScreen(1);
 
 	input = new GUI.InputText();
 
 	input.width = 100;
 	input.horizontalAlignment = 0;
 	input.verticalAlignment = 1;
-	input.zIndex = 100;
+	input.zIndex = 10;
 	input.height = '36px';
 	input.color = 'white';
 	input.background = '#111111aa';
 	input.focusedBackground = '#111111bb';
 	input.thickness = 0;
-	input.highligherOpacity = 0;
-	input.focusedColor = 'lightblue';
 	input.isVisible = false;
 	input.shadowColor = '';
 	input.fontSize = '32';
+	input.promptMessage = 'Enter chat message';
 	ui.addControl(input);
 
 	chatContainer = new GUI.StackPanel();
@@ -41,7 +40,7 @@ export function setupChat() {
 	chatContainer.horizontalAlignment = 0;
 	chatContainer.name = 'textContainer';
 	chatContainer.useBitmapCache = true;
-	chatContainer.zIndex = 45;
+	chatContainer.zIndex = 10;
 	chatContainer.top = `${-26 * scale}px`;
 	chatContainer.background = '#11111177';
 	chatContainer.height = `${130 * scale}px`;
@@ -87,6 +86,8 @@ export function setupChat() {
 	chatContainer.onDisposeObservable.add(() => {
 		clearInterval(z);
 		messages.forEach((m) => m.dispose());
+		messages = [];
+		height = 0;
 		event.off('scale-change', scaleEvent);
 	});
 }

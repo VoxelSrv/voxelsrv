@@ -8,13 +8,19 @@ import { playSound } from './lib/sound';
 import { defineModelComp } from './lib/model';
 
 import { noaOpts, updateSettings, serverSettings, defaultFonts, setNoa, updateServerSettings } from './values';
-import { constructScreen } from './gui/main';
+import { constructScreen, scale, setScale } from './gui/main';
 
 import { Socket } from './socket';
 import { getSettings } from './lib/storage';
 import { setupClouds, setupSkybox } from './lib/sky';
-import { buildMainMenu } from './gui-menu/main';
+import { buildMainMenu } from './gui/menu/main';
 import { connect } from './lib/connect';
+import { setupMobile } from './gui/mobile';
+
+
+defaultFonts.forEach((font) => document.fonts.load(`10pt "${font}"`));
+
+getSettings().then((data) => updateSettings(data));
 
 const noa: any = new Engine(noaOpts());
 
@@ -32,10 +38,6 @@ defineModelComp(noa);
 
 setupControls(noa);
 //setupSkybox(noa)
-
-defaultFonts.forEach((font) => document.fonts.load(`10pt "${font}"`));
-
-getSettings().then((data) => updateSettings(data));
 
 let x = 0;
 noa.on('beforeRender', async () => {
@@ -56,6 +58,7 @@ window['forceplay'] = () => {
 
 window.onload = function () {
 	if (isMobile) {
+		setupMobile(noa)
 		const link = document.createElement('link');
 		link.rel = 'stylesheet';
 		link.href = 'mobile.css';
@@ -63,6 +66,7 @@ window.onload = function () {
 		document.documentElement.addEventListener('click', function () {
 			if (!document.fullscreenElement) {
 				document.documentElement.requestFullscreen();
+				screen.orientation.lock('landscape');
 			}
 		});
 	}

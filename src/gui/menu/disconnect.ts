@@ -1,6 +1,6 @@
-import { scale, event, getUI, getScreen } from '../gui/main';
+import { scale, event, getUI, getScreen } from '../main';
 import * as GUI from '@babylonjs/gui/';
-import { FormTextBlock } from '../gui-uni/formtextblock';
+import { FormTextBlock } from '../../gui-uni/formtextblock';
 import { buildMainMenu } from './main';
 
 export default function buildDisconnect(reasontext, noa, connect) {
@@ -45,8 +45,8 @@ export default function buildDisconnect(reasontext, noa, connect) {
 	menu.addControl(back.item);
 
 	const rescale = (x) => {
-		menu.height = `${230 * scale}px`;
-		menu.width = `${280 * scale}px`;
+		menu.height = `${100 * scale}px`;
+		menu.width = `${180 * scale}px`;
 
 		name.fontSize = 11 * scale;
 

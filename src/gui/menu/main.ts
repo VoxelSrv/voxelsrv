@@ -1,11 +1,11 @@
-import { getUI, getScreen, scale, event } from '../gui/main';
+import { getUI, getScreen, scale, event } from '../main';
 import * as GUI from '@babylonjs/gui/';
 import * as BABYLON from '@babylonjs/core';
-import { FormTextBlock } from '../gui-uni/formtextblock';
+import { FormTextBlock } from '../../gui-uni/formtextblock';
 import buildMultiplayer from './multiplayer';
 import buildSettings from './settings';
-import { gameProtocol, gameVersion } from '../values';
-import { createItem } from '../gui-uni/menu';
+import { gameProtocol, gameVersion } from '../../values';
+import { createItem } from '../../gui-uni/menu';
 
 let menu: Array<any>;
 export let holder: GUI.Rectangle;

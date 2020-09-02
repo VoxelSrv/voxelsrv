@@ -1,5 +1,6 @@
 import { saveSettings } from './lib/storage';
 import { isMobile } from 'mobile-device-detect';
+import { setScale } from './gui/main';
 
 export const gameVersion = '0.2.0-alpha';
 
@@ -14,12 +15,14 @@ export const defaultSettings = {
 	allowcustom: false,
 	mouse: isMobile ? 50 : 15,
 	hotbarsize: 9,
+	scale: 3,
 };
 
 export let gameSettings = { ...defaultSettings, version: gameVersion };
 
 export function updateSettings(data: Object) {
 	gameSettings = { ...defaultSettings, ...data };
+	setScale(gameSettings.scale)
 	saveSettings(gameSettings);
 }
 
@@ -62,6 +65,7 @@ export function noaOpts() {
 		AOmultipliers: [0.93, 0.8, 0.5],
 		reverseAOmultiplier: 1.0,
 		preserveDrawingBuffer: true,
+		adaptToDeviceRatio: false,
 		gravity: [0, -14, 0],
 		bindings: {
 			forward: ['W'],

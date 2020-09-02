@@ -5,7 +5,7 @@ import { setupChat, chatContainer, input } from './chat';
 import buildPause from './pause';
 
 export function setupGuis(noa, socket, dataPlayer, dataLogin) {
-	buildHotbar(noa);
+	buildHotbar(noa, socket);
 	setupDot();
 	setupDebug(noa, socket.server);
 	buildInventory(noa, socket);

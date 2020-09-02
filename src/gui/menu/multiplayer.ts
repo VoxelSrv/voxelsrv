@@ -1,11 +1,10 @@
-import { scale, event } from '../gui/main';
+import { scale, event } from '../main';
 import * as GUI from '@babylonjs/gui/';
-import { FormTextBlock } from '../gui-uni/formtextblock';
-import { Socket } from '../socket';
-import { connect } from '../lib/connect'
+import { FormTextBlock } from '../../gui-uni/formtextblock';
+import { Socket } from '../../socket';
+import { connect } from '../../lib/connect';
 import { Vector2 } from '@babylonjs/core';
-import { createItem } from '../gui-uni/menu';
-
+import { createItem } from '../../gui-uni/menu';
 
 export default function buildMultiplayer(noa, openMenu) {
 	const menu = new GUI.Rectangle();
@@ -13,7 +12,7 @@ export default function buildMultiplayer(noa, openMenu) {
 	menu.horizontalAlignment = 2;
 	menu.zIndex = 10;
 	menu.height = `${230 * scale}px`;
-	menu.width = `${280 * scale}px`;
+	menu.width = `${310 * scale}px`;
 	menu.background = '#11111166';
 
 	const name = new GUI.TextBlock();
@@ -29,9 +28,10 @@ export default function buildMultiplayer(noa, openMenu) {
 	const input = new GUI.InputText();
 
 	input.height = `${17 * scale}px`;
-	input.width = `${236 * scale}px`;
+	input.width = `${266 * scale}px`;
 	input.top = `${18 * scale}px`;
 	input.left = `${5 * scale}px`;
+	input.fontSize = 6 * scale;
 	input.verticalAlignment = 0;
 	input.horizontalAlignment = 0;
 	input.thickness = 0;
@@ -63,6 +63,7 @@ export default function buildMultiplayer(noa, openMenu) {
 	const buttontext = new FormTextBlock();
 	buttontext.text = [{ text: 'Connect', color: 'white', font: 'Lato' }];
 	buttontext.textHorizontalAlignment = 2;
+	buttontext.fontSize = 6 * scale;
 	buttontext.onPointerEnterObservable.add((e) => {
 		buttontext.text.forEach((x) => (x.underline = true));
 		buttontext._markAsDirty();
@@ -77,7 +78,7 @@ export default function buildMultiplayer(noa, openMenu) {
 	menu.addControl(button);
 
 	const serverListContainer = new GUI.Rectangle();
-	serverListContainer.width = `${260 * scale}px`;
+	serverListContainer.width = `${290 * scale}px`;
 	serverListContainer.height = `${160 * scale}px`;
 	serverListContainer.verticalAlignment = 0;
 	serverListContainer.top = `${40 * scale}px`;
@@ -116,7 +117,7 @@ export default function buildMultiplayer(noa, openMenu) {
 
 	const serverListScroll = new GUI.ScrollViewer();
 	serverListScroll.height = `${150 * scale}px`;
-	serverListScroll.top = '40px';
+	serverListScroll.top = `${13 * scale}px`;
 	serverListScroll.thickness = 0;
 	serverListScroll.verticalAlignment = 0;
 	serverListScroll.barSize = 0;
@@ -192,23 +193,26 @@ export default function buildMultiplayer(noa, openMenu) {
 
 	const rescale = (x) => {
 		menu.height = `${230 * scale}px`;
-		menu.width = `${280 * scale}px`;
+		menu.width = `${310 * scale}px`;
 
 		name.fontSize = 11 * scale;
 
 		input.height = `${17 * scale}px`;
-		input.width = `${236 * scale}px`;
+		input.width = `${266 * scale}px`;
 		input.top = `${18 * scale}px`;
 		input.left = `${5 * scale}px`;
+		input.fontSize = 6 * scale;
 
 		button.height = `${17 * scale}px`;
 		button.width = `${34 * scale}px`;
 		button.top = `${18 * scale}px`;
 		button.left = `${-5 * scale}px`;
+		buttontext.fontSize = 6 * scale;
 
-		serverListContainer.width = `${260 * scale}px`;
+		serverListContainer.width = `${290 * scale}px`;
 		serverListContainer.height = `${160 * scale}px`;
 		serverListContainer.top = `${40 * scale}px`;
+		serverListScroll.top = `${13 * scale}px`;
 		serverListHeader.main.fontSize = 7 * scale;
 		serverList.fontSize = 6 * scale;
 		serverListScroll.height = `${150 * scale}px`;
@@ -229,8 +233,18 @@ export default function buildMultiplayer(noa, openMenu) {
 
 function createRow() {
 	const main = new GUI.Rectangle();
-	main.height = '40px';
+	main.height = `${13 * scale}px`;
 	main.thickness = 0;
+
+	const rescale = () => {
+		main.height = `${13 * scale}px`;
+	};
+
+	event.on('scale-change', rescale);
+
+	main.onDisposeObservable.add(() => {
+		event.off('scale-change', rescale);
+	});
 
 	const name = new GUI.Rectangle();
 	name.width = '20%';
