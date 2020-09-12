@@ -151,6 +151,7 @@ export function setupControls(noa: any) {
 			pauseScreen.isVisible = false;
 			return;
 		} else {
+			document.exitPointerLock()
 			pauseScreen.isVisible = true;
 			return;
 		}

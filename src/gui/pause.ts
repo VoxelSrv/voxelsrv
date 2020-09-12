@@ -67,6 +67,7 @@ export default function buildPause(noa) {
 
 	back.item.onPointerClickObservable.add(() => {
 		pauseScreen.isVisible = false;
+		noa.container.canvas.requestPointerLock();
 	});
 
 	items.addControl(back.item);
