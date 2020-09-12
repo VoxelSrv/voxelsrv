@@ -1,12 +1,15 @@
-
+import { inventory } from '../gui/inventory'
+import { gameSettings } from '../values'
 
 export function setupGamepad(noa) {
-	var gamepad = null
+	let gamepad = null
 
-	var block = {}
+	let inv = false
+	let altfire = false
+	let fire = false
 
 	noa.on('beforeRender', function() {
-		if (navigator.getGamepads()[0] != null) gamepad = navigator.getGamepads()[0]
+		if (gameSettings.gamepad && navigator.getGamepads()[0] != null) gamepad = navigator.getGamepads()[0]
 		else gamepad = null
 
 		if (gamepad != null) { 
@@ -14,24 +17,24 @@ export function setupGamepad(noa) {
 			noa.inputs.state.jump = gamepad.buttons[0].pressed
 			if (gamepad.buttons[13].pressed) noa.inputs.down.emit('mid-fire')
 
-			if (gamepad.buttons[2].pressed && block.inventory != true ) { 
+			if (gamepad.buttons[2].pressed && !inv ) { 
 				noa.inputs.down.emit('inventory')
-				block.inventory = true
-				setTimeout(function() { block.inventory = false}, 200)
+				inv = true
+				setTimeout(function() { inv = false }, 200)
 			}
 
-			if (gamepad.buttons[6].pressed && block.altfire != true) { 
+			if (gamepad.buttons[6].pressed && !altfire) { 
 				noa.inputs.down.emit('alt-fire')
-				block.altfire = true
-				setTimeout(function() { block.altfire = false}, 200)
+				altfire = true
+				setTimeout(function() { altfire = false }, 200)
 
 
 			}
 
-			if (gamepad.buttons[7].pressed && block.fire != true) { 
+			if (gamepad.buttons[7].pressed && !fire) { 
 				noa.inputs.down.emit('fire') 
-				block.fire = true
-				setTimeout(function() { block.fire = false }, 200)
+				fire = true
+				setTimeout(function() { fire = false }, 200)
 
 			}
 

@@ -1,4 +1,6 @@
-import { getLayer, getUI, scale, event, getScreen } from './main';
+import { isMobile } from 'mobile-device-detect';
+
+import { scale, event, getScreen } from './main';
 import { FormTextBlock, IFormatedText } from '../gui-uni/formtextblock';
 
 import * as GUI from '@babylonjs/gui';
@@ -35,26 +37,37 @@ export function setupChat() {
 	ui.addControl(input);
 
 	chatContainer = new GUI.StackPanel();
-	chatContainer.width = `${176 * scale}px`;
-	chatContainer.verticalAlignment = 1;
-	chatContainer.horizontalAlignment = 0;
+	if (isMobile) {
+		chatContainer.verticalAlignment = 0;
+		chatContainer.horizontalAlignment = 1;
+		chatContainer.width = `${140 * scale}px`;
+	} else {
+		chatContainer.verticalAlignment = 1;
+		chatContainer.horizontalAlignment = 0;
+		chatContainer.top = `${-26 * scale}px`;
+		chatContainer.width = `${176 * scale}px`;
+	}
 	chatContainer.name = 'textContainer';
 	chatContainer.useBitmapCache = true;
 	chatContainer.zIndex = 10;
-	chatContainer.top = `${-26 * scale}px`;
 	chatContainer.background = '#11111177';
 	chatContainer.height = `${130 * scale}px`;
 
 	ui.addControl(chatContainer);
 
 	const scaleEvent = (x) => {
-		chatContainer.top = `${-26 * x}px`;
-		chatContainer.width = `${176 * x}px`;
+		if (isMobile) {
+			chatContainer.width = `${140 * scale}px`;
+		} else {
+			chatContainer.top = `${-26 * x}px`;
+			chatContainer.width = `${176 * x}px`;
+		}
 
 		messages.forEach((message) => {
 			message.fontSize = 8 * x;
 			message.paddingLeft = `${2 * x}px`;
-			message.width = `${176 * x}px`;
+			if (isMobile) message.width = `${140 * x}px`;
+			else message.width = `${176 * x}px`;
 			message.height = `${message.computeExpectedHeight()}px`;
 		});
 
@@ -105,7 +118,8 @@ export async function addMessage(msg: Array<IFormatedText>) {
 	message.textVerticalAlignment = 1;
 	message.textHorizontalAlignment = 0;
 	message.fontFamily = 'Lato';
-	message.width = `${176 * scale}px`;
+	if (isMobile) message.width = `${140 * scale}px`;
+	else message.width = `${176 * scale}px`;
 
 	message.text = data;
 	message.height = `${message.computeExpectedHeight()}px`;

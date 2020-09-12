@@ -65,7 +65,8 @@ export function buildMainMenu(noa, connect) {
 		menu.thickness = 0;
 		menu.horizontalAlignment = 2;
 		menu.zIndex = 10;
-		menu.height = `${230 * scale}px`;
+		if (window.innerHeight > 230 * scale) menu.height = `${230 * scale}px`;
+		else menu.height = `100%`
 		menu.width = `${220 * scale}px`;
 		menu.background = '#11111166';
 
@@ -111,7 +112,8 @@ export function buildMainMenu(noa, connect) {
 		items.addControl(github.item);
 
 		const rescale = (x) => {
-			menu.height = `${230 * scale}px`;
+			if (window.innerHeight > 230 * scale) menu.height = `${230 * scale}px`;
+			else menu.height = `100%`
 			menu.width = `${220 * scale}px`;
 
 			logo.width = `${210 * scale}px`;

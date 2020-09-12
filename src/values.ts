@@ -47,8 +47,8 @@ export function noaOpts() {
 		sensitivityX: gameSettings.mouse,
 		sensitivityY: gameSettings.mouse,
 		chunkSize: 32, // Don't touch this
-		chunkAddDistance: 5, // Make it changeable?
-		chunkRemoveDistance: 6, // ^
+		chunkAddDistance: 10, // Make it changeable?
+		chunkRemoveDistance: Infinity, // ^
 		blockTestDistance: 7, // Per Gamemode?
 		tickRate: isMobile ? 65 : 50, // Maybe make it lower
 		texturePath: '',

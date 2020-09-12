@@ -1,6 +1,5 @@
 import * as BABYLON from '@babylonjs/core/Legacy/legacy';
 
-import { setupGamepad } from './gamepad';
 import { isMobile } from 'mobile-device-detect';
 import { gameSettings, serverSettings } from '../values';
 import { blockIDmap, blockIDs, blocks } from './registry';
@@ -52,10 +51,10 @@ export function setupControls(noa: any) {
 		if (noa.targetedBlock) {
 			//startBreakingBlock(noa.targetedBlock.position, noa.targetedBlock.blockID)
 			const pos = noa.targetedBlock.position;
-			socketSend('actionClick', { type: 'left', x: pos[0], y: pos[1], z: pos[2] });
-			socketSend('actionBlockBreak', { x: pos[0], y: pos[1], z: pos[2] });
+			socketSend('ActionClick', { type: 'left', x: pos[0], y: pos[1], z: pos[2] });
+			socketSend('ActionBlockBreak', { x: pos[0], y: pos[1], z: pos[2] });
 		}
-		else socketSend('actionClick', { type: 'left-air', x: 0, y: 0, z: 0 });
+		else socketSend('ActionClick', { type: 'left-air', x: 0, y: 0, z: 0 });
 
 	});
 
@@ -70,11 +69,11 @@ export function setupControls(noa: any) {
 		if (noa.targetedBlock != undefined) {
 			const pos = noa.targetedBlock.adjacent;
 			const pos2 = noa.targetedBlock.position;
-			socketSend('actionClick', { type: 'right', x: pos2[0], y: pos2[1], z: pos2[2] });
+			socketSend('ActionClick', { type: 'right', x: pos2[0], y: pos2[1], z: pos2[2] });
 			if (noa.ents.isTerrainBlocked(pos[0], pos[1], pos[2]) == false) {
-				socketSend('actionBlockPlace', { x: pos[0], y: pos[1], z: pos[2], x2: pos2[0], y2: pos2[1], z2: pos2[2] });
+				socketSend('ActionBlockPlace', { x: pos[0], y: pos[1], z: pos[2], x2: pos2[0], y2: pos2[1], z2: pos2[2] });
 			}
-		} else socketSend('actionClick', { type: 'right-air', x: 0, y: 0, z: 0 });
+		} else socketSend('ActionClick', { type: 'right-air', x: 0, y: 0, z: 0 });
 
 	});
 
@@ -86,9 +85,9 @@ export function setupControls(noa: any) {
 			const slot = inventoryHasItem(item, 1);
 			const sel = noa.ents.getState(eid, 'inventory').selected;
 			if (slot != -1 && slot < 9) {
-				socketSend('actionInventoryClick', { type: 'select', slot: slot });
+				socketSend('ActionInventoryClick', { type: 'select', slot: slot });
 				noa.ents.getState(eid, 'inventory').selected = slot;
-			} else if (slot != -1) socketSend('actionInventoryClick', { type: 'switch', slot: slot, slot2: sel });
+			} else if (slot != -1) socketSend('ActionInventoryClick', { type: 'switch', slot: slot, slot2: sel });
 		}
 	});
 
@@ -160,7 +159,7 @@ export function setupControls(noa: any) {
 	noa.inputs.down.on('chatenter', function () {
 		if (!serverSettings.ingame) return;
 		chatInput.isVisible = false;
-		socketSend('actionMessage', { message: chatInput.text });
+		socketSend('ActionMessage', { message: chatInput.text });
 		chatInput.text = '';
 		chanceChatState(false);
 	});
@@ -186,7 +185,7 @@ export function setupControls(noa: any) {
 			pickedID = pickedID + change;
 			if (pickedID >= gameSettings.hotbarsize) pickedID = 0;
 			else if (pickedID < 0) pickedID = 8;
-			socketSend('actionInventoryClick', { slot: pickedID, type: 'select' });
+			socketSend('ActionInventoryClick', { slot: pickedID, type: 'select' });
 			noa.ents.getState(noa.playerEntity, 'inventory').selected = pickedID;
 		}
 	});
@@ -198,7 +197,7 @@ export function setupControls(noa: any) {
 			const num = parseInt(e.key);
 			let pickedID = noa.ents.getState(eid, 'inventory').selected;
 			pickedID = num - 1;
-			socketSend('actionInventoryClick', { slot: pickedID, type: 'select' });
+			socketSend('ActionInventoryClick', { slot: pickedID, type: 'select' });
 			noa.ents.getState(noa.playerEntity, 'inventory').selected = pickedID;
 		}
 	});
@@ -207,14 +206,12 @@ export function setupControls(noa: any) {
 
 	noa.on('tick', async () => {
 		if (!serverSettings.ingame) return;
-		if ((document.pointerLockElement != noa.container.canvas && !isMobile) || chatInput.isVisible) {
+		if ((document.pointerLockElement != noa.container.canvas && !isMobile) || chatInput.isVisible || pauseScreen.isVisible || inventory.isVisible) {
 			noa.ents.getState(noa.playerEntity, 'receivesInputs').ignore = true;
 		} else {
 			noa.ents.getState(noa.playerEntity, 'receivesInputs').ignore = false;
 		}
 	});
-
-	if (localStorage.getItem('gamepad') == 'true') setupGamepad(noa);
 }
 
 export function setupPlayer(noa: any, invData: Object, arrData: Object) {

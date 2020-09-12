@@ -1,6 +1,7 @@
 import * as BABYLON from '@babylonjs/core/Legacy/legacy';
 import * as GUI from '@babylonjs/gui';
 import { EventEmitter } from 'events';
+import { pauseScreen } from './pause';
 
 export const event = new EventEmitter();
 
@@ -15,9 +16,27 @@ let screen1: GUI.Rectangle;
 export let engine: any;
 
 export let scale = 3;
+export let maxScale = 3;
 export function setScale(x: number) {
-	scale = x;
-	event.emit('scale-change', x);
+	maxScale = x;
+	let y = updateScale();
+	setTimeout(() => {
+		event.emit('scale-change', y);
+	}, 100);
+}
+
+function updateScale() {
+	const width = window.innerWidth;
+	let pScale;
+	if (width >= 2000) pScale = 5;
+	else if (width >= 1500) pScale = 4;
+	else if (width >= 900) pScale = 3;
+	else pScale = 2;
+
+	if (pScale > maxScale) scale = maxScale;
+	else scale = pScale;
+
+	return pScale > maxScale ? maxScale : pScale;
 }
 
 export function getEngine() {
@@ -48,6 +67,7 @@ export function constructScreen(noa) {
 		ui0.getContext().imageSmoothingEnabled = false;
 		ui1.getContext().imageSmoothingEnabled = false;
 		event.emit('resize', x);
+		updateScale();
 		setTimeout(() => {
 			event.emit('scale-change', scale);
 		}, 50);
@@ -63,6 +83,7 @@ export function constructScreen(noa) {
 	available = true;
 
 	noa.rendering._multiscenes.push(layer0);
+	updateScale();
 }
 
 export function getLayer(n: number) {

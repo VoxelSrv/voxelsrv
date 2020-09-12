@@ -9,7 +9,7 @@ import { applyModel } from './model';
 import { registerBlocks, registerItems } from './registry';
 import { setChunk, setupAutoload } from './world';
 import { playSound } from './sound';
-import { cloudMesh, setupClouds } from './sky'
+import { cloudMesh, setupClouds } from './sky';
 
 const ndarray = require('ndarray');
 import vec3 = require('gl-vec3');
@@ -36,12 +36,13 @@ export function disconnect() {
 
 export function connect(noax, socketx) {
 	noa = noax;
+	noa.worldName = 'World' + Math.round(Math.random() * 1000);
 	socket = socketx;
 	console.log('Username: ' + gameSettings.nickname, 'Server: ' + socket.server);
 	let discreason: string = '';
 	if (holder != null) holder.dispose();
 
-	socket.on('playerKick', function (data) {
+	socket.on('PlayerKick', function (data) {
 		socket.close();
 		console.log(`You has been kicked from server \nReason: ${data.reason}`);
 		stopListening(noa);
@@ -51,10 +52,10 @@ export function connect(noax, socketx) {
 		return;
 	});
 
-	socket.on('loginRequest', function (dataLogin) {
+	socket.on('LoginRequest', function (dataLogin) {
 		updateServerSettings({ ingame: true });
 
-		socket.send('loginResponse', {
+		socket.send('LoginResponse', {
 			username: gameSettings.nickname,
 			protocol: gameProtocol,
 			mobile: isMobile,
@@ -63,14 +64,14 @@ export function connect(noax, socketx) {
 		let entityIgnore = 0;
 		const entityList = {};
 
-		socket.on('playerEntity', function (data) {
+		socket.on('PlayerEntity', function (data) {
 			console.log('Ignoring player-entity: ' + data.uuid);
 			entityIgnore = data.uuid;
 			if (entityList[data.uuid] != undefined && noa != undefined) noa.ents.deleteEntity(entityList[data.uuid]);
 			delete entityList[data.uuid];
 		});
 
-		socket.on('loginSuccess', function (dataPlayer) {
+		socket.on('LoginSuccess', function (dataPlayer) {
 			const moveState = noa.inputs.state;
 			const chunkList = [];
 
@@ -79,8 +80,8 @@ export function connect(noax, socketx) {
 
 			setupPlayer(noa, JSON.parse(dataPlayer.inventory), JSON.parse(dataPlayer.armor));
 
-			cloudMesh.dispose()
-			setupClouds(noa)
+			cloudMesh.dispose();
+			setupClouds(noa);
 
 			setupGuis(noa, socket, dataPlayer, dataLogin);
 
@@ -88,15 +89,22 @@ export function connect(noax, socketx) {
 
 			noa.ents.setPosition(noa.playerEntity, dataPlayer.xPos, dataPlayer.yPos, dataPlayer.zPos);
 
-			socket.on('worldChunk', function (data) {
+			socket.on('WorldChunkLoad', function (data) {
 				chunkList.push(data);
 			});
 
-			socket.on('worldBlockUpdate', function (data) {
+			socket.on('WorldChunkUnload', function (data) {
+				if (data.type) {
+					for (let x = 0; x <= 8; x++) noa.world.removeChunk(`${data.x}|${x}|${data.z}`)
+				} 
+				else noa.world.removeChunk(`${data.x}|${data.y}|${data.z}`)
+			});
+
+			socket.on('WorldBlockUpdate', function (data) {
 				noa.setBlock(data.id, data.x, data.y, data.z);
 			});
 
-			socket.on('playerInventory', function (data) {
+			socket.on('PlayerInventory', function (data) {
 				const inv = JSON.parse(data.inventory);
 				if (data.type == 'armor') {
 					noa.ents.getState(noa.playerEntity, 'inventory').armor = inv;
@@ -108,9 +116,8 @@ export function connect(noax, socketx) {
 				}
 			});
 
-			socket.on('playerSlotUpdate', function (data) {
+			socket.on('PlayerSlotUpdate', function (data) {
 				const item = JSON.parse(data.data);
-				console.log(data);
 				const inv = noa.ents.getState(noa.playerEntity, 'inventory');
 
 				if (data.type == 'temp') inv.tempslot = item;
@@ -119,27 +126,25 @@ export function connect(noax, socketx) {
 				else if (data.type == 'hook') inv.hook.items[data.slot] = item;
 			});
 
-			socket.on('chatMessage', function (data) {
+			socket.on('ChatMessage', function (data) {
 				addMessage(data.message);
 			});
 
-			socket.on('tabUpdate', function (data) {
+			socket.on('TabUpdate', function (data) {
 				//setTab(data.message);
 			});
 
-			socket.on('playerTeleport', function (data) {
+			socket.on('PlayerTeleport', function (data) {
 				noa.ents.setPosition(noa.playerEntity, data.x, data.y, data.z);
-				console.log('Teleport: ', data);
 			});
 
-			socket.on('playerMovementChange', function (data) {
+			socket.on('PlayerMovementChange', function (data) {
 				const move = noa.ents.getMovement(noa.playerEntity);
 				move[data.key] = data.value;
 			});
 
-			socket.on('entityCreate', async function (data) {
+			socket.on('EntityCreate', async function (data) {
 				if (entityIgnore != data.uuid) {
-					console.log(data)
 					const entData = JSON.parse(data.data);
 					entityList[data.uuid] = noa.ents.add(Object.values(entData.position), 1, 2, null, null, false, true);
 
@@ -147,12 +152,12 @@ export function connect(noax, socketx) {
 				}
 			});
 
-			socket.on('entityRemove', function (data) {
+			socket.on('EntityRemove', function (data) {
 				if (entityList[data.uuid] != undefined) noa.ents.deleteEntity(entityList[data.uuid]);
 				delete entityList[data.uuid];
 			});
 
-			socket.on('entityMove', function (data) {
+			socket.on('EntityMove', function (data) {
 				if (entityList[data.uuid] != undefined) {
 					var pos = [data.x, data.y, data.z];
 					noa.ents.getState(entityList[data.uuid], 'position').newPosition = pos;
@@ -160,7 +165,7 @@ export function connect(noax, socketx) {
 				}
 			});
 
-			socket.on('soundPlay', function (data) {
+			socket.on('SoundPlay', function (data) {
 				playSound(data.sound, data.volume, data.x != undefined ? [data.x, data.y, data.z] : null, noa);
 			});
 
@@ -184,7 +189,7 @@ export function connect(noax, socketx) {
 				if (JSON.stringify(lastPos) != JSON.stringify(pos.position) || lastRot != rot) {
 					lastPos = [...pos.position];
 					lastRot = rot;
-					socket.send('actionMove', { x: pos.position[0], y: pos.position[1], z: pos.position[2], rotation: noa.camera.heading });
+					socket.send('ActionMove', { x: pos.position[0], y: pos.position[1], z: pos.position[2], rotation: noa.camera.heading });
 				}
 			};
 
@@ -221,8 +226,6 @@ export function connect(noax, socketx) {
 					clearInterval(checker);
 				}
 			}, 1);
-
-			
 		});
 	});
 }

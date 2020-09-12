@@ -106,8 +106,8 @@ export function createSlider() {
 	slider.color = '#666666';
 	slider.thumbColor = '#888888';
 	slider.background = '#ffffffaa';
-	slider.borderColor = '#00000000'
-	slider.barOffset = 6
+	slider.borderColor = '#00000000';
+	slider.barOffset = 6;
 
 	main.addControl(slider);
 
@@ -126,4 +126,40 @@ export function createSlider() {
 	});
 
 	return { main, name, slider };
+}
+
+export function createCheckbox() {
+	const main = new GUI.Rectangle();
+	main.height = `${28 * scale}px`;
+	main.adaptWidthToChildren = true;
+	main.isPointerBlocker = true;
+	main.thickness = 0;
+
+	const name = new GUI.TextBlock();
+	name.fontFamily = 'Lato';
+	name.fontSize = 9 * scale;
+	name.textVerticalAlignment = 0;
+	name.color = 'white';
+	name.text = 'Checkbox';
+	name.top = scale;
+	name.verticalAlignment = 0;
+	name.width = `${100 * scale}px`;
+
+	main.addControl(name);
+
+	let isChecked = false;
+
+	const rescale = (x) => {
+		main.height = `${28 * scale}px`;
+		name.fontSize = 9 * scale;
+		name.width = `${100 * scale}px`;
+	};
+
+	event.on('scale-change', rescale);
+
+	main.onDisposeObservable.add(() => {
+		event.off('scale-change', rescale);
+	});
+
+	return { main, name, isChecked };
 }

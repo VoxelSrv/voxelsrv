@@ -1,7 +1,7 @@
 import { scale, event, setScale } from '../main';
 import * as GUI from '@babylonjs/gui/';
 import { FormTextBlock } from '../../gui-uni/formtextblock';
-import { createItem, createInput, createSlider } from '../../gui-uni/menu';
+import { createItem, createInput, createSlider, createCheckbox } from '../../gui-uni/menu';
 import { gameSettings, updateSettings } from '../../values';
 
 export default function buildSettings(noa, openMenu) {
@@ -9,7 +9,8 @@ export default function buildSettings(noa, openMenu) {
 	menu.thickness = 0;
 	menu.horizontalAlignment = 2;
 	menu.zIndex = 10;
-	menu.height = `${230 * scale}px`;
+	if (window.innerHeight > 230 * scale) menu.height = `${230 * scale}px`;
+	else menu.height = `100%`;
 	menu.width = `${220 * scale}px`;
 	menu.background = '#11111166';
 
@@ -27,7 +28,7 @@ export default function buildSettings(noa, openMenu) {
 	settings.verticalAlignment = 0;
 	settings.top = `${18 * scale}px`;
 	settings.width = `${210 * scale}px`;
-	settings.height = `${190 * scale}px`;
+	settings.height = `80%`;
 
 	menu.addControl(settings);
 
@@ -63,6 +64,16 @@ export default function buildSettings(noa, openMenu) {
 
 	settings.addControl(scaleS.main);
 
+	const gamepad = createCheckbox();
+	gamepad.name.text = `Enable gamepad: ${gameSettings.gamepad}`;
+	gamepad.isChecked = gameSettings.gamepad;
+	gamepad.main.onPointerClickObservable.add(() => {
+		gamepad.isChecked = !gamepad.isChecked;
+		gamepad.name.text = `Enable gamepad: ${gamepad.isChecked}`;
+	});
+
+	settings.addControl(gamepad.main);
+
 	const back = createItem();
 	back.item.verticalAlignment = 1;
 	back.text.text = [{ text: 'Back', color: 'white', font: 'Lato' }];
@@ -72,6 +83,7 @@ export default function buildSettings(noa, openMenu) {
 			nickname: nickname.input.text,
 			mouse: mouse.slider.value,
 			scale: scaleS.slider.value,
+			gamepad: gamepad.isChecked,
 		});
 
 		noa.camera.sensitivityX = mouse.slider.value;
@@ -83,14 +95,15 @@ export default function buildSettings(noa, openMenu) {
 	menu.addControl(back.item);
 
 	const rescale = (x) => {
-		menu.height = `${230 * scale}px`;
+		if (window.innerHeight > 230 * scale) menu.height = `${230 * scale}px`;
+		else menu.height = `100%`;
+
 		menu.width = `${220 * scale}px`;
 
 		name.fontSize = 11 * scale;
 
 		settings.top = `${18 * scale}px`;
 		settings.width = `${210 * scale}px`;
-		settings.height = `${190 * scale}px`;
 
 		back.item.width = `${100 * scale}px`;
 		back.item.height = `${18 * scale}px`;

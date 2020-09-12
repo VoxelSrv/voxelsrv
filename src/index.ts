@@ -16,7 +16,7 @@ import { setupClouds, setupSkybox } from './lib/sky';
 import { buildMainMenu } from './gui/menu/main';
 import { connect } from './lib/connect';
 import { setupMobile } from './gui/mobile';
-
+import { setupGamepad } from './lib/gamepad';
 
 defaultFonts.forEach((font) => document.fonts.load(`10pt "${font}"`));
 
@@ -37,6 +37,7 @@ setupClouds(noa);
 defineModelComp(noa);
 
 setupControls(noa);
+setupGamepad(noa);
 //setupSkybox(noa)
 
 let x = 0;
@@ -58,7 +59,7 @@ window['forceplay'] = () => {
 
 window.onload = function () {
 	if (isMobile) {
-		setupMobile(noa)
+		setupMobile(noa);
 		const link = document.createElement('link');
 		link.rel = 'stylesheet';
 		link.href = 'mobile.css';

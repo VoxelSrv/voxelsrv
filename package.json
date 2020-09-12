@@ -17,9 +17,9 @@
   "author": "Patbox",
   "license": "ISC",
   "dependencies": {
-    "@babylonjs/core": "^4.2.0-alpha.35",
-    "@babylonjs/gui": "^4.2.0-alpha.35",
-    "@babylonjs/materials": "^4.2.0-alpha.35",
+    "@babylonjs/core": "^4.2.0-beta.1",
+    "@babylonjs/gui": "^4.2.0-beta.1",
+    "@babylonjs/materials": "^4.2.0-beta.1",
     "@types/css-font-loading-module": "0.0.4",
     "canvas-screenshot": "^3.0.0",
     "dexie": "^3.0.2",
@@ -34,7 +34,7 @@
     "pako": "^1.0.11",
     "protobufjs": "^6.10.1",
     "uuid": "^8.3.0",
-    "voxelsrv-protocol": "github:VoxelSrv/protocol"
+    "voxelsrv-protocol": "github:VoxelSrv/protocol#v2"
   },
   "devDependencies": {
     "ts-loader": "^8.0.3",

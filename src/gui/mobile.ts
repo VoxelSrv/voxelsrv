@@ -1,13 +1,20 @@
+import { getScreen, getUI, scale, event } from './main';
+import * as GUI from '@babylonjs/gui';
+
 export function setupMobile(noa) {
 	console.log('Using mobile controls');
 
-	var timer = 0;
-	var touchTime = 0;
-	var isTouching = false;
-	var loop = null;
-	var breaking = null;
+	const ui = getScreen(1);
+	const layer = getUI(1);
 
-	var oldMovePos = [0, 0];
+	let timer: number = 0;
+	let touchTime: number = 0;
+	let isTouching: boolean = false;
+	let loop = null;
+	let breaking = null;
+	const maxDiff = 100;
+
+	let oldMovePos: [number, number] = [0, 0];
 
 	noa.container.canvas.ontouchstart = function (ev) {
 		oldMovePos = [ev.clientX, ev.clientY];
@@ -33,8 +40,8 @@ export function setupMobile(noa) {
 	noa.container.canvas.ontouchmove = function (ev) {
 		ev.preventDefault();
 
-		var x = Math.abs(oldMovePos[0] - ev.targetTouches[0].clientX);
-		var y = Math.abs(oldMovePos[1] - ev.targetTouches[0].clientY);
+		let x = Math.abs(oldMovePos[0] - ev.targetTouches[0].clientX);
+		let y = Math.abs(oldMovePos[1] - ev.targetTouches[0].clientY);
 
 		if (x > 3 || y > 3) touchTime = new Date().getTime() / 1000 + 0.5;
 
@@ -72,14 +79,13 @@ export function setupMobile(noa) {
 		timer = 0;
 	};
 
-	var controls = document.createElement('div');
+	const controls = document.createElement('div');
 	controls.id = 'game_mobile_controls';
 
 	document.body.appendChild(controls);
 
 	let dragStart = null;
 	let currentPos = { x: 0, y: 0 };
-	const maxDiff = 50;
 
 	// Joystick implementation is based on one by u/AndrewGreenh
 
@@ -100,8 +106,8 @@ export function setupMobile(noa) {
 			return;
 		}
 		dragStart = {
-			x: event.clientX,
-			y: event.clientY,
+			x: event.targetTouches[0].clientX,
+			y: event.targetTouches[0].clientY,
 		};
 	};
 	stick.ontouchmove = function (event) {
@@ -109,12 +115,8 @@ export function setupMobile(noa) {
 
 		if (dragStart === null) return;
 		event.preventDefault();
-		if (event.targetTouches) {
-			event.clientX = event.targetTouches[0].clientX;
-			event.clientY = event.targetTouches[0].clientY;
-		}
-		const xDiff = event.clientX - dragStart.x;
-		const yDiff = event.clientY - dragStart.y;
+		const xDiff = event.targetTouches[0].clientX - dragStart.x;
+		const yDiff = event.targetTouches[0].clientY - dragStart.y;
 		const angle = Math.atan2(yDiff, xDiff);
 		const distance = Math.min(maxDiff, Math.hypot(xDiff, yDiff));
 		const xNew = distance * Math.cos(angle);
@@ -123,7 +125,7 @@ export function setupMobile(noa) {
 		currentPos = { x: xNew, y: yNew };
 		applyMove(xNew, yNew);
 	};
-	stick.ontouchend = function () {
+	stick.ontouchend = function (event) {
 		if (event.target != stick) return;
 
 		event.preventDefault();
@@ -187,7 +189,7 @@ export function setupMobile(noa) {
 
 	var chat = document.createElement('div');
 	chat.id = 'game_mobile_chat';
-	chat.innerHTML = 'T';
+	chat.innerHTML = '';
 
 	chat.ontouchstart = function (ev) {
 		ev.preventDefault();
@@ -198,7 +200,6 @@ export function setupMobile(noa) {
 
 	var menu = document.createElement('div');
 	menu.id = 'game_mobile_menu';
-	menu.innerHTML = 'P';
 
 	menu.ontouchstart = function (ev) {
 		ev.preventDefault();
@@ -206,4 +207,7 @@ export function setupMobile(noa) {
 	};
 
 	topButtons.appendChild(menu);
+
+
+	
 }

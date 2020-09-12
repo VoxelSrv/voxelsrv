@@ -11,7 +11,8 @@ export default function buildMultiplayer(noa, openMenu) {
 	menu.thickness = 0;
 	menu.horizontalAlignment = 2;
 	menu.zIndex = 10;
-	menu.height = `${230 * scale}px`;
+	if (window.innerHeight > 230 * scale) menu.height = `${230 * scale}px`;
+	else menu.height = `100%`
 	menu.width = `${310 * scale}px`;
 	menu.background = '#11111166';
 
@@ -79,7 +80,7 @@ export default function buildMultiplayer(noa, openMenu) {
 
 	const serverListContainer = new GUI.Rectangle();
 	serverListContainer.width = `${290 * scale}px`;
-	serverListContainer.height = `${160 * scale}px`;
+	serverListContainer.height = '70%';
 	serverListContainer.verticalAlignment = 0;
 	serverListContainer.top = `${40 * scale}px`;
 	serverListContainer.background = '#ffffffbb';
@@ -192,7 +193,8 @@ export default function buildMultiplayer(noa, openMenu) {
 	menu.addControl(back.item);
 
 	const rescale = (x) => {
-		menu.height = `${230 * scale}px`;
+		if (window.innerHeight > 230 * scale) menu.height = `${230 * scale}px`;
+		else menu.height = `100%`
 		menu.width = `${310 * scale}px`;
 
 		name.fontSize = 11 * scale;
@@ -210,7 +212,6 @@ export default function buildMultiplayer(noa, openMenu) {
 		buttontext.fontSize = 6 * scale;
 
 		serverListContainer.width = `${290 * scale}px`;
-		serverListContainer.height = `${160 * scale}px`;
 		serverListContainer.top = `${40 * scale}px`;
 		serverListScroll.top = `${13 * scale}px`;
 		serverListHeader.main.fontSize = 7 * scale;

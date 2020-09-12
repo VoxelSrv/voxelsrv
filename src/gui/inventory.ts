@@ -1,3 +1,4 @@
+import { isMobile } from 'mobile-device-detect';
 import { getScreen, scale, event } from './main';
 import { items } from '../lib/registry';
 import * as GUI from '@babylonjs/gui/';
@@ -37,13 +38,27 @@ export function buildHotbar(noa, socket) {
 		hotbarSlots[x] = createSlot(scale);
 		const container = hotbarSlots[x].container;
 		container.zIndex = 20;
-		container.isPointerBlocker = true
+		container.isPointerBlocker = true;
 		container.left = `${-20 * scale * 4 + 20 * scale * x}px`;
 		container.onPointerClickObservable.add((e) => {
 			noa.ents.getState(noa.playerEntity, 'inventory').selected = x;
-			socket.send('actionInventoryClick', { slot: x, type: 'select' });
+			socket.send('ActionInventoryClick', { slot: x, type: 'select' });
 		});
 		hotbar.addControl(container);
+	}
+
+	const hotbarOpen = new GUI.Image('hotbar', './textures/gui/inventoryopen.png');
+
+	if (isMobile) {
+		hotbarOpen.zIndex = 8;
+		hotbarOpen.verticalAlignment = 1;
+		hotbarOpen.width = `${24 * scale}px`;
+		hotbarOpen.height = `${24 * scale}px`;
+		hotbarOpen.left = `${19 * scale * 6}px`;
+		hotbarOpen.onPointerClickObservable.add(() => {
+			inventory.isVisible = true;
+		});
+		ui.addControl(hotbarOpen);
 	}
 
 	const update = async () => {
@@ -68,9 +83,9 @@ export function buildHotbar(noa, socket) {
 				hotbarSlots[x].count.text = '';
 			}
 		}
-	}
+	};
 
-	noa.on('tick', update)
+	noa.on('tick', update);
 
 	const scaleEvent = (x) => {
 		hotbar.width = `${184 * x}px`;
@@ -79,7 +94,6 @@ export function buildHotbar(noa, socket) {
 		hotbarTexture.height = `${24 * x}px`;
 		hotbarSelected.width = `${24 * x}px`;
 		hotbarSelected.height = `${24 * x}px`;
-		hotbarSelected.left = `${-19 * x * 4}px`;
 
 		for (let x = 0; x < 9; x++) {
 			hotbarSlots[x].container.height = `${16 * scale}px`;
@@ -93,12 +107,18 @@ export function buildHotbar(noa, socket) {
 			hotbarSlots[x].count.shadowOffsetX = scale;
 			hotbarSlots[x].count.shadowOffsetY = scale;
 		}
-	}
 
-	event.on('scale-change', scaleEvent)
+		if (isMobile) {
+			hotbarOpen.width = `${24 * scale}px`;
+			hotbarOpen.height = `${24 * scale}px`;
+			hotbarOpen.left = `${19 * scale * 6}px`;
+		}
+	};
+
+	event.on('scale-change', scaleEvent);
 
 	hotbar.onDisposeObservable.add(() => {
-		event.off('scake-change', scaleEvent);
+		event.off('scale-change', scaleEvent);
 		noa.off('tick', update);
 	});
 }
@@ -173,7 +193,7 @@ export function buildInventory(noa, socket) {
 						break;
 				}
 
-				socket.send('actionInventoryClick', { slot: y + 27 * page, type: click, inventory: 'main' });
+				socket.send('ActionInventoryClick', { slot: y + 27 * page, type: click, inventory: 'main' });
 			});
 
 			container.onPointerEnterObservable.add((e) => {
@@ -214,7 +234,7 @@ export function buildInventory(noa, socket) {
 					break;
 			}
 
-			socket.send('actionInventoryClick', { slot: x, type: click, inventory: 'main' });
+			socket.send('ActionInventoryClick', { slot: x, type: click, inventory: 'main' });
 		});
 
 		container.onPointerEnterObservable.add((e) => {
@@ -260,7 +280,7 @@ export function buildInventory(noa, socket) {
 					click = 'right';
 					break;
 			}
-			socket.send('actionInventoryClick', { slot: x, type: click, inventory: 'armor' });
+			socket.send('ActionInventoryClick', { slot: x, type: click, inventory: 'armor' });
 		});
 
 		container.onPointerEnterObservable.add((e) => {
