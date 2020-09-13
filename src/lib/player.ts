@@ -38,24 +38,48 @@ export function setupControls(noa: any) {
 		return -1;
 	}
 
+	function castRay() {
+		console.log('Casted');
+		let ray = scene.createPickingRay(
+			window.innerWidth / 2,
+			window.innerHeight / 2,
+			BABYLON.Matrix.Identity(),
+			noa.rendering.getScene().activeCameras[0]
+		);
+
+		const hit = scene.pickWithRay(
+			ray,
+			(mesh) => {
+				return mesh.name.startsWith('hitbox-');
+			},
+			true
+		);
+
+		if (hit.pickedMesh) {
+			return [hit.pickedMesh.name.substring(7), hit.distance];
+		} else return null;
+	}
+
 	noa.blockTargetIdCheck = function (id) {
-		if (blockIDmap[id] != undefined) {
+		if (blockIDmap[id] != undefined && id != 0) {
 			if (blocks[blockIDmap[id]].options.fluid == true) return false;
 			return true;
 		} else return false;
 	};
 
 	// on left mouse, set targeted block to be air
-	noa.inputs.down.on('fire', function () {
+	noa.inputs.down.on('fire', async function () {
 		if (!serverSettings.ingame) return;
 		if (noa.targetedBlock) {
 			//startBreakingBlock(noa.targetedBlock.position, noa.targetedBlock.blockID)
 			const pos = noa.targetedBlock.position;
-			socketSend('ActionClick', { type: 'left', x: pos[0], y: pos[1], z: pos[2] });
+			socketSend('ActionClick', { type: 'left', x: pos[0], y: pos[1], z: pos[2], onBlock: true });
 			socketSend('ActionBlockBreak', { x: pos[0], y: pos[1], z: pos[2] });
-		}
-		else socketSend('ActionClick', { type: 'left-air', x: 0, y: 0, z: 0 });
-
+			return;
+		} else socketSend('ActionClick', { type: 'left', x: 0, y: 0, z: 0, onBlock: false });
+		
+		const entClick = castRay();
+		if (!!entClick) socketSend('ActionClickEntity', { type: 'left', uuid: entClick[0], distance: entClick[1] });
 	});
 
 	noa.inputs.up.on('fire', function () {
@@ -69,12 +93,15 @@ export function setupControls(noa: any) {
 		if (noa.targetedBlock != undefined) {
 			const pos = noa.targetedBlock.adjacent;
 			const pos2 = noa.targetedBlock.position;
-			socketSend('ActionClick', { type: 'right', x: pos2[0], y: pos2[1], z: pos2[2] });
+			socketSend('ActionClick', { type: 'right', x: pos2[0], y: pos2[1], z: pos2[2], onBlock: true });
 			if (noa.ents.isTerrainBlocked(pos[0], pos[1], pos[2]) == false) {
 				socketSend('ActionBlockPlace', { x: pos[0], y: pos[1], z: pos[2], x2: pos2[0], y2: pos2[1], z2: pos2[2] });
 			}
-		} else socketSend('ActionClick', { type: 'right-air', x: 0, y: 0, z: 0 });
-
+			return;
+		} else socketSend('ActionClick', { type: 'right', x: 0, y: 0, z: 0, onBlock: false });
+		
+		const entClick = castRay();
+		if (!!entClick) socketSend('ActionClickEntity', { type: 'right', uuid: entClick[0], distance: entClick[1] });
 	});
 
 	// pick block on middle fire (MMB/Q)
@@ -151,7 +178,7 @@ export function setupControls(noa: any) {
 			pauseScreen.isVisible = false;
 			return;
 		} else {
-			document.exitPointerLock()
+			document.exitPointerLock();
 			pauseScreen.isVisible = true;
 			return;
 		}

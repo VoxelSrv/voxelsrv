@@ -54,6 +54,8 @@ export function connect(noax, socketx) {
 
 	socket.on('LoginRequest', function (dataLogin) {
 		updateServerSettings({ ingame: true });
+		noa.camera.heading = 0;
+		noa.camera.pitch = 0;
 
 		socket.send('LoginResponse', {
 			username: gameSettings.nickname,
@@ -95,9 +97,8 @@ export function connect(noax, socketx) {
 
 			socket.on('WorldChunkUnload', function (data) {
 				if (data.type) {
-					for (let x = 0; x <= 8; x++) noa.world.removeChunk(`${data.x}|${x}|${data.z}`)
-				} 
-				else noa.world.removeChunk(`${data.x}|${data.y}|${data.z}`)
+					for (let x = 0; x <= 8; x++) noa.world.removeChunk(`${data.x}|${x}|${data.z}`);
+				} else noa.world.removeChunk(`${data.x}|${data.y}|${data.z}`);
 			});
 
 			socket.on('WorldBlockUpdate', function (data) {
@@ -138,9 +139,18 @@ export function connect(noax, socketx) {
 				noa.ents.setPosition(noa.playerEntity, data.x, data.y, data.z);
 			});
 
-			socket.on('PlayerMovementChange', function (data) {
+			socket.on('PlayerUpdateMovement', function (data) {
 				const move = noa.ents.getMovement(noa.playerEntity);
 				move[data.key] = data.value;
+			});
+
+			socket.on('PlayerUpdatePhysics', function (data) {
+				const move = noa.ents.getPhysicsBody(noa.playerEntity);
+				move[data.key] = data.value;
+			});
+
+			socket.on('PlayerApplyImpulse', function (data) {
+				noa.ents.getPhysicsBody(noa.playerEntity).applyImpulse([data.x, data.y, data.z]);
 			});
 
 			socket.on('EntityCreate', async function (data) {
@@ -148,7 +158,7 @@ export function connect(noax, socketx) {
 					const entData = JSON.parse(data.data);
 					entityList[data.uuid] = noa.ents.add(Object.values(entData.position), 1, 2, null, null, false, true);
 
-					applyModel(entityList[data.uuid], entData.model, entData.texture, entData.offset, entData.nametag, entData.name, entData.hitbox);
+					applyModel(entityList[data.uuid], data.uuid, entData.model, entData.texture, entData.offset, entData.nametag, entData.name, entData.hitbox);
 				}
 			});
 
@@ -162,6 +172,7 @@ export function connect(noax, socketx) {
 					var pos = [data.x, data.y, data.z];
 					noa.ents.getState(entityList[data.uuid], 'position').newPosition = pos;
 					noa.ents.getState(entityList[data.uuid], 'position').rotation = data.rotation * 2;
+					noa.ents.getState(entityList[data.uuid], 'position').pitch = data.pitch * 2;
 				}
 			});
 
@@ -183,13 +194,15 @@ export function connect(noax, socketx) {
 
 			let lastPos = [];
 			let lastRot = 0;
+			let lastPitch = 0;
 
 			moveEvent = () => {
 				const rot = noa.camera.heading;
-				if (JSON.stringify(lastPos) != JSON.stringify(pos.position) || lastRot != rot) {
+				const pitch = noa.camera.pitch;
+				if (JSON.stringify(lastPos) != JSON.stringify(pos.position) || lastRot != rot || lastPitch != pitch) {
 					lastPos = [...pos.position];
 					lastRot = rot;
-					socket.send('ActionMove', { x: pos.position[0], y: pos.position[1], z: pos.position[2], rotation: noa.camera.heading });
+					socket.send('ActionMove', { x: pos.position[0], y: pos.position[1], z: pos.position[2], rotation: rot, pitch: pitch });
 				}
 			};
 
@@ -199,20 +212,51 @@ export function connect(noax, socketx) {
 				Object.values(entityList).forEach(async function (id: number) {
 					const posx = noa.ents.getState(id, 'position').position;
 					const newPos = noa.ents.getState(id, 'position').newPosition;
-					if (noa.ents.getState(id, noa.entities.names.mesh) != undefined && newPos != undefined && posx != undefined) {
+					const mainMesh = noa.ents.getState(id, noa.entities.names.mesh);
+					const model = noa.ents.getState(id, 'model');
+					if (mainMesh != undefined && newPos != undefined && posx != undefined) {
 						let move = vec3.create();
 						vec3.lerp(move, posx, newPos, 0.1);
 						const rot = noa.ents.getState(id, 'position').rotation;
+						const pitch = noa.ents.getState(id, 'position').pitch;
 						noa.ents.setPosition(id, move[0], move[1], move[2]);
 
-						const oldRot = noa.ents.getState(id, noa.entities.names.mesh).mesh.rotation.y;
+						const pos2da = [newPos[0], 0, newPos[2]];
+						const pos2db = [posx[0], 0, posx[2]];
 
-						if (rot / 2 - oldRot > 5) noa.ents.getState(id, noa.entities.names.mesh).mesh.rotation.y = rot / 2;
-						else noa.ents.getState(id, noa.entities.names.mesh).mesh.rotation.y = (rot / 2 + oldRot) / 2;
+						if (model.x == undefined) {
+							model.x = 0;
+							model.y = 0;
+							model.z = false;
+						}
 
-						if (noa.ents.getState(id, 'model').nametag != undefined) {
-							noa.ents.getState(id, 'model').nametag.rotation.y = noa.camera.heading - noa.ents.getState(id, noa.entities.names.mesh).mesh.rotation.y;
-							noa.ents.getState(id, 'model').nametag.rotation.x = noa.camera.pitch;
+						let sin = Math.sin(model.x);
+						if (vec3.distance(pos2da, pos2db) > 0.05) {
+							model.y = vec3.distance(pos2da, pos2db) / 5;
+							model.x = model.x + model.y;
+							if (Math.abs(sin) > 0.95) model.z = true;
+							else if (Math.abs(sin) < 0.05) model.z = false;
+						} else {
+							const sin2 = parseFloat(sin.toFixed(1));
+							if (sin2 != 0 && !model.z) model.x = model.x - 0.05;
+							if (sin2 != 0 && model.z) model.x = model.x + 0.05;
+						}
+
+						model.models.left_arm.rotation.x = -sin;
+						model.models.right_arm.rotation.x = sin;
+						model.models.right_leg.rotation.x = -sin;
+						model.models.left_leg.rotation.x = sin;
+
+						const oldRot = mainMesh.mesh.rotation.y;
+
+						if (rot / 2 - oldRot > 5) mainMesh.mesh.rotation.y = rot / 2;
+						else mainMesh.mesh.rotation.y = (rot / 2 + oldRot) / 2;
+
+						model.models.head.rotation.x = pitch / 2;
+
+						if (model.nametag != undefined) {
+							model.nametag.rotation.y = noa.camera.heading - mainMesh.mesh.rotation.y;
+							model.nametag.rotation.x = noa.camera.pitch;
 						}
 					}
 				});

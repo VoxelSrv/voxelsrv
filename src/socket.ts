@@ -45,19 +45,19 @@ export class Socket extends BaseSocket {
 
 		this.socket = new WebSocket(server);
 
-		console.log(this.socket)
+		console.log(this.socket);
 		this.socket.binaryType = 'arraybuffer';
 
 		this.socket.onopen = () => {
-			this.emit('connection', {});
+			setTimeout(() => this.emit('connection', {}), 100);
 		};
 
 		this.socket.onerror = () => {
-			this.emit('playerKick', { reason: `Can't connect to ${server}` });
+			setTimeout(() => this.emit('PlayerKick', { reason: `Can't connect to ${server}` }), 100);
 		};
 
 		this.socket.onclose = () => {
-			this.emit('playerKick', { reason: `Connection closed!` });
+			setTimeout(() => this.emit('PlayerKick', { reason: `Connection closed!` }), 100);
 		};
 
 		this.socket.onmessage = (data) => {

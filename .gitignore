@@ -8,6 +8,7 @@ ehthumbs.db
 *.msi
 *.msm
 *.msp
+*_ignore
 $RECYCLE.BIN/
 Desktop.ini
 *~

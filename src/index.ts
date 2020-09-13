@@ -44,8 +44,8 @@ let x = 0;
 noa.on('beforeRender', async () => {
 	if (!serverSettings.ingame) {
 		x++;
-
 		noa.camera.heading = x / 2000;
+		noa.camera.pitch = 0;
 	}
 });
 
