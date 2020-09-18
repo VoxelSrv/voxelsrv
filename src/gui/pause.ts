@@ -1,7 +1,5 @@
-import { getLayer, getUI, getScreen, scale, event } from './main';
+import { getScreen, scale, event } from './main';
 import * as GUI from '@babylonjs/gui/';
-import { FormTextBlock } from '../gui-uni/formtextblock';
-import { Socket } from '../socket';
 import { disconnect } from '../lib/connect';
 import { createItem } from '../gui-uni/menu';
 import buildSettings from './menu/settings'

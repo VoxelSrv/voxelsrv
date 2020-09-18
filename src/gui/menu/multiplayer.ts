@@ -12,7 +12,7 @@ export default function buildMultiplayer(noa, openMenu) {
 	menu.horizontalAlignment = 2;
 	menu.zIndex = 10;
 	if (window.innerHeight > 230 * scale) menu.height = `${230 * scale}px`;
-	else menu.height = `100%`
+	else menu.height = `100%`;
 	menu.width = `${310 * scale}px`;
 	menu.background = '#11111166';
 
@@ -194,7 +194,7 @@ export default function buildMultiplayer(noa, openMenu) {
 
 	const rescale = (x) => {
 		if (window.innerHeight > 230 * scale) menu.height = `${230 * scale}px`;
-		else menu.height = `100%`
+		else menu.height = `100%`;
 		menu.width = `${310 * scale}px`;
 
 		name.fontSize = 11 * scale;

@@ -39,7 +39,7 @@ export function setupDebug(noa, server) {
 		const text = `VoxelSrv ${gameVersion}\nNoa: ${noa.version}\nXYZ: ${pos}\n${serverText}`;
 		debug.text = text;
 		if (oldScale != scale) {
-			oldScale = scale
+			oldScale = scale;
 			debug.fontSize = `${8 * scale}px`;
 		}
 	};

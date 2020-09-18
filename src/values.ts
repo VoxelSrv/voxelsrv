@@ -22,7 +22,7 @@ export let gameSettings = { ...defaultSettings, version: gameVersion };
 
 export function updateSettings(data: Object) {
 	gameSettings = { ...defaultSettings, ...data };
-	setScale(gameSettings.scale)
+	setScale(gameSettings.scale);
 	saveSettings(gameSettings);
 }
 
@@ -107,3 +107,15 @@ export let noa = null;
 export function setNoa(x) {
 	noa = x;
 }
+
+let tempHost = '???';
+export const hostname = window.location.hostname;
+export const parms = new URLSearchParams(window.location.search);
+
+if (hostname == '0.0.0.0' || hostname == 'localhost') tempHost = 'Localhost/DEV';
+else if (hostname == 'voxelsrv-master.pb4.eu') tempHost = 'Development';
+else if (hostname == 'voxelsrv.pb4.eu') tempHost = '';
+else if (hostname == 'pb4.eu') tempHost = '';
+else tempHost = 'Unofficial/Undefined rehost!';
+
+export const hostedOn = tempHost;

@@ -8,7 +8,6 @@ export function setupHand(noa) {
 	const scene = getLayer(0);
 	const eid = noa.playerEntity;
 
-	//@ts-ignore
 	const hand = BABYLON.MeshBuilder.CreateBox('hand', { size: 0.08, wrap: true }, scene);
 
 	const handMaterial = new BABYLON.StandardMaterial('hand', scene);
@@ -75,7 +74,6 @@ export function setupHand(noa) {
 				else url[x] = 'textures/' + preUrl[x] + '.png';
 			}
 		} else {
-			
 		}
 		const mat = new BABYLON.Texture(url[1], scene, false, true, BABYLON.Texture.NEAREST_SAMPLINGMODE);
 		handMaterial.ambientTexture = mat;

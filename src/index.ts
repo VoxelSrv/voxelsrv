@@ -1,18 +1,14 @@
 import { isMobile } from 'mobile-device-detect';
-import * as BABYLON from '@babylonjs/core';
 import Engine from 'noa-engine';
-import { registerBlocks, registerItems } from './lib/registry';
-import { setChunk, setupAutoload } from './lib/world';
-import { setupPlayer, setupControls } from './lib/player';
-import { playSound } from './lib/sound';
+import { setupControls } from './lib/player';
 import { defineModelComp } from './lib/model';
 
 import { noaOpts, updateSettings, serverSettings, defaultFonts, setNoa, updateServerSettings } from './values';
-import { constructScreen, scale, setScale } from './gui/main';
+import { constructScreen } from './gui/main';
 
 import { Socket } from './socket';
 import { getSettings } from './lib/storage';
-import { setupClouds, setupSkybox } from './lib/sky';
+import { setupClouds } from './lib/sky';
 import { buildMainMenu } from './gui/menu/main';
 import { connect } from './lib/connect';
 import { setupMobile } from './gui/mobile';
@@ -80,7 +76,7 @@ window.onload = function () {
 		connect(noa, socket);
 	} else {
 		setTimeout(() => {
-			buildMainMenu(noa, connect);
+			buildMainMenu(noa);
 		}, 50);
 	}
 };

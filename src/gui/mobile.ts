@@ -1,5 +1,4 @@
-import { getScreen, getUI, scale, event } from './main';
-import * as GUI from '@babylonjs/gui';
+import { getScreen, getUI } from './main';
 
 export function setupMobile(noa) {
 	console.log('Using mobile controls');
@@ -207,7 +206,4 @@ export function setupMobile(noa) {
 	};
 
 	topButtons.appendChild(menu);
-
-
-	
 }

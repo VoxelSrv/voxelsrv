@@ -1,4 +1,4 @@
-import { gameSettings, gameProtocol, gameVersion, updateServerSettings } from '../values';
+import { gameSettings, gameProtocol, updateServerSettings } from '../values';
 import { isMobile } from 'mobile-device-detect';
 import { buildMainMenu, holder } from '../gui/menu/main';
 import { setupGuis, destroyGuis } from '../gui/setup';
@@ -31,7 +31,7 @@ export function disconnect() {
 	stopListening(noa);
 	destroyGuis();
 	updateServerSettings({ ingame: false });
-	buildMainMenu(noa, connect);
+	buildMainMenu(noa);
 }
 
 export function connect(noax, socketx) {
@@ -47,7 +47,7 @@ export function connect(noax, socketx) {
 		console.log(`You has been kicked from server \nReason: ${data.reason}`);
 		stopListening(noa);
 		destroyGuis();
-		buildDisconnect(data.reason, noa, connect);
+		buildDisconnect(data.reason, noa);
 		updateServerSettings({ ingame: false });
 		return;
 	});

@@ -37,8 +37,8 @@ export async function getWorldList() {
 }
 
 export async function getSettings(): Promise<object> {
-	const x = ( await db.main.where('name').equals('settings').toArray() )[0]
-	console.log(x)
+	const x = (await db.main.where('name').equals('settings').toArray())[0];
+	console.log(x);
 	if (x != undefined) return x.data;
 	return {};
 }

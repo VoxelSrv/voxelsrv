@@ -2,7 +2,7 @@ import * as BABYLON from '@babylonjs/core/Legacy/legacy';
 
 import { isMobile } from 'mobile-device-detect';
 import { gameSettings, serverSettings } from '../values';
-import { blockIDmap, blockIDs, blocks } from './registry';
+import { blockIDmap, blocks } from './registry';
 import { inventory } from '../gui/inventory';
 import { input as chatInput, changeState as chanceChatState } from '../gui/chat';
 import { socketSend } from './connect';
@@ -77,7 +77,7 @@ export function setupControls(noa: any) {
 			socketSend('ActionBlockBreak', { x: pos[0], y: pos[1], z: pos[2] });
 			return;
 		} else socketSend('ActionClick', { type: 'left', x: 0, y: 0, z: 0, onBlock: false });
-		
+
 		const entClick = castRay();
 		if (!!entClick) socketSend('ActionClickEntity', { type: 'left', uuid: entClick[0], distance: entClick[1] });
 	});
@@ -99,7 +99,7 @@ export function setupControls(noa: any) {
 			}
 			return;
 		} else socketSend('ActionClick', { type: 'right', x: 0, y: 0, z: 0, onBlock: false });
-		
+
 		const entClick = castRay();
 		if (!!entClick) socketSend('ActionClickEntity', { type: 'right', uuid: entClick[0], distance: entClick[1] });
 	});

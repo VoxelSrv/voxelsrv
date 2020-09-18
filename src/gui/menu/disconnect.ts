@@ -3,7 +3,7 @@ import * as GUI from '@babylonjs/gui/';
 import { FormTextBlock } from '../../gui-uni/formtextblock';
 import { buildMainMenu } from './main';
 
-export default function buildDisconnect(reasontext, noa, connect) {
+export default function buildDisconnect(reasontext, noa) {
 	const menu = new GUI.Rectangle();
 	menu.thickness = 0;
 	menu.horizontalAlignment = 2;
@@ -40,7 +40,7 @@ export default function buildDisconnect(reasontext, noa, connect) {
 
 	back.item.onPointerClickObservable.add(() => {
 		menu.dispose();
-		buildMainMenu(noa, connect);
+		buildMainMenu(noa);
 	});
 	menu.addControl(back.item);
 

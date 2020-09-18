@@ -1,7 +1,6 @@
 import * as BABYLON from '@babylonjs/core/Legacy/legacy';
 import * as GUI from '@babylonjs/gui';
 import { EventEmitter } from 'events';
-import { pauseScreen } from './pause';
 
 export const event = new EventEmitter();
 

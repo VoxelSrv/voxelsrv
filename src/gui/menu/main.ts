@@ -1,16 +1,13 @@
-import { getUI, getScreen, scale, event } from '../main';
+import { getScreen, scale, event } from '../main';
 import * as GUI from '@babylonjs/gui/';
-import * as BABYLON from '@babylonjs/core';
-import { FormTextBlock } from '../../gui-uni/formtextblock';
 import buildMultiplayer from './multiplayer';
 import buildSettings from './settings';
-import { gameProtocol, gameVersion } from '../../values';
+import { gameVersion, hostedOn } from '../../values';
 import { createItem } from '../../gui-uni/menu';
 
-let menu: Array<any>;
 export let holder: GUI.Rectangle;
 
-export function buildMainMenu(noa, connect) {
+export function buildMainMenu(noa) {
 	const ui = getScreen(1);
 	let activeMenu: GUI.Rectangle;
 	let active: string;
@@ -23,7 +20,7 @@ export function buildMainMenu(noa, connect) {
 	ui.addControl(holder);
 
 	const version = new GUI.TextBlock();
-	version.text = `VoxelSRV ${gameVersion}`;
+	version.text = !hostedOn ? `VoxelSRV ${gameVersion}` : `VoxelSRV ${gameVersion}/${hostedOn}`;
 	version.fontFamily = 'Lato';
 	version.fontSize = '26px';
 	version.color = 'white';
@@ -66,7 +63,7 @@ export function buildMainMenu(noa, connect) {
 		menu.horizontalAlignment = 2;
 		menu.zIndex = 10;
 		if (window.innerHeight > 230 * scale) menu.height = `${230 * scale}px`;
-		else menu.height = `100%`
+		else menu.height = `100%`;
 		menu.width = `${220 * scale}px`;
 		menu.background = '#11111166';
 
@@ -113,7 +110,7 @@ export function buildMainMenu(noa, connect) {
 
 		const rescale = (x) => {
 			if (window.innerHeight > 230 * scale) menu.height = `${230 * scale}px`;
-			else menu.height = `100%`
+			else menu.height = `100%`;
 			menu.width = `${220 * scale}px`;
 
 			logo.width = `${210 * scale}px`;
