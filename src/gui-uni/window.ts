@@ -2,7 +2,7 @@ import * as GUI from '@babylonjs/gui/';
 import { IFormatedText, FormTextBlock } from './formtextblock';
 import { scale, event, getScreen } from '../gui/main';
 
-export function createWindow(x: number, y: number, title: string | Array<IFormatedText>) {
+export function createWindow(x: number, y: number, title: string | Array<IFormatedText>, movable: boolean) {
 	const ui = getScreen(1);
 
 	const window = new GUI.Rectangle();
@@ -26,26 +26,28 @@ export function createWindow(x: number, y: number, title: string | Array<IFormat
 	bar.background = '#2b2b2bed';
 	bar.verticalAlignment = 0;
 
-	bar.onPointerDownObservable.add((data) => {
-		clicked = true;
-		startingPoint = [data.x, data.y];
-		windowStart = [window.leftInPixels, window.topInPixels];
-	});
+	if (movable) {
+		bar.onPointerDownObservable.add((data) => {
+			clicked = true;
+			startingPoint = [data.x, data.y];
+			windowStart = [window.leftInPixels, window.topInPixels];
+		});
 
-	bar.onPointerUpObservable.add(() => {
-		clicked = false;
-	});
+		bar.onPointerUpObservable.add(() => {
+			clicked = false;
+		});
 
-	const obs = ui.onPointerMoveObservable.add((data) => {
-		if (!clicked) return;
-		console.log();
-		window.left = -(startingPoint[0] - data.x) + windowStart[0];
-		window.top = -(startingPoint[1] - data.y) + windowStart[1];
-	});
+		const obs = ui.onPointerMoveObservable.add((data) => {
+			if (!clicked) return;
+			console.log();
+			window.left = -(startingPoint[0] - data.x) + windowStart[0];
+			window.top = -(startingPoint[1] - data.y) + windowStart[1];
+		});
 
-	window.onDisposeObservable.add(() => {
-		ui.onPointerMoveObservable.remove(obs);
-	});
+		window.onDisposeObservable.add(() => {
+			ui.onPointerMoveObservable.remove(obs);
+		});
+	}
 
 	window.addControl(bar);
 
@@ -60,6 +62,8 @@ export function createWindow(x: number, y: number, title: string | Array<IFormat
 	close.height = `${7 * scale}px`;
 	close.left = `${-2 * scale}px`;
 	close.thickness = 0;
+	close.isPointerBlocker = true;
+	close.zIndex = 200;
 	close.background = '#DD4444AE';
 	close.verticalAlignment = 2;
 	close.horizontalAlignment = 1;

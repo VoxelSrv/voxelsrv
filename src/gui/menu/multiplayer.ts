@@ -1,7 +1,7 @@
 import { scale, event } from '../main';
 import * as GUI from '@babylonjs/gui/';
 import { FormTextBlock } from '../../gui-uni/formtextblock';
-import { Socket } from '../../socket';
+import { MPSocket } from '../../socket';
 import { connect } from '../../lib/connect';
 import { Vector2 } from '@babylonjs/core';
 import { createItem } from '../../gui-uni/menu';
@@ -57,7 +57,7 @@ export default function buildMultiplayer(noa, openMenu) {
 	button.onPointerClickObservable.add(() => {
 		let address = input.text;
 		if (!(address.startsWith('wss://') || address.startsWith('ws://'))) address = 'ws://' + address;
-		const socket = new Socket(address);
+		const socket = new MPSocket(address);
 		connect(noa, socket);
 	});
 

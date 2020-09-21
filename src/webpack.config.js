@@ -11,13 +11,13 @@ module.exports = (env) => ({
 	entry: './index.ts',
 	resolve: {
 		extensions: ['.tsx', '.ts', '.js', '.json'],
-		symlinks: false
+		symlinks: false,
 	},
 	module: {
 		rules: [
 			// all files with a '.ts' or '.tsx' extension will be handled by 'ts-loader'
 			{ test: /\.tsx?$/, use: ['ts-loader'], exclude: /node_modules/ },
-		]
+		],
 	},
 	performance: {
 		// change the default size warnings
@@ -30,6 +30,10 @@ module.exports = (env) => ({
 	},
 	stats: {
 		modules: false,
+		warningsFilter: [
+			/..\/node_modules\/peerjs\/dist\/peerjs.min.js/,
+		]
+
 	},
 	devServer: {
 		contentBase: buildPath,

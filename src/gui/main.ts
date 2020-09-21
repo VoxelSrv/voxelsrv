@@ -54,10 +54,12 @@ export function constructScreen(noa) {
 	ui1 = GUI.AdvancedDynamicTexture.CreateFullscreenUI('UI', false, layer0, BABYLON.Texture.NEAREST_SAMPLINGMODE);
 
 	screen0 = new GUI.Rectangle();
+	screen0.thickness = 0;
 	screen0.isPointerBlocker = false;
 	screen0.zIndex = 1000;
 	ui0.addControl(screen0);
 	screen1 = new GUI.Rectangle();
+	screen1.thickness = 0;
 	screen1.isPointerBlocker = false;
 	screen1.zIndex = 1000;
 	ui1.addControl(screen1);

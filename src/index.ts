@@ -1,4 +1,4 @@
-import { isMobile } from 'mobile-device-detect';
+import { isMobile, isFirefox } from 'mobile-device-detect';
 import Engine from 'noa-engine';
 import { setupControls } from './lib/player';
 import { defineModelComp } from './lib/model';
@@ -6,13 +6,14 @@ import { defineModelComp } from './lib/model';
 import { noaOpts, updateSettings, serverSettings, defaultFonts, setNoa, updateServerSettings } from './values';
 import { constructScreen } from './gui/main';
 
-import { Socket } from './socket';
+import { MPSocket, PeerSocket } from './socket';
 import { getSettings } from './lib/storage';
 import { setupClouds } from './lib/sky';
 import { buildMainMenu } from './gui/menu/main';
 import { connect } from './lib/connect';
 import { setupMobile } from './gui/mobile';
 import { setupGamepad } from './lib/gamepad';
+import { warningFirefox } from './gui/warnings';
 
 defaultFonts.forEach((font) => document.fonts.load(`10pt "${font}"`));
 
@@ -46,7 +47,11 @@ noa.on('beforeRender', async () => {
 });
 
 window['connect'] = (x) => {
-	connect(noa, new Socket(x));
+	connect(noa, new MPSocket(x));
+};
+
+window['peer'] = (x) => {
+	connect(noa, new PeerSocket(x));
 };
 
 window['forceplay'] = () => {
@@ -67,12 +72,18 @@ window.onload = function () {
 			}
 		});
 	}
+	if (isFirefox) {
+		warningFirefox()
+	}
 
 	// Default actions
 	const options = new URLSearchParams(window.location.search);
 
 	if (!!options.get('server')) {
-		const socket = new Socket('ws://' + options.get('server'));
+		const socket = new MPSocket('ws://' + options.get('server'));
+		connect(noa, socket);
+	} else if (!!options.get('peer')) {
+		const socket = new PeerSocket(options.get('peer'));
 		connect(noa, socket);
 	} else {
 		setTimeout(() => {
