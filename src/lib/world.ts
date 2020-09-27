@@ -56,12 +56,13 @@ export function getChunk(id: string): Promise<ndarray> {
 		if (chunkStorage[id] != undefined) resolve(new ndarray(chunkStorage[id].data, chunkStorage[id].shape));
 		else {
 			event.once(`load-${id}`, (noaChunk) => resolve(new ndarray(noaChunk.data, noaChunk.shape)));
-			setTimeout(()=>{
+			/*setTimeout(()=>{
 				reject('Timeout')
-			}, 10000)
+			}, 10000)*/
 		}
 	});
 }
+
 
 export function chunkSetBlock(id: number, x: number, y: number, z: number) {
 	const cid = [Math.floor(x / 32), Math.floor(y / 32), Math.floor(z / 32)].join('|');
