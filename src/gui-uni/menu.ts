@@ -130,7 +130,7 @@ export function createSlider() {
 
 export function createCheckbox() {
 	const main = new GUI.Rectangle();
-	main.height = `${28 * scale}px`;
+	main.height = `${12 * scale}px`;
 	main.adaptWidthToChildren = true;
 	main.isPointerBlocker = true;
 	main.thickness = 0;

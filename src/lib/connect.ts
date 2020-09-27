@@ -7,11 +7,10 @@ import { addMessage } from '../gui/chat';
 import { setupPlayer } from './player';
 import { applyModel } from './model';
 import { registerBlocks, registerItems } from './registry';
-import { setChunk, setupAutoload } from './world';
+import { setChunk, clearStorage, removeChunk, chunkSetBlock } from './world';
 import { playSound } from './sound';
 import { cloudMesh, setupClouds } from './sky';
 
-const ndarray = require('ndarray');
 import vec3 = require('gl-vec3');
 import { BaseSocket } from '../socket';
 
@@ -54,6 +53,8 @@ export function connect(noax, socketx) {
 
 	socket.on('LoginRequest', function (dataLogin) {
 		updateServerSettings({ ingame: true });
+		clearStorage();
+		noa.worldName = `World-${Math.random() * 10000}`;
 		noa.camera.heading = 0;
 		noa.camera.pitch = 0;
 
@@ -75,7 +76,6 @@ export function connect(noax, socketx) {
 
 		socket.on('LoginSuccess', function (dataPlayer) {
 			const moveState = noa.inputs.state;
-			const chunkList = [];
 
 			registerBlocks(noa, JSON.parse(dataPlayer.blocksDef));
 			registerItems(noa, JSON.parse(dataPlayer.itemsDef));
@@ -87,22 +87,21 @@ export function connect(noax, socketx) {
 
 			setupGuis(noa, socket, dataPlayer, dataLogin);
 
-			setupAutoload(noa, socket);
-
 			noa.ents.setPosition(noa.playerEntity, dataPlayer.xPos, dataPlayer.yPos, dataPlayer.zPos);
 
 			socket.on('WorldChunkLoad', function (data) {
-				chunkList.push(data);
+				setChunk(data);
 			});
 
 			socket.on('WorldChunkUnload', function (data) {
 				if (data.type) {
-					for (let x = 0; x <= 8; x++) noa.world.removeChunk(`${data.x}|${x}|${data.z}`);
-				} else noa.world.removeChunk(`${data.x}|${data.y}|${data.z}`);
+					for (let x = 0; x <= 8; x++) removeChunk(`${data.x}|${x}|${data.z}`);
+				} else removeChunk(`${data.x}|${data.y}|${data.z}`);
 			});
 
 			socket.on('WorldBlockUpdate', function (data) {
 				noa.setBlock(data.id, data.x, data.y, data.z);
+				chunkSetBlock(data.id, data.x, data.y, data.z);
 			});
 
 			socket.on('PlayerInventory', function (data) {
@@ -182,15 +181,6 @@ export function connect(noax, socketx) {
 
 			const pos = noa.ents.getState(noa.playerEntity, 'position');
 			let timerPos = 0;
-
-			setTimeout(function () {
-				chunkInterval = setInterval(async function () {
-					if (chunkList.length != 0) {
-						setChunk(chunkList[0], noa);
-						chunkList.shift();
-					}
-				}, 50);
-			}, 500);
 
 			let lastPos = [];
 			let lastRot = 0;

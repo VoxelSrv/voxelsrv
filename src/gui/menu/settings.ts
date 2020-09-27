@@ -74,6 +74,18 @@ export default function buildSettings(noa, openMenu) {
 
 	settings.addControl(gamepad.main);
 
+	const view = createSlider();
+	view.name.text = `View Distance: ${gameSettings.viewDistance}`;
+	view.slider.value = gameSettings.viewDistance;
+	view.slider.minimum = 2;
+	view.slider.maximum = 16;
+	view.slider.step = 1;
+	view.slider.onValueChangedObservable.add((x) => {
+		view.name.text = `View Distance: ${x}`;
+	});
+
+	settings.addControl(view.main);
+
 	const back = createItem();
 	back.item.verticalAlignment = 1;
 	back.text.text = [{ text: 'Back', color: 'white', font: 'Lato' }];
@@ -84,10 +96,14 @@ export default function buildSettings(noa, openMenu) {
 			mouse: mouse.slider.value,
 			scale: scaleS.slider.value,
 			gamepad: gamepad.isChecked,
+			viewDistance: view.slider.value,
 		});
 
 		noa.camera.sensitivityX = mouse.slider.value;
 		noa.camera.sensitivityY = mouse.slider.value;
+
+		noa.world.chunkAddDistance = view.slider.value;
+		noa.world.chunkRemoveDistance = view.slider.value;
 
 		menu.dispose();
 		openMenu('main');

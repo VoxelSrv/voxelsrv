@@ -14,6 +14,7 @@ export const defaultSettings = {
 	singleplayer: false,
 	allowcustom: false,
 	mouse: isMobile ? 50 : 15,
+	viewDistance: isMobile ? 4 : 8,
 	hotbarsize: 9,
 	scale: 3,
 };
@@ -47,8 +48,8 @@ export function noaOpts() {
 		sensitivityX: gameSettings.mouse,
 		sensitivityY: gameSettings.mouse,
 		chunkSize: 32, // Don't touch this
-		chunkAddDistance: 10, // Make it changeable?
-		chunkRemoveDistance: Infinity, // ^
+		chunkAddDistance: gameSettings.viewDistance, // Make it changeable?
+		chunkRemoveDistance: gameSettings.viewDistance + 0.5, // ^
 		blockTestDistance: 7, // Per Gamemode?
 		tickRate: isMobile ? 65 : 50, // Maybe make it lower
 		texturePath: '',
