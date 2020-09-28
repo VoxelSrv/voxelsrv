@@ -164,7 +164,7 @@ export function buildInventory(noa, socket) {
 
 	for (let x = 1; x < 4; x++) {
 		const row = new GUI.Rectangle();
-		row.zIndex = 20;
+		row.zIndex = 30;
 		row.verticalAlignment = 2;
 		row.height = `${20 * scale}px`;
 		row.width = `${164 * scale}px`;
@@ -177,7 +177,7 @@ export function buildInventory(noa, socket) {
 		for (let y = 9 * x; y < 9 * x + 9; y++) {
 			inventorySlots[y] = createSlot(scale);
 			const container = inventorySlots[y].container;
-			container.zIndex = 20;
+			container.zIndex = 50;
 			container.left = `${-18 * scale * 4 + 18 * scale * (y % 9)}px`;
 			container.onPointerClickObservable.add((e) => {
 				let click = 'left';
@@ -194,6 +194,7 @@ export function buildInventory(noa, socket) {
 				}
 
 				socket.send('ActionInventoryClick', { slot: y + 27 * page, type: click, inventory: 'main' });
+				console.log('ActionInventoryClick', { slot: y + 27 * page, type: click, inventory: 'main' });
 			});
 
 			container.onPointerEnterObservable.add((e) => {
@@ -212,13 +213,18 @@ export function buildInventory(noa, socket) {
 	tempslot.container.zIndex = 50;
 	tempslot.container.verticalAlignment = 0;
 	tempslot.container.horizontalAlignment = 0;
+	tempslot.container.isPointerBlocker = false;
+	tempslot.count.isPointerBlocker = false;
+	tempslot.item.isPointerBlocker = false;
 
 	inventory.addControl(tempslot.container);
+
+	tempslot.container.background = 'red';
 
 	for (let x = 0; x < 9; x++) {
 		hotbarSlots[x] = createSlot(scale);
 		const container = hotbarSlots[x].container;
-		container.zIndex = 20;
+		container.zIndex = 40;
 		container.left = `${-18 * scale * 4 + 18 * scale * x}px`;
 		container.onPointerClickObservable.add((e) => {
 			let click = 'left';
@@ -249,7 +255,7 @@ export function buildInventory(noa, socket) {
 	}
 
 	const armor = new GUI.Rectangle();
-	armor.zIndex = 30;
+	armor.zIndex = 40;
 	armor.verticalAlignment = 2;
 	armor.top = `${-39 * scale}px`;
 	armor.left = `${-72 * scale}px`;
@@ -264,7 +270,7 @@ export function buildInventory(noa, socket) {
 	for (let x = 0; x < 4; x++) {
 		armorSlots[x] = createSlot(scale);
 		const container = armorSlots[x].container;
-		container.zIndex = 20;
+		container.zIndex = 50;
 		container.verticalAlignment = 0;
 		container.top = `${18 * scale * x}px`;
 		container.onPointerClickObservable.add((e) => {
@@ -296,8 +302,8 @@ export function buildInventory(noa, socket) {
 	}
 
 	ui.onPointerMoveObservable.add((data) => {
-		tempslot.container.left = data.x;
-		tempslot.container.top = data.y;
+		tempslot.container.left = data.x + 10;
+		tempslot.container.top = data.y + 10;
 	});
 
 	const button: { [index: string]: any } = {};

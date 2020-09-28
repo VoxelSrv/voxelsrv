@@ -16,6 +16,7 @@ import { setupGamepad } from './lib/gamepad';
 import { warningFirefox } from './gui/warnings';
 import { getChunk, event as worldEvent } from './lib/world';
 
+
 import ndarray = require('ndarray');
 
 defaultFonts.forEach((font) => document.fonts.load(`10pt "${font}"`));
@@ -76,6 +77,7 @@ window['peer'] = (x) => {
 window['forceplay'] = () => {
 	updateServerSettings({ ingame: true });
 };
+
 
 window.onload = function () {
 	if (isMobile) {
