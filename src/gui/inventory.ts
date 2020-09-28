@@ -219,8 +219,6 @@ export function buildInventory(noa, socket) {
 
 	inventory.addControl(tempslot.container);
 
-	tempslot.container.background = 'red';
-
 	for (let x = 0; x < 9; x++) {
 		hotbarSlots[x] = createSlot(scale);
 		const container = hotbarSlots[x].container;
