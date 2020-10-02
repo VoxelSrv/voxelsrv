@@ -83,7 +83,7 @@ export function noaOpts() {
 			chatenter: ['<enter>'],
 			chat: ['T'],
 			cmd: ['/'],
-			tab: ['<tab>'],
+			tab: ['`'],
 			menu: ['<escape>'],
 			screenshot: ['P'],
 		},

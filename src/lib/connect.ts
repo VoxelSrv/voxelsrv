@@ -13,6 +13,7 @@ import { cloudMesh, setupClouds } from './sky';
 
 import vec3 = require('gl-vec3');
 import { BaseSocket } from '../socket';
+import { setTab } from '../gui/tab';
 
 export let socket: BaseSocket | null = null;
 let chunkInterval: any = null;
@@ -80,7 +81,7 @@ export function connect(noax, socketx) {
 			registerBlocks(noa, JSON.parse(dataPlayer.blocksDef));
 			registerItems(noa, JSON.parse(dataPlayer.itemsDef));
 
-			setupPlayer(noa, JSON.parse(dataPlayer.inventory), JSON.parse(dataPlayer.armor));
+			setupPlayer(noa, JSON.parse(dataPlayer.inventory), JSON.parse(dataPlayer.armor), JSON.parse(dataPlayer.movement));
 
 			cloudMesh.dispose();
 			setupClouds(noa);
@@ -131,7 +132,7 @@ export function connect(noax, socketx) {
 			});
 
 			socket.on('TabUpdate', function (data) {
-				//setTab(data.message);
+				setTab(data.message);
 			});
 
 			socket.on('PlayerTeleport', function (data) {

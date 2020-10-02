@@ -8,6 +8,7 @@ import { input as chatInput, changeState as chanceChatState } from '../gui/chat'
 import { socketSend } from './connect';
 import { getUI } from '../gui/main';
 import { pauseScreen } from '../gui/pause';
+import { tabContainer } from '../gui/tab';
 
 const screenshot = require('canvas-screenshot');
 
@@ -192,9 +193,13 @@ export function setupControls(noa: any) {
 		chanceChatState(false);
 	});
 
-	noa.inputs.down.on('tab', function () {});
+	noa.inputs.down.on('tab', function () {
+		tabContainer.isVisible = true;
+	});
 
-	noa.inputs.up.on('tab', function () {});
+	noa.inputs.up.on('tab', function () {
+		tabContainer.isVisible = false;
+	});
 
 	noa.inputs.up.on('screenshot', function () {
 		if (chatInput.isVisible) return;
@@ -242,7 +247,7 @@ export function setupControls(noa: any) {
 	});
 }
 
-export function setupPlayer(noa: any, invData: Object, arrData: Object) {
+export function setupPlayer(noa: any, invData: object, arrData: object, movement: object) {
 	const eid = noa.playerEntity;
 	const dat = noa.entities.getPositionData(eid);
 
@@ -261,9 +266,11 @@ export function setupPlayer(noa: any, invData: Object, arrData: Object) {
 
 	const move = noa.entities.getMovement(eid);
 
-	move.jumpForce = 6;
-	move.jumpImpulse = 8.5;
-	move.maxSpeed = 7.5;
+	if (!!movement) {
+		Object.entries(movement).forEach((s) => {
+			move[s[0]] = s[1]
+		})
+	}
 
 	// Create inventory, move it to global entities js in future
 	if (invData != undefined) noa.ents.addComponentAgain(eid, 'inventory', invData);

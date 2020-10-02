@@ -120,6 +120,7 @@ export function buildHotbar(noa, socket) {
 	hotbar.onDisposeObservable.add(() => {
 		event.off('scale-change', scaleEvent);
 		noa.off('tick', update);
+		hotbarOpen.dispose()
 	});
 }
 

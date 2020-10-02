@@ -1,3 +1,0 @@
-[submodule "voxelsrv-server"]
-	path = voxelsrv-server
-	url = https://github.com/VoxelSrv/voxelsrv-server.git
