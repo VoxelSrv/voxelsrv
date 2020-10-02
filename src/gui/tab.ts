@@ -20,7 +20,6 @@ export function setupTab() {
 	tabContainer.useBitmapCache = true;
 	tabContainer.zIndex = 100;
 	tabContainer.background = '#11111155';
-	tabContainer.isVisible = false;
 
 	ui.addControl(tabContainer);
 
@@ -35,6 +34,7 @@ export function setupTab() {
 		});
 
 		calcHeight();
+		tabContainer.isVisible = false;
 	};
 
 	event.on('scale-change', scaleEvent);
@@ -45,6 +45,8 @@ export function setupTab() {
 		height = 0;
 		event.off('scale-change', scaleEvent);
 	});
+
+	tabContainer.isVisible = false;
 }
 
 export async function setTab(msg: Array<IFormatedText>) {
@@ -83,6 +85,5 @@ function calcHeight() {
 
 	if (height != 0) {
 		tabContainer.height = `${height + 5}px`;
-		tabContainer.isVisible = true;
 	}
 }
