@@ -43,14 +43,17 @@ export function buildMainMenu(noa) {
 			case 'multiplayer':
 				activeMenu = buildMultiplayer(noa, openMenu);
 				active = 'multiplayer';
+				document.title = 'VoxelSrv - Multiplayer Menu';
 				break;
 			case 'settings':
 				activeMenu = buildSettings(noa, openMenu);
 				active = 'settings';
+				document.title = 'VoxelSrv - Settings';
 				break;
 			default:
 				activeMenu = buildMenu();
 				active = 'main';
+				document.title = 'VoxelSrv - Main Menu';
 				break;
 		}
 

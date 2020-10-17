@@ -35,6 +35,7 @@ export function disconnect() {
 }
 
 export function connect(noax, socketx) {
+	document.title = 'VoxelSrv - Connecting to server...';
 	noa = noax;
 	noa.worldName = 'World' + Math.round(Math.random() * 1000);
 	socket = socketx;
@@ -44,10 +45,11 @@ export function connect(noax, socketx) {
 
 	socket.on('PlayerKick', function (data) {
 		socket.close();
+		noa.ents.getPhysics(noa.playerEntity).body.airDrag = 9999;
 		console.log(`You has been kicked from server \nReason: ${data.reason}`);
 		stopListening(noa);
 		destroyGuis();
-		buildDisconnect(data.reason, noa);
+		buildDisconnect(data.reason, socket.server, connect, noa);
 		updateServerSettings({ ingame: false });
 		return;
 	});
@@ -76,7 +78,7 @@ export function connect(noax, socketx) {
 		});
 
 		socket.on('LoginSuccess', function (dataPlayer) {
-			const moveState = noa.inputs.state;
+			document.title = `VoxelSrv - Playing on ${socket.server}`;
 
 			registerBlocks(noa, JSON.parse(dataPlayer.blocksDef));
 			registerItems(noa, JSON.parse(dataPlayer.itemsDef));

@@ -57,8 +57,8 @@ export default function buildMultiplayer(noa, openMenu) {
 	button.onPointerClickObservable.add(() => {
 		let address = input.text;
 		if (!(address.startsWith('wss://') || address.startsWith('ws://'))) address = 'ws://' + address;
-		const socket = new MPSocket(address);
-		connect(noa, socket);
+		connect(noa, new MPSocket(address));
+
 	});
 
 	const buttontext = new FormTextBlock();

@@ -41,7 +41,6 @@ export class MPSocket extends BaseSocket {
 	constructor(server: string) {
 		super();
 		this.server = server;
-
 		this.socket = new WebSocket(server);
 
 		this.socket.binaryType = 'arraybuffer';
