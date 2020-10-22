@@ -51,7 +51,7 @@ export function setupChat() {
 	chatContainer.useBitmapCache = true;
 	chatContainer.zIndex = 10;
 	chatContainer.background = '#11111177';
-	chatContainer.height = `${130 * scale}px`;
+	chatContainer.height = 0;
 
 	ui.addControl(chatContainer);
 

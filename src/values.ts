@@ -1,8 +1,8 @@
 import { saveSettings } from './lib/storage';
-import { isMobile } from 'mobile-device-detect';
+import { isMobile, isFirefox } from 'mobile-device-detect';
 import { setScale } from './gui/main';
 
-export const gameVersion = '0.2.0-beta.7';
+export const gameVersion = '0.2.0-beta.8';
 
 export const gameProtocol = 2;
 
@@ -14,7 +14,7 @@ export const defaultSettings = {
 	singleplayer: false,
 	allowcustom: false,
 	mouse: isMobile ? 50 : 15,
-	viewDistance: isMobile ? 4 : 8,
+	viewDistance: isMobile ? 3 : (isFirefox ? 2 : 6),
 	hotbarsize: 9,
 	scale: 3,
 };

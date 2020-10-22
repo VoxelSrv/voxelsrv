@@ -40,12 +40,15 @@ export function connect(noax, socketx) {
 	noa.worldName = 'World' + Math.round(Math.random() * 1000);
 	socket = socketx;
 	console.log('Username: ' + gameSettings.nickname, 'Server: ' + socket.server);
-	let discreason: string = '';
+
 	if (holder != null) holder.dispose();
+
+	const entityList = {};
 
 	socket.on('PlayerKick', function (data) {
 		socket.close();
 		noa.ents.getPhysics(noa.playerEntity).body.airDrag = 9999;
+		Object.values(entityList).forEach((x) => noa.ents.deleteEntity(x));
 		console.log(`You has been kicked from server \nReason: ${data.reason}`);
 		stopListening(noa);
 		destroyGuis();
@@ -68,7 +71,6 @@ export function connect(noax, socketx) {
 		});
 
 		let entityIgnore = 0;
-		const entityList = {};
 
 		socket.on('PlayerEntity', function (data) {
 			console.log('Ignoring player-entity: ' + data.uuid);
@@ -183,8 +185,6 @@ export function connect(noax, socketx) {
 			});
 
 			const pos = noa.ents.getState(noa.playerEntity, 'position');
-			let timerPos = 0;
-
 			let lastPos = [];
 			let lastRot = 0;
 			let lastPitch = 0;

@@ -66,22 +66,7 @@ export function buildHotbar(noa, socket) {
 		hotbarSelected.left = `${-20 * scale * 4 + 20 * scale * inv.selected}px`;
 
 		for (let x = 0; x < 9; x++) {
-			if (inv.items[x] != null && inv.items[x].id != undefined) {
-				const item = items[inv.items[x].id];
-				let txt: string;
-				if (item.blockTexture != undefined) txt = item.blockTexture;
-				else if (!item.texture.startsWith('https://') || !item.texture.startsWith('http://')) txt = './textures/' + item.texture + '.png';
-				else txt = item.texture;
-
-				hotbarSlots[x].item.source = txt;
-
-				if (inv.items[x].count == 1) hotbarSlots[x].count.text = '';
-				else if (inv.items[x].count <= 10) hotbarSlots[x].count.text = ' ' + inv.items[x].count.toString();
-				else hotbarSlots[x].count.text = inv.items[x].count.toString();
-			} else {
-				hotbarSlots[x].item.source = '';
-				hotbarSlots[x].count.text = '';
-			}
+			updateSlot(hotbarSlots[x], inv.items[x]);
 		}
 	};
 
@@ -120,7 +105,7 @@ export function buildHotbar(noa, socket) {
 	hotbar.onDisposeObservable.add(() => {
 		event.off('scale-change', scaleEvent);
 		noa.off('tick', update);
-		hotbarOpen.dispose()
+		hotbarOpen.dispose();
 	});
 }
 
@@ -347,14 +332,20 @@ export function buildInventory(noa, socket) {
 	}
 
 	const update = async () => {
+		if (inventory.isVisible == false) return;
+
 		const inv = getInv();
 
 		if (inv.tempslot != null && inv.tempslot.id != undefined) {
 			tempslot.item.alpha = 1;
 			tempslot.count.alpha = 1;
+			const item = items[inv.tempslot.id];
 
-			let txt = items[inv.tempslot.id].texture + '.png';
-			if (!txt.startsWith('https://') || !txt.startsWith('http://')) txt = './textures/' + txt;
+			let txt: string;
+			if (item == undefined) txt = './textures/error.png';
+			else if (!item.texture.startsWith('https://') || !item.texture.startsWith('http://')) txt = './textures/' + item.texture + '.png';
+			else txt = item.texture;
+
 			tempslot.item.source = txt;
 
 			if (inv.tempslot.count == 1) tempslot.count.text = '';
@@ -369,68 +360,18 @@ export function buildInventory(noa, socket) {
 		}
 
 		for (let x = 0; x < 9; x++) {
-			if (inv.items[x] != null && inv.items[x].id != undefined) {
-				hotbarSlots[x].item.alpha = 1;
-				hotbarSlots[x].count.alpha = 1;
-
-				let txt = items[inv.items[x].id].texture + '.png';
-				if (!txt.startsWith('https://') || !txt.startsWith('http://')) txt = './textures/' + txt;
-				hotbarSlots[x].item.source = txt;
-
-				if (inv.items[x].count == 1) hotbarSlots[x].count.text = '';
-				else if (inv.items[x].count <= 10) hotbarSlots[x].count.text = ' ' + inv.items[x].count.toString();
-				else hotbarSlots[x].count.text = inv.items[x].count.toString();
-			} else {
-				hotbarSlots[x].item.alpha = 0;
-				hotbarSlots[x].count.alpha = 0;
-
-				hotbarSlots[x].item.source = '';
-				hotbarSlots[x].count.text = '';
-			}
+			updateSlot(hotbarSlots[x], inv.items[x]);
 		}
 
 		for (let x = 9; x < 36; x++) {
-			const y = 27 * page + x;
-			if (inv.items[y] != null && inv.items[y].id != undefined) {
-				inventorySlots[x].item.alpha = 1;
-				inventorySlots[x].count.alpha = 1;
-
-				let txt = items[inv.items[y].id].texture + '.png';
-				if (!txt.startsWith('https://') || !txt.startsWith('http://')) txt = './textures/' + txt;
-				inventorySlots[x].item.source = txt;
-
-				if (inv.items[y].count == 1) inventorySlots[x].count.text = '';
-				else if (inv.items[y].count <= 10) inventorySlots[x].count.text = ' ' + inv.items[y].count.toString();
-				else inventorySlots[x].count.text = inv.items[y].count.toString();
-			} else if (y > inv.size) {
-				inventorySlots[x].item.alpha = 1;
-				inventorySlots[x].count.alpha = 1;
-				inventorySlots[x].item.source = './textures/gui/noslot.png';
-				inventorySlots[x].count.text = '';
-			} else {
-				inventorySlots[x].item.alpha = 0;
-				inventorySlots[x].count.alpha = 0;
-				inventorySlots[x].item.source = '';
-				inventorySlots[x].count.text = '';
-			}
+			updateSlot(inventorySlots[x], inv.items[27 * page + x]);
 		}
 
 		for (let x = 0; x < 4; x++) {
-			if (inv.armor.items[x] != null && inv.armor.items[x].id != undefined) {
-				armorSlots[x].count.alpha = 1;
-
-				let txt = items[inv.armor.items[x].id].texture + '.png';
-				if (!txt.startsWith('https://') || !txt.startsWith('http://')) txt = './textures/' + txt;
-				armorSlots[x].item.source = txt;
-
-				if (inv.armor.items[x].count == 1) armorSlots[x].count.text = '';
-				else if (inv.armor.items[x].count <= 10) armorSlots[x].count.text = ' ' + inv.armor.items[x].count.toString();
-				else armorSlots[x].count.text = inv.armor.items[x].count.toString();
-			} else {
+			const status = updateSlot(armorSlots[x], inv.armor.items[x]);
+			if (status == false) {
 				armorSlots[x].count.alpha = 0;
-
 				let txt: string;
-
 				switch (x) {
 					case 0:
 						txt = './textures/item/empty_armor_slot_helmet.png';
@@ -573,4 +514,30 @@ export function createSlot(scale: number) {
 	return slot;
 }
 
-window['inv'] = buildInventory;
+function updateSlot(guiSlot, invItem): boolean {
+	if (invItem != null && invItem.id != undefined) {
+		guiSlot.item.alpha = 1;
+		guiSlot.count.alpha = 1;
+		const item = items[invItem.id];
+		let txt: string;
+		if (item == undefined) txt = './textures/error.png';
+		else if (!item.texture.startsWith('https://') || !item.texture.startsWith('http://')) txt = './textures/' + item.texture + '.png';
+		else txt = item.texture;
+
+		guiSlot.item.source = txt;
+
+		if (invItem.count == 1) guiSlot.count.text = '';
+		else if (invItem.count <= 10) guiSlot.count.text = ' ' + invItem.count.toString();
+		else guiSlot.count.text = invItem.count.toString();
+
+		return true;
+	} else {
+		guiSlot.item.alpha = 0;
+		guiSlot.count.alpha = 0;
+
+		guiSlot.item.source = '';
+		guiSlot.count.text = '';
+
+		return false;
+	}
+}

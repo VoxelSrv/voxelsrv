@@ -66,6 +66,10 @@ noa.on('beforeRender', async () => {
 	}
 });
 
+window.onerror = function (msg, url, lineNo, columnNo, error) {
+	alert(`${msg}\nPlease report this error at: https://github.com/VoxelSrv/voxelsrv/issues`)
+}
+
 window['connect'] = (x) => {
 	connect(noa, new MPSocket(x));
 };

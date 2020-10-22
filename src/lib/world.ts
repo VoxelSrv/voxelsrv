@@ -37,9 +37,8 @@ export function setChunk(data: IWorldChunkLoad) {
 			chunkStorage[localID] = noaChunk;
 		}
 	} else {
-		const localID = data.x + '|' + data.y + '|' + data.z + '|';
-
-		const chunk = new ndarray(data.data, [32, 32, 32]);
+		const localID = [data.x, data.y, data.z].join('|');
+		const chunk = new ndarray(Uint16Array.from(data.data), [32, 32, 32]);
 
 		event.emit(`load-${localID}`, chunk);
 		event.emit(`loadany`, localID, chunk);

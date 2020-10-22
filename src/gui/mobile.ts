@@ -11,7 +11,7 @@ export function setupMobile(noa) {
 	let isTouching: boolean = false;
 	let loop = null;
 	let breaking = null;
-	const maxDiff = 100;
+	const maxDiff = 50;
 
 	let oldMovePos: [number, number] = [0, 0];
 

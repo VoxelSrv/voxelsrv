@@ -63,8 +63,6 @@ export function applyModel(eid: number, uuid: string, model: string, texture: st
 }
 
 function buildModel(model, texture) {
-	console.log('Building model...');
-
 	const scene = noa.rendering.getScene();
 	const scale = 0.06
 	const txtSize = [model.geometry.texturewidth, model.geometry.textureheight];
@@ -156,13 +154,10 @@ function buildModel(model, texture) {
 		mesh.setParent(main);
 		mesh.setPivotMatrix(BABYLON.Matrix.Translation(-pivot[0] * scale, -pivot[1] * scale, -pivot[2] * scale));
 
-		console.log(mdata.name, mesh)
 		meshlist[mdata.name] = mesh;
 
 		noa.rendering.addMeshToScene(mesh);
 	}
-
-	console.log(meshlist);
 
 	return { main: main, models: meshlist };
 }

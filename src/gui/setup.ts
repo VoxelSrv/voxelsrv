@@ -20,6 +20,7 @@ export function destroyGuis() {
 	if (inventory != null) inventory.dispose();
 	if (hotbar != null) hotbar.dispose();
 	if (chatContainer != null) chatContainer.dispose();
+	if (input != null) input.dispose();
 	if (tabContainer != null) tabContainer.dispose();
 	if (debug != null) debug.dispose();
 	if (dot != null) dot.dispose();

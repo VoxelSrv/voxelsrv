@@ -40,7 +40,6 @@ export function setupControls(noa: any) {
 	}
 
 	function castRay() {
-		console.log('Casted');
 		let ray = scene.createPickingRay(
 			window.innerWidth / 2,
 			window.innerHeight / 2,
@@ -61,8 +60,8 @@ export function setupControls(noa: any) {
 		} else return null;
 	}
 
-	noa.blockTargetIdCheck = function (id) {
-		if (blockIDmap[id] != undefined && id != 0) {
+	noa.blockTargetIdCheck = function (id: number) {
+		if (blockIDmap[id] != undefined && id != 0 && blocks[blockIDmap[id]] != undefined) {
 			if (blocks[blockIDmap[id]].options.fluid == true) return false;
 			return true;
 		} else return false;
@@ -235,16 +234,16 @@ export function setupControls(noa: any) {
 		}
 	});
 
-	// Tempfix
-
-	noa.on('tick', async () => {
-		if (!serverSettings.ingame) return;
-		if ((document.pointerLockElement != noa.container.canvas && !isMobile) || chatInput.isVisible || pauseScreen.isVisible || inventory.isVisible) {
-			noa.ents.getState(noa.playerEntity, 'receivesInputs').ignore = true;
-		} else {
-			noa.ents.getState(noa.playerEntity, 'receivesInputs').ignore = false;
-		}
-	});
+	setTimeout(() => {
+		noa.on('tick', async () => {
+			if (!serverSettings.ingame) return;
+			if ((document.pointerLockElement != noa.container.canvas && !isMobile) || chatInput.isVisible || pauseScreen.isVisible || inventory.isVisible) {
+				noa.ents.getState(noa.playerEntity, 'receivesInputs').ignore = true;
+			} else {
+				noa.ents.getState(noa.playerEntity, 'receivesInputs').ignore = false;
+			}
+		});
+	}, 100);
 }
 
 export function setupPlayer(noa: any, invData: object, arrData: object, movement: object) {
@@ -268,8 +267,8 @@ export function setupPlayer(noa: any, invData: object, arrData: object, movement
 
 	if (!!movement) {
 		Object.entries(movement).forEach((s) => {
-			move[s[0]] = s[1]
-		})
+			move[s[0]] = s[1];
+		});
 	}
 
 	// Create inventory, move it to global entities js in future
