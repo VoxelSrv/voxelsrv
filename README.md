@@ -10,8 +10,7 @@ If you are interested with the project checkout our Discord server!
 
 If you want to create a server, you should check this repo: https://github.com/VoxelSrv/voxelsrv-server
 
-# [Play it here (Stable)](http://voxelsrv.pb4.eu)
-## [Or here, for Master/WIP version](http://voxelsrv-master.pb4.eu)
+# [Play it here](http://voxelsrv.pb4.eu)
 
 # Assets used in this project (graphics/sounds):
 - Pixel Perfection Community Edition (https://github.com/Athemis/PixelPerfectionCE)

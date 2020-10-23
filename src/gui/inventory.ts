@@ -404,15 +404,18 @@ export function buildInventory(noa, socket) {
 		armor.left = `${-72 * scale2}px`;
 		armor.height = `${72 * scale2}px`;
 		armor.width = `${18 * scale2}px`;
-		button.box.height = `${15 * scale2}px`;
-		button.box.width = `${22 * scale2}px`;
-		button.box.top = `${-6 * scale2}px`;
-		button.box.left = `${71 * scale2}px`;
 
-		button.button1.height = `${15 * scale2}px`;
-		button.button1.width = `${11 * scale2}px`;
-		button.button2.height = `${15 * scale2}px`;
-		button.button2.width = `${11 * scale2}px`;
+		if (button.box != undefined) {
+			button.box.height = `${15 * scale2}px`;
+			button.box.width = `${22 * scale2}px`;
+			button.box.top = `${-6 * scale2}px`;
+			button.box.left = `${71 * scale2}px`;
+
+			button.button1.height = `${15 * scale2}px`;
+			button.button1.width = `${11 * scale2}px`;
+			button.button2.height = `${15 * scale2}px`;
+			button.button2.width = `${11 * scale2}px`;
+		}
 
 		tempslot.container.height = `${16 * scale2}px`;
 		tempslot.container.width = `${16 * scale2}px`;
