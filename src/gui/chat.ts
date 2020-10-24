@@ -120,6 +120,7 @@ export async function addMessage(msg: Array<IFormatedText>) {
 	message.fontFamily = 'Lato';
 	if (isMobile) message.width = `${140 * scale}px`;
 	else message.width = `${176 * scale}px`;
+	message.zIndex = 11;
 
 	message.text = data;
 	message.height = `${message.computeExpectedHeight()}px`;

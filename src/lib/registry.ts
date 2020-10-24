@@ -32,20 +32,22 @@ export function registerBlocks(noa, blockList) {
 		if (type == 0) {
 			let mat: any;
 
-			let txtTransparent = false;
-			if (options.opaque == false) txtTransparent = true;
+			let txtTransparent = options.opaque == false ? true : false;
+			let color = options.color != undefined ? Object.values(options.color) : [0, 0, 0];
+
+			if (texture == undefined) texture = ['']
 
 			if (texture.length == 1 && options.material == undefined) {
 				if ((texture[0].startsWith('http://') || texture[0].startsWith('https://')) && gameSettings.allowcustom == true)
-					noa.registry.registerMaterial(name, [0, 0, 0], texture[0], txtTransparent);
-				else noa.registry.registerMaterial(name, [0, 0, 0], 'textures/' + texture[0] + '.png', txtTransparent);
+					noa.registry.registerMaterial(name, color, texture[0], txtTransparent);
+				else noa.registry.registerMaterial(name, color, texture[0] != '' ? 'textures/' + texture[0] + '.png' : null, txtTransparent);
 				mat = name;
 			} else if (options.material == undefined) {
 				mat = new Array();
 				for (let x = 0; x < texture.length; x++) {
 					if ((texture[x].startsWith('http://') || texture[x].startsWith('https://')) && gameSettings.allowcustom == true)
-						noa.registry.registerMaterial(name + x, [0, 0, 0], texture[x], txtTransparent);
-					else noa.registry.registerMaterial(name + x, [0, 0, 0], 'textures/' + texture[x] + '.png', txtTransparent);
+						noa.registry.registerMaterial(name + x, color, texture[x], txtTransparent);
+					else noa.registry.registerMaterial(name + x, color, texture[x] != '' ? 'textures/' + texture[x] + '.png' : null, txtTransparent);
 					mat.push(name + x);
 				}
 			} else {

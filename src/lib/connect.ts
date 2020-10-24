@@ -40,6 +40,7 @@ export function connect(noax, socketx) {
 	noa.worldName = 'World' + Math.round(Math.random() * 1000);
 	socket = socketx;
 	console.log('Username: ' + gameSettings.nickname, 'Server: ' + socket.server);
+	let firstLogin = true;
 
 	if (holder != null) holder.dispose();
 
@@ -58,8 +59,6 @@ export function connect(noax, socketx) {
 	});
 
 	socket.on('LoginRequest', function (dataLogin) {
-		updateServerSettings({ ingame: true });
-		clearStorage();
 		noa.worldName = `World-${Math.random() * 10000}`;
 		noa.camera.heading = 0;
 		noa.camera.pitch = 0;
@@ -79,7 +78,13 @@ export function connect(noax, socketx) {
 			delete entityList[data.uuid];
 		});
 
+		if (!firstLogin) return;
+
 		socket.on('LoginSuccess', function (dataPlayer) {
+			updateServerSettings({ ingame: true });
+			destroyGuis();
+			clearStorage();
+
 			document.title = `VoxelSrv - Playing on ${socket.server}`;
 
 			registerBlocks(noa, JSON.parse(dataPlayer.blocksDef));
@@ -93,6 +98,9 @@ export function connect(noax, socketx) {
 			setupGuis(noa, socket, dataPlayer, dataLogin);
 
 			noa.ents.setPosition(noa.playerEntity, dataPlayer.xPos, dataPlayer.yPos, dataPlayer.zPos);
+
+			if (!firstLogin) return;
+			firstLogin = false
 
 			socket.on('WorldChunkLoad', function (data) {
 				setChunk(data);

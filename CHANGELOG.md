@@ -3,7 +3,7 @@
 - Added basic animation to player
 - Moved from HTML guis to BabylonJS ones
 
-# 0.1.8 (Stable)
+# 0.1.8
 - New main menu screen
 - Added pause screen
 - Added options

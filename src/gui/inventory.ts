@@ -37,7 +37,7 @@ export function buildHotbar(noa, socket) {
 	for (let x = 0; x < 9; x++) {
 		hotbarSlots[x] = createSlot(scale);
 		const container = hotbarSlots[x].container;
-		container.zIndex = 20;
+		container.zIndex = 9;
 		container.isPointerBlocker = true;
 		container.left = `${-20 * scale * 4 + 20 * scale * x}px`;
 		container.onPointerClickObservable.add((e) => {
@@ -120,7 +120,7 @@ export function buildInventory(noa, socket) {
 	const ui = getScreen(1);
 
 	inventory = new GUI.Rectangle();
-	inventory.zIndex = 20;
+	inventory.zIndex = 15;
 	inventory.verticalAlignment = 2;
 	inventory.background = '#00000077';
 	inventory.thickness = 0;
@@ -130,7 +130,7 @@ export function buildInventory(noa, socket) {
 	const inventoryTexture = new GUI.Image('inventory', './textures/gui/container/inventory.png');
 	inventoryTexture.width = `${180 * scale}px`;
 	inventoryTexture.height = `${176 * scale}px`;
-	inventoryTexture.zIndex = 10;
+	inventoryTexture.zIndex = 18;
 
 	inventory.addControl(inventoryTexture);
 
