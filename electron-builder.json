@@ -1,0 +1,29 @@
+{
+	"appId": "eu.pb4.voxelsrv",
+	"productName": "VoxelSrv",
+	"asar": true,
+	"directories": {
+		"output": "build"
+	},
+	"files": ["./package.json", "./src/electron/dist/*", "./docs/*",  "./docs/**/*"],
+	"linux": {
+		"category": "Games",
+		"target": [
+			{
+				"target": "AppImage",
+				"arch": ["x64"]
+			}
+		]
+	},
+	"win": {
+		"target": [
+			{
+				"target": "nsis",
+				"arch": ["x64"]
+			}
+		]
+	},
+	"mac": {
+		"category": "public.app-category.games"
+	}
+}
