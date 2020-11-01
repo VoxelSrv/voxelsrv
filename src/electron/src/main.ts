@@ -8,6 +8,7 @@ import sanitaze from 'sanitize-filename';
 
 const working = process.cwd();
 
+
 const mainFolder = `${app.getPath('documents')}/voxelsrv`;
 if (!fs.existsSync(mainFolder)) fs.mkdirSync(mainFolder);
 

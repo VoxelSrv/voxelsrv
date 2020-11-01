@@ -29,10 +29,17 @@ jobs:
           # If the commit is tagged with a version (e.g. "v1.0.0"),
           # release the app after building
           release: ${{ startsWith(github.ref, 'refs/tags/v') }}
-      - name: Upload artefacts
+      - name: Upload AppImage artefacts
         uses: actions/upload-artifact@v2
         with:
-          name: build
+          name: voxelsrv-appimage
           path: |
             build/*.AppImage
+          if-no-files-found: ignore
+      - name: Upload exe artefacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: voxelsrv-windows
+          path: |
             build/*.exe
+          if-no-files-found: ignore
