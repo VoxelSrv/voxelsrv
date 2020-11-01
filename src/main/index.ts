@@ -23,6 +23,7 @@ defaultFonts.forEach((font) => document.fonts.load(`10pt "${font}"`));
 
 getSettings().then((data) => updateSettings(data));
 
+// @ts-ignore
 const noa: any = new Engine(noaOpts());
 
 noa.ents.createComponent({
@@ -82,7 +83,6 @@ window['forceplay'] = () => {
 	updateServerSettings({ ingame: true });
 };
 
-
 window.onload = function () {
 	if (isMobile) {
 		setupMobile(noa);
@@ -114,5 +114,11 @@ window.onload = function () {
 		setTimeout(() => {
 			buildMainMenu(noa);
 		}, 50);
+	}
+
+	if (window['electron'] != undefined) {
+		window['electron'].on('world-started', (e, port) => {
+			connect(noa, new MPSocket(`ws://localhost:${port}`))
+		})
 	}
 };

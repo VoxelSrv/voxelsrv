@@ -4,7 +4,8 @@
     "noImplicitAny": true,
     "sourceMap": true,
     "outDir": "dist",
-    "baseUrl": ".",
+	"baseUrl": ".",
+	"esModuleInterop": true,
     "paths": {
       "*": ["node_modules/*"]
     }

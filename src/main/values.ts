@@ -2,7 +2,7 @@ import { saveSettings } from './lib/storage';
 import { isMobile, isFirefox } from 'mobile-device-detect';
 import { setScale } from './gui/main';
 
-export const gameVersion = '0.2.0-beta.8.2';
+export const gameVersion = '0.2.0-beta.8.3';
 
 export const gameProtocol = 2;
 
@@ -117,6 +117,7 @@ if (hostname == '0.0.0.0' || hostname == 'localhost') tempHost = 'Localhost/DEV'
 else if (hostname == 'voxelsrv-master.pb4.eu') tempHost = 'Development';
 else if (hostname == 'voxelsrv.pb4.eu') tempHost = '';
 else if (hostname == 'pb4.eu') tempHost = '';
+else if (window['electron'] != undefined) tempHost = ''
 else tempHost = 'Unofficial/Undefined rehost!';
 
 export const hostedOn = tempHost;

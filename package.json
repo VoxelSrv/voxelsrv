@@ -1,12 +1,13 @@
 {
 	"name": "voxelsrv",
-	"version": "0.2.0",
+	"version": "0.2.0-beta.8.3",
 	"description": "Simple voxel game",
 	"main": "src/electron/dist/index.js",
 	"scripts": {
-		"start": "cd src/ && npx webpack-dev-server",
+		"start": "cd src/main/ && npx webpack-dev-server",
 		"build": "rm docs/*.js && cd src/main && npx webpack --env.production",
-		"test-electron": "cd src/electron && tsc && electron dist/index.js"
+		"electron": "cd src/electron && tsc && electron dist/index.js",
+		"test-electron": "cd src/electron && tsc && electron dist/debug.js"
 	},
 	"keywords": [
 		"noa-engine",
@@ -16,12 +17,12 @@
 		"engine",
 		"example"
 	],
-	"author": "Patbox",
-	"license": "ISC",
+	"author": "Patbox <patbox4@outlook.com> (https://pb4.eu)",
+	"license": "MIT",
 	"dependencies": {
-		"@babylonjs/core": "^4.2.0-beta.16",
-		"@babylonjs/gui": "^4.2.0-beta.16",
-		"@babylonjs/materials": "^4.2.0-beta.16",
+		"@babylonjs/core": "^4.2.0-beta.21",
+		"@babylonjs/gui": "^4.2.0-beta.21",
+		"@babylonjs/materials": "^4.2.0-beta.21",
 		"@types/css-font-loading-module": "0.0.4",
 		"@types/peerjs": "^1.1.0",
 		"canvas-screenshot": "^3.0.0",
@@ -35,17 +36,22 @@
 		"open-simplex-noise": "^2.3.1",
 		"pako": "^1.0.11",
 		"protobufjs": "^6.10.1",
+		"sanitize-filename": "^1.6.3",
+		"threads": "^1.6.3",
 		"uuid": "^8.3.1",
-		"voxelsrv-protocol": "github:VoxelSrv/protocol#v2"
+		"voxelsrv-protocol": "github:VoxelSrv/protocol#v2",
+		"voxelsrv-server": "github:VoxelSrv/voxelsrv-server",
+		"ws": "^7.3.1"
 	},
 	"devDependencies": {
-		"ts-loader": "^8.0.6",
-		"typescript": "^4.0.3",
+		"@types/ws": "^7.2.9",
+		"electron": "^11.0.0-beta.18",
+		"electron-builder": "^22.9.1",
+		"ts-loader": "^8.0.7",
+		"typescript": "^4.0.5",
 		"webpack": "^4.44.2",
 		"webpack-cli": "^3.3.12",
 		"webpack-dev-server": "^3.11.0",
-		"worker-loader": "^2.0.0",
-		"electron": "^11.0.0-beta.13",
-		"electron-builder": "^22.9.1"
+		"worker-loader": "^2.0.0"
 	}
 }

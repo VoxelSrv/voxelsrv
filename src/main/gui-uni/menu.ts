@@ -163,3 +163,46 @@ export function createCheckbox() {
 
 	return { main, name, isChecked };
 }
+
+
+export function createButton() {
+	const button = new GUI.Rectangle();
+	button.height = `${17 * scale}px`;
+	button.width = `${64 * scale}px`;
+	button.verticalAlignment = 0;
+	button.horizontalAlignment = 0;
+	button.thickness = 0;
+	button.background = '#4d4d4daa';
+	button.color = '#666666';
+
+	const buttonText = new FormTextBlock();
+	buttonText.text = [{ text: 'Text', color: 'white', font: 'Lato' }];
+	buttonText.textHorizontalAlignment = 2;
+	buttonText.fontSize = 6 * scale;
+	buttonText.onPointerEnterObservable.add((e) => {
+		buttonText.text.forEach((x) => (x.underline = true));
+		buttonText._markAsDirty();
+	});
+	buttonText.onPointerOutObservable.add((e) => {
+		buttonText.text.forEach((x) => (x.underline = false));
+		buttonText._markAsDirty();
+	});
+
+	button.addControl(buttonText)
+
+
+	const rescale = (x) => {
+		button.height = `${17 * scale}px`;
+		button.width = `${64 * scale}px`;
+		buttonText.fontSize = 6 * scale;
+	};
+
+	event.on('scale-change', rescale);
+
+	button.onDisposeObservable.add(() => {
+		event.off('scale-change', rescale);
+	});
+
+
+	return {button, buttonText}
+}

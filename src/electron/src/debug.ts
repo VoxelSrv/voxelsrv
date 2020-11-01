@@ -12,11 +12,12 @@ function createWindow() {
 		autoHideMenuBar: true,
 	});
 
-	// and load the index.html of the app.
-	mainWindow.loadFile(path.join(__dirname, '../../../docs/index.html'));
+	mainWindow.loadURL('http://localhost:8080');
 
-	require('./main')
-	
+	mainWindow.webContents.openDevTools();
+
+	require('./main');
+
 	// Open the DevTools.
 	//mainWindow.webContents.openDevTools();
 }

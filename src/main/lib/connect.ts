@@ -232,8 +232,8 @@ export function connect(noax, socketx) {
 						}
 
 						let sin = Math.sin(model.x);
-						if (vec3.distance(pos2da, pos2db) > 0.05) {
-							model.y = vec3.distance(pos2da, pos2db) / 5;
+						if (vec3.dist(pos2da, pos2db) > 0.05) {
+							model.y = vec3.dist(pos2da, pos2db) / 5;
 							model.x = model.x + model.y;
 							if (Math.abs(sin) > 0.95) model.z = true;
 							else if (Math.abs(sin) < 0.05) model.z = false;

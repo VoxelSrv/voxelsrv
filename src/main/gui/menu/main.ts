@@ -1,5 +1,6 @@
 import { getScreen, scale, event } from '../main';
 import * as GUI from '@babylonjs/gui/';
+import buildSingleplayer from './singleplayer';
 import buildMultiplayer from './multiplayer';
 import buildSettings from './settings';
 import { gameVersion, hostedOn } from '../../values';
@@ -40,6 +41,11 @@ export function buildMainMenu(noa) {
 	function openMenu(type: string) {
 		if (!!activeMenu) activeMenu.dispose();
 		switch (type) {
+			case 'singleplayer':
+				activeMenu = buildSingleplayer(noa, openMenu);
+				active = 'singleplayer';
+				document.title = 'VoxelSrv - Singleplayer Menu';
+				break;
 			case 'multiplayer':
 				activeMenu = buildMultiplayer(noa, openMenu);
 				active = 'multiplayer';
@@ -82,6 +88,16 @@ export function buildMainMenu(noa) {
 		const items = new GUI.StackPanel();
 		items.zIndex = 20;
 		menu.addControl(items);
+
+		if (window['electron'] != undefined) {
+			const singleplayer = createItem();
+			singleplayer.text.text = [{ text: 'Singleplayer', color: 'white', font: 'Lato' }];
+			singleplayer.item.onPointerClickObservable.add((e) => {
+				openMenu('singleplayer');
+			});
+			items.addControl(singleplayer.item);
+	
+		}
 
 		const multiplayer = createItem();
 		multiplayer.text.text = [{ text: 'Multiplayer', color: 'white', font: 'Lato' }];

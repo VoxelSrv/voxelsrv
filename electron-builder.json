@@ -1,13 +1,15 @@
 {
 	"appId": "eu.pb4.voxelsrv",
 	"productName": "VoxelSrv",
-	"asar": true,
+	"asar": false,
 	"directories": {
-		"output": "build"
+		"output": "./build"
 	},
-	"files": ["./package.json", "./src/electron/dist/*", "./docs/*",  "./docs/**/*"],
+	"files": ["./package.json", "./src/electron/dist/*", "./docs/*", "./docs/**/*"],
 	"linux": {
 		"category": "Games",
+		"icon": "./other/icons",
+		"synopsis": "Simple voxel game",
 		"target": [
 			{
 				"target": "AppImage",
@@ -16,6 +18,7 @@
 		]
 	},
 	"win": {
+		"icon": "./other/icons/icon.ico",
 		"target": [
 			{
 				"target": "nsis",

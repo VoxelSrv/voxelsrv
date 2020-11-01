@@ -279,4 +279,5 @@ export function setupPlayer(noa: any, invData: object, arrData: object, movement
 		mesh: new BABYLON.Mesh('main', scene),
 		offset: offset,
 	});
+
 }
