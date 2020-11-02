@@ -8,16 +8,19 @@ export const event = new EventEmitter();
 let chunkStorage: { [index: string]: any } = {};
 
 export function setChunk(data: IWorldChunkLoad) {
+	let array: Uint16Array
 	if (data.compressed) {
 		let x = 0;
 		if (data.type) x = 32 * 256 * 32;
 		else x = 32 ^ 3;
 
-		data.data = pako.inflate(data.data, new Uint16Array(x));
+		//data.data = pako.inflate(data.data, new Uint16Array(x));
 	}
 
+	array = new Uint16Array(data.data.buffer, data.data.byteOffset);
+
 	if (data.type) {
-		const chunk = new ndarray(data.data, [32, 256, 32]);
+		const chunk = new ndarray(array, [32, 256, 32]);
 
 		for (var yoff = 0; yoff < 8; yoff++) {
 			const noaChunk = new ndarray(new Uint16Array(32 * 32 * 32), [32, 32, 32]);
@@ -29,6 +32,7 @@ export function setChunk(data: IWorldChunkLoad) {
 					for (let y = 0; y < 32; y++) {
 						const block = chunk.get(x, y + yoff * 32, z);
 						noaChunk.set(x, y, z, block);
+						if (block > 255) console.log(block)
 					}
 				}
 			}
@@ -38,7 +42,7 @@ export function setChunk(data: IWorldChunkLoad) {
 		}
 	} else {
 		const localID = [data.x, data.y, data.z].join('|');
-		const chunk = new ndarray(Uint16Array.from(data.data), [32, 32, 32]);
+		const chunk = new ndarray(array, [32, 32, 32]);
 
 		event.emit(`load-${localID}`, chunk);
 		event.emit(`loadany`, localID, chunk);

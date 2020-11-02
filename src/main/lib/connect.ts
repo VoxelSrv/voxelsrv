@@ -1,4 +1,4 @@
-import { gameSettings, gameProtocol, updateServerSettings } from '../values';
+import { gameSettings, gameProtocol, updateServerSettings, gameVersion } from '../values';
 import { isMobile } from 'mobile-device-detect';
 import { buildMainMenu, holder } from '../gui/menu/main';
 import { setupGuis, destroyGuis } from '../gui/setup';
@@ -14,6 +14,7 @@ import { cloudMesh, setupClouds } from './sky';
 import vec3 = require('gl-vec3');
 import { BaseSocket } from '../socket';
 import { setTab } from '../gui/tab';
+import { IChatMessage, ILoginRequest, ILoginSuccess, IPlayerEntity, IPlayerInventory, IPlayerKick, IPlayerSlotUpdate, IPlayerTeleport, IUpdateGameplaySetting, IWorldBlockUpdate, IWorldChunkLoad, IWorldChunkUnload } from 'voxelsrv-protocol/js/server';
 
 export let socket: BaseSocket | null = null;
 let chunkInterval: any = null;
@@ -46,10 +47,12 @@ export function connect(noax, socketx) {
 
 	const entityList = {};
 
-	socket.on('PlayerKick', function (data) {
+	socket.on('PlayerKick', function (data: IPlayerKick) {
 		socket.close();
 		noa.ents.getPhysics(noa.playerEntity).body.airDrag = 9999;
-		Object.values(entityList).forEach((x) => noa.ents.deleteEntity(x));
+		Object.values(entityList).forEach((x) => {
+			noa.ents.deleteEntity(x, true);
+		});
 		console.log(`You has been kicked from server \nReason: ${data.reason}`);
 		stopListening(noa);
 		destroyGuis();
@@ -58,20 +61,29 @@ export function connect(noax, socketx) {
 		return;
 	});
 
-	socket.on('LoginRequest', function (dataLogin) {
+	socket.on('LoginRequest', function (dataLogin: ILoginRequest) {
 		noa.worldName = `World-${Math.random() * 10000}`;
 		noa.camera.heading = 0;
 		noa.camera.pitch = 0;
+
+		let auth = '';
+
+		if (dataLogin.auth) {
+			// Todo, there is not auth yet
+		}
 
 		socket.send('LoginResponse', {
 			username: gameSettings.nickname,
 			protocol: gameProtocol,
 			mobile: isMobile,
+			client: `VoxelSrv ${gameVersion}`,
+			uuid: gameSettings.nickname.toLocaleLowerCase(),
+			secret: auth,
 		});
 
-		let entityIgnore = 0;
+		let entityIgnore: string = '';
 
-		socket.on('PlayerEntity', function (data) {
+		socket.on('PlayerEntity', function (data: IPlayerEntity) {
 			console.log('Ignoring player-entity: ' + data.uuid);
 			entityIgnore = data.uuid;
 			if (entityList[data.uuid] != undefined && noa != undefined) noa.ents.deleteEntity(entityList[data.uuid]);
@@ -80,7 +92,7 @@ export function connect(noax, socketx) {
 
 		if (!firstLogin) return;
 
-		socket.on('LoginSuccess', function (dataPlayer) {
+		socket.on('LoginSuccess', function (dataPlayer: ILoginSuccess) {
 			updateServerSettings({ ingame: true });
 			destroyGuis();
 			clearStorage();
@@ -100,24 +112,30 @@ export function connect(noax, socketx) {
 			noa.ents.setPosition(noa.playerEntity, dataPlayer.xPos, dataPlayer.yPos, dataPlayer.zPos);
 
 			if (!firstLogin) return;
-			firstLogin = false
+			firstLogin = false;
 
-			socket.on('WorldChunkLoad', function (data) {
+			socket.on('WorldChunkLoad', function (data: IWorldChunkLoad) {
 				setChunk(data);
 			});
 
-			socket.on('WorldChunkUnload', function (data) {
+			socket.on('WorldChunkUnload', function (data: IWorldChunkUnload) {
 				if (data.type) {
 					for (let x = 0; x <= 8; x++) removeChunk(`${data.x}|${x}|${data.z}`);
 				} else removeChunk(`${data.x}|${data.y}|${data.z}`);
 			});
 
-			socket.on('WorldBlockUpdate', function (data) {
+			socket.on('WorldBlockUpdate', function (data: IWorldBlockUpdate) {
 				noa.setBlock(data.id, data.x, data.y, data.z);
 				chunkSetBlock(data.id, data.x, data.y, data.z);
 			});
 
-			socket.on('PlayerInventory', function (data) {
+			socket.on('UpdateGameplaySetting', function (data: IUpdateGameplaySetting) {
+				const x = {};
+				x[data.key] = data.value;
+				updateServerSettings(x);
+			});
+
+			socket.on('PlayerInventory', function (data: IPlayerInventory) {
 				const inv = JSON.parse(data.inventory);
 				if (data.type == 'armor') {
 					noa.ents.getState(noa.playerEntity, 'inventory').armor = inv;
@@ -129,7 +147,7 @@ export function connect(noax, socketx) {
 				}
 			});
 
-			socket.on('PlayerSlotUpdate', function (data) {
+			socket.on('PlayerSlotUpdate', function (data: IPlayerSlotUpdate) {
 				const item = JSON.parse(data.data);
 				const inv = noa.ents.getState(noa.playerEntity, 'inventory');
 
@@ -147,7 +165,7 @@ export function connect(noax, socketx) {
 				setTab(data.message);
 			});
 
-			socket.on('PlayerTeleport', function (data) {
+			socket.on('PlayerTeleport', function (data: IPlayerTeleport) {
 				noa.ents.setPosition(noa.playerEntity, data.x, data.y, data.z);
 			});
 

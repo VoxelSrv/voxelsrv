@@ -34,7 +34,7 @@ export function setupControls(noa: any) {
 		const items: Array<any> = Object.entries(inventory.items);
 
 		for (let x = 0; x < items.length; x++) {
-			if (items[x] != null && items[x][1].id == item && items[x][1].count >= count) return parseInt(items[x][0]);
+			if (items[x] != null && items[x][1] != null && items[x][1].id == item && items[x][1].count >= count) return parseInt(items[x][0]);
 		}
 		return -1;
 	}
@@ -132,7 +132,9 @@ export function setupControls(noa: any) {
 		if (inventory.isVisible) {
 			inventory.isVisible = false;
 			noa.container.canvas.requestPointerLock();
+			socketSend('ActionInventoryClose', { inventory: 'main' });
 		} else {
+			socketSend('ActionInventoryOpen', { inventory: 'main' });
 			inventory.isVisible = true;
 			document.exitPointerLock();
 		}
@@ -171,6 +173,7 @@ export function setupControls(noa: any) {
 
 		if (inventory.isVisible) {
 			inventory.isVisible = false;
+			socketSend('ActionInventoryClose', { inventory: 'main' });
 			return;
 		}
 
