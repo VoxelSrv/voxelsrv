@@ -5,7 +5,7 @@
 	"main": "src/electron/dist/index.js",
 	"scripts": {
 		"start": "cd src/main/ && npx webpack-dev-server",
-		"build": "rm docs/*.js && cd src/main && npx webpack --env.production && cd ../electron && tsc",
+		"build": "rm docs/*.js & cd src/main && npx webpack --env.production && cd ../electron && tsc",
 		"electron": "cd src/electron && tsc && electron dist/index.js",
 		"test-electron": "cd src/electron && tsc && electron dist/debug.js"
 	},
@@ -20,9 +20,9 @@
 	"author": "Patbox <patbox4@outlook.com> (https://pb4.eu)",
 	"license": "MIT",
 	"dependencies": {
-		"@babylonjs/core": "^4.2.0-beta.21",
-		"@babylonjs/gui": "^4.2.0-beta.21",
-		"@babylonjs/materials": "^4.2.0-beta.21",
+		"@babylonjs/core": "^4.2.0-rc.2",
+		"@babylonjs/gui": "^4.2.0-rc.2",
+		"@babylonjs/materials": "^4.2.0-rc.2",
 		"@types/css-font-loading-module": "0.0.4",
 		"@types/peerjs": "^1.1.0",
 		"canvas-screenshot": "^3.0.0",
@@ -45,9 +45,9 @@
 	},
 	"devDependencies": {
 		"@types/ws": "^7.2.9",
-		"electron": "^11.0.0-beta.18",
+		"electron": "^11.0.0-beta.19",
 		"electron-builder": "^22.9.1",
-		"ts-loader": "^8.0.7",
+		"ts-loader": "^8.0.8",
 		"typescript": "^4.0.5",
 		"webpack": "^4.44.2",
 		"webpack-cli": "^3.3.12",

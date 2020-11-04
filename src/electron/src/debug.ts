@@ -11,7 +11,8 @@ function createWindow() {
 		},
 		autoHideMenuBar: true,
 	});
-
+	
+	mainWindow.setMenu(null);
 	mainWindow.loadURL('http://localhost:8080');
 
 	mainWindow.webContents.openDevTools();

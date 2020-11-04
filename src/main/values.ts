@@ -2,7 +2,7 @@ import { saveSettings } from './lib/storage';
 import { isMobile, isFirefox } from 'mobile-device-detect';
 import { setScale } from './gui/main';
 
-export const gameVersion = '0.2.0-beta.9';
+export const gameVersion = '0.2.0-beta.9.1';
 
 export const gameProtocol = 2;
 

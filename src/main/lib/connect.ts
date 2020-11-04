@@ -154,6 +154,7 @@ export function connect(noax, socketx) {
 				if (data.type == 'temp') inv.tempslot = item;
 				else if (data.type == 'main') inv.items[data.slot] = item;
 				else if (data.type == 'armor') inv.armor.items[data.slot] = item;
+				else if (data.type == 'crafting') inv.crafting[data.slot] = item;
 				else if (data.type == 'hook') inv.hook.items[data.slot] = item;
 			});
 

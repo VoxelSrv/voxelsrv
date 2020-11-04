@@ -13,6 +13,7 @@ function createWindow() {
 	});
 
 	// and load the index.html of the app.
+	mainWindow.setMenu(null);
 	mainWindow.loadFile(path.join(__dirname, '../../../docs/index.html'));
 
 	require('./main');

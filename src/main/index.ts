@@ -28,7 +28,7 @@ const noa: any = new Engine(noaOpts());
 
 noa.ents.createComponent({
 	name: 'inventory',
-	state: { items: {}, selected: 0, tempslot: {}, armor: {} },
+	state: { items: {}, selected: 0, tempslot: {}, armor: {}, crafting: {} },
 });
 
 setNoa(noa);

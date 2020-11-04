@@ -278,9 +278,10 @@ export function setupPlayer(noa: any, invData: object, arrData: object, movement
 	if (invData != undefined) noa.ents.addComponentAgain(eid, 'inventory', invData);
 	if (arrData != undefined) noa.ents.getState(eid, 'inventory').armor = arrData;
 
+	noa.ents.getState(eid, 'inventory').crafting = { 1: {}, 2: {}, 3: {}, 4: {} };
+
 	noa.entities.addComponentAgain(eid, noa.entities.names.mesh, {
 		mesh: new BABYLON.Mesh('main', scene),
 		offset: offset,
 	});
-
 }
