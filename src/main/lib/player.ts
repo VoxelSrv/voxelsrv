@@ -221,7 +221,15 @@ export function setupControls(noa: any) {
 			if (pickedID >= gameSettings.hotbarsize) pickedID = 0;
 			else if (pickedID < 0) pickedID = 8;
 			socketSend('ActionInventoryClick', { slot: pickedID, type: 'select' });
-			noa.ents.getState(noa.playerEntity, 'inventory').selected = pickedID;
+			noa.ents.getState(eid, 'inventory').selected = pickedID;
+		}
+
+		if (noa.inputs.state.jump) {
+			const pos = noa.ents.getPosition(eid);
+			const block = blocks[blockIDmap[noa.getBlock(Math.floor(pos[0]), Math.floor(pos[1]), Math.floor(pos[2]))]];
+			if (block != undefined && block.options.fluid == true) {
+				noa.ents.getPhysicsBody(eid).applyImpulse([0, 1, 0]);
+			}
 		}
 	});
 
@@ -233,7 +241,7 @@ export function setupControls(noa: any) {
 			let pickedID = noa.ents.getState(eid, 'inventory').selected;
 			pickedID = num - 1;
 			socketSend('ActionInventoryClick', { slot: pickedID, type: 'select' });
-			noa.ents.getState(noa.playerEntity, 'inventory').selected = pickedID;
+			noa.ents.getState(eid, 'inventory').selected = pickedID;
 		}
 	});
 

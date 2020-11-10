@@ -16,14 +16,19 @@ import { setupGamepad } from './lib/gamepad';
 import { warningFirefox } from './gui/warnings';
 import { getChunk, event as worldEvent } from './lib/world';
 
+import * as ndarray from 'ndarray';
+import { spawn, Worker } from 'threads';
 
-import ndarray = require('ndarray');
+spawn(new Worker('./lib/worldInflate')).then((x) => {
+	window['inflate'] = x;
+});
 
 defaultFonts.forEach((font) => document.fonts.load(`10pt "${font}"`));
 
 getSettings().then((data) => updateSettings(data));
 
 // @ts-ignore
+
 const noa: any = new Engine(noaOpts());
 
 noa.ents.createComponent({
@@ -53,7 +58,6 @@ noa.world.on('worldDataNeeded', async (id: string, array) => {
 		});
 });
 
-
 worldEvent.on('loadany', (id, chunk) => {
 	noa.world.setChunkData(id, new ndarray(chunk.data, chunk.shape));
 });
@@ -68,8 +72,8 @@ noa.on('beforeRender', async () => {
 });
 
 window.onerror = function (msg, url, lineNo, columnNo, error) {
-	alert(`${msg}\nPlease report this error at: https://github.com/VoxelSrv/voxelsrv/issues`)
-}
+	alert(`${msg}\nPlease report this error at: https://github.com/VoxelSrv/voxelsrv/issues`);
+};
 
 window['connect'] = (x) => {
 	connect(noa, new MPSocket(x));
@@ -83,7 +87,7 @@ window['forceplay'] = () => {
 	updateServerSettings({ ingame: true });
 };
 
-window.onload = function () {
+setTimeout(() => {
 	if (isMobile) {
 		setupMobile(noa);
 		const link = document.createElement('link');
@@ -118,7 +122,7 @@ window.onload = function () {
 
 	if (window['electron'] != undefined) {
 		window['electron'].on('world-started', (e, port) => {
-			connect(noa, new MPSocket(`ws://localhost:${port}`))
-		})
+			connect(noa, new MPSocket(`ws://localhost:${port}`));
+		});
 	}
-};
+}, 1000);

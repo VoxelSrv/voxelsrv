@@ -2,7 +2,7 @@ import { saveSettings } from './lib/storage';
 import { isMobile, isFirefox } from 'mobile-device-detect';
 import { setScale } from './gui/main';
 
-export const gameVersion = '0.2.0-beta.9.1';
+export const gameVersion = '0.2.0-beta.9.2';
 
 export const gameProtocol = 2;
 
@@ -14,7 +14,7 @@ export const defaultSettings = {
 	singleplayer: false,
 	allowcustom: false,
 	mouse: isMobile ? 50 : 15,
-	viewDistance: isMobile ? 3 : (isFirefox ? 2 : 6),
+	viewDistance: isMobile ? 3 : isFirefox ? 2 : 6,
 	hotbarsize: 9,
 	scale: 3,
 };
@@ -102,6 +102,21 @@ export const defaultFonts = [
 	'Lato-LightItalic',
 	'Lato-Thin',
 	'Lato-ThinItalic',
+	'PixelOperator-Bold',
+	'PixelOperator',
+	'PixelOperator8-Bold',
+	'PixelOperator8',
+	'PixelOperatorHB',
+	'PixelOperatorHB8',
+	'PixelOperatorHBSC',
+	'PixelOperatorMono-Bold',
+	'PixelOperatorMono',
+	'PixelOperatorMono8-Bold',
+	'PixelOperatorMono8',
+	'PixelOperatorMonoHB',
+	'PixelOperatorMonoHB8',
+	'PixelOperatorSC-Bold',
+	'PixelOperatorSC',
 ];
 
 export let noa = null;
@@ -117,7 +132,34 @@ if (hostname == '0.0.0.0' || hostname == 'localhost') tempHost = 'Localhost/DEV'
 else if (hostname == 'voxelsrv-master.pb4.eu') tempHost = 'Development';
 else if (hostname == 'voxelsrv.pb4.eu') tempHost = '';
 else if (hostname == 'pb4.eu') tempHost = '';
-else if (window['electron'] != undefined) tempHost = ''
+else if (window['electron'] != undefined) tempHost = '';
 else tempHost = 'Unofficial/Undefined rehost!';
 
 export const hostedOn = tempHost;
+
+const splashes = [
+	[{ text: `It's not Minecraft clone... or is it?` }],
+	[{ text: `Written in Typescript` }],
+	[{ text: `Powered by Noa Engine` }],
+	[{ text: `Open Source` }],
+	[{ text: `Multiplayer supported!` }],
+	[{ text: `You can fork it!` }],
+	[{ text: `Available on github` }],
+	[{ text: `Bottom text` }],
+	[{ text: `Pixelated`, font: 'PixelOperator-Bold' }],
+	[{ text: `In development` }],
+	[{ text: `404: File not found` }],
+	[{ text: `:concern:` }],
+	[{ text: `🥔` }],
+	[{ text: `Works in browser` }],
+	[{ text: `youtu.be/dQw4w9WgXcQ` }],
+];
+
+if (window['electron'] != undefined) {
+	splashes.push([{ text: `Now with singleplayer` }]);
+}
+
+export function getSplash() {
+	let x = Math.floor(Math.random() * splashes.length);
+	return splashes[x];
+}

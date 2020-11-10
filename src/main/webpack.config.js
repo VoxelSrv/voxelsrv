@@ -2,6 +2,7 @@ var path = require('path');
 var buildPath = path.resolve('..', '..', 'docs');
 
 var webpack = require('webpack');
+const ThreadsPlugin = require('threads-plugin');
 
 module.exports = (env) => ({
 	mode: (() => {
@@ -30,10 +31,7 @@ module.exports = (env) => ({
 	},
 	stats: {
 		modules: false,
-		warningsFilter: [
-			/..\/node_modules\/peerjs\/dist\/peerjs.min.js/,
-		]
-
+		warningsFilter: [/..\/node_modules\/peerjs\/dist\/peerjs.min.js/],
 	},
 	devServer: {
 		contentBase: buildPath,
@@ -57,4 +55,5 @@ module.exports = (env) => ({
 			},
 		},
 	},
+	plugins: [new ThreadsPlugin()],
 });

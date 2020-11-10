@@ -11,7 +11,7 @@ import { setChunk, clearStorage, removeChunk, chunkSetBlock } from './world';
 import { playSound } from './sound';
 import { cloudMesh, setupClouds } from './sky';
 
-import vec3 = require('gl-vec3');
+import * as vec3 from 'gl-vec3';
 import { BaseSocket } from '../socket';
 import { setTab } from '../gui/tab';
 import { IChatMessage, ILoginRequest, ILoginSuccess, IPlayerEntity, IPlayerInventory, IPlayerKick, IPlayerSlotUpdate, IPlayerTeleport, IUpdateGameplaySetting, IWorldBlockUpdate, IWorldChunkLoad, IWorldChunkUnload } from 'voxelsrv-protocol/js/server';

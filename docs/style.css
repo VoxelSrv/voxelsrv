@@ -1,56 +1,131 @@
 @font-face {
 	font-family: 'silkscreen';
-	src:  url('./fonts/silkscreen.ttf') format('truetype')
+	src: url('./fonts/silkscreen.ttf') format('truetype');
 }
 
 @font-face {
 	font-family: 'Lato';
-	src:  url('./fonts/Lato/Lato-Regular.ttf') format('truetype')
+	src: url('./fonts/Lato/Lato-Regular.ttf') format('truetype');
 }
 
 @font-face {
 	font-family: 'Lato-Italic';
-	src:  url('./fonts/Lato/Lato-Regular.ttf') format('truetype')
+	src: url('./fonts/Lato/Lato-Regular.ttf') format('truetype');
 }
 
 @font-face {
 	font-family: 'Lato-Black';
-	src:  url('./fonts/Lato/Lato-Black.ttf') format('truetype')
+	src: url('./fonts/Lato/Lato-Black.ttf') format('truetype');
 }
 
 @font-face {
 	font-family: 'Lato-BlackItalic';
-	src:  url('./fonts/Lato/Lato-BlackItalic.ttf') format('truetype')
+	src: url('./fonts/Lato/Lato-BlackItalic.ttf') format('truetype');
 }
 
 @font-face {
 	font-family: 'Lato-Bold';
-	src:  url('./fonts/Lato/Lato-Black.ttf') format('truetype')
+	src: url('./fonts/Lato/Lato-Black.ttf') format('truetype');
 }
 
 @font-face {
 	font-family: 'Lato-BoldItalic';
-	src:  url('./fonts/Lato/Lato-BlackItalic.ttf') format('truetype')
+	src: url('./fonts/Lato/Lato-BlackItalic.ttf') format('truetype');
 }
 
 @font-face {
 	font-family: 'Lato-Light';
-	src:  url('./fonts/Lato/Lato-Black.ttf') format('truetype')
+	src: url('./fonts/Lato/Lato-Black.ttf') format('truetype');
 }
 
 @font-face {
 	font-family: 'Lato-LightItalic';
-	src:  url('./fonts/Lato/Lato-BlackItalic.ttf') format('truetype')
+	src: url('./fonts/Lato/Lato-BlackItalic.ttf') format('truetype');
 }
 
 @font-face {
 	font-family: 'Lato-Thin';
-	src:  url('./fonts/Lato/Lato-Black.ttf') format('truetype')
+	src: url('./fonts/Lato/Lato-Black.ttf') format('truetype');
 }
 
 @font-face {
 	font-family: 'Lato-ThinItalic';
-	src:  url('./fonts/Lato/Lato-BlackItalic.ttf') format('truetype')
+	src: url('./fonts/Lato/Lato-BlackItalic.ttf') format('truetype');
+}
+
+@font-face {
+	font-family: 'PixelOperator-Bold';
+	src: url('./fonts/PixelOperator/PixelOperator-Bold.ttf') format('truetype');
+}
+
+@font-face {
+	font-family: 'PixelOperator';
+	src: url('./fonts/PixelOperator/PixelOperator.ttf') format('truetype');
+}
+
+@font-face {
+	font-family: 'PixelOperator8-Bold';
+	src: url('./fonts/PixelOperator/PixelOperator8-Bold.ttf') format('truetype');
+}
+
+@font-face {
+	font-family: 'PixelOperator8';
+	src: url('./fonts/PixelOperator/PixelOperator8.ttf') format('truetype');
+}
+
+@font-face {
+	font-family: 'PixelOperatorHB';
+	src: url('./fonts/PixelOperator/PixelOperatorHB.ttf') format('truetype');
+}
+
+@font-face {
+	font-family: 'PixelOperatorHB8';
+	src: url('./fonts/PixelOperator/PixelOperatorHB8.ttf') format('truetype');
+}
+
+@font-face {
+	font-family: 'PixelOperatorHBSC';
+	src: url('./fonts/PixelOperator/PixelOperatorHBSC.ttf') format('truetype');
+}
+
+@font-face {
+	font-family: 'PixelOperatorMono-Bold';
+	src: url('./fonts/PixelOperator/PixelOperatorMono-Bold.ttf') format('truetype');
+}
+
+@font-face {
+	font-family: 'PixelOperatorMono';
+	src: url('./fonts/PixelOperator/PixelOperatorMono.ttf') format('truetype');
+}
+
+@font-face {
+	font-family: 'PixelOperatorMono8-Bold';
+	src: url('./fonts/PixelOperator/PixelOperatorMono8-Bold.ttf') format('truetype');
+}
+
+@font-face {
+	font-family: 'PixelOperatorMono8';
+	src: url('./fonts/PixelOperator/PixelOperatorMono8.ttf') format('truetype');
+}
+
+@font-face {
+	font-family: 'PixelOperatorMonoHB';
+	src: url('./fonts/PixelOperator/PixelOperatorMonoHB.ttf') format('truetype');
+}
+
+@font-face {
+	font-family: 'PixelOperatorMonoHB8';
+	src: url('./fonts/PixelOperator/PixelOperatorMonoHB8.ttf') format('truetype');
+}
+
+@font-face {
+	font-family: 'PixelOperatorSC-Bold';
+	src: url('./fonts/PixelOperator/PixelOperatorSC-Bold.ttf') format('truetype');
+}
+
+@font-face {
+	font-family: 'PixelOperatorSC';
+	src: url('./fonts/PixelOperator/PixelOperatorSC.ttf') format('truetype');
 }
 
 *:focus {
@@ -58,30 +133,29 @@
 }
 
 .inventory_item {
-	z-index:2;
+	z-index: 2;
 	display: inline-block;
-	color:white;
+	color: white;
 	background-color: #00000088;
-	height:64px;
-	width:64px;
-	font-size:20px;
-	text-align:center; 
+	height: 64px;
+	width: 64px;
+	font-size: 20px;
+	text-align: center;
 	margin: 2px;
 	margin-bottom: -10px;
-	padding:8px;
+	padding: 8px;
 	transition: background-color 0.1s;
-
 }
 
 .inventory_temp {
 	position: fixed;
-	z-index:3;
-	color:white;
-	height:64px;
-	width:64px;
-	font-size:20px;
-	text-align:center; 
-	padding:8px;
+	z-index: 3;
+	color: white;
+	height: 64px;
+	width: 64px;
+	font-size: 20px;
+	text-align: center;
+	padding: 8px;
 	pointer-events: none;
 }
 
@@ -90,34 +164,33 @@
 }
 
 .inventory_item_bin {
-	z-index:2;
+	z-index: 2;
 	display: inline-block;
-	color:white;
+	color: white;
 	background-color: #eeeeee88;
-	height:64px;
-	width:64px;
-	font-size:20px;
-	text-align:center; 
+	height: 64px;
+	width: 64px;
+	font-size: 20px;
+	text-align: center;
 	margin: 2px;
-	padding:8px;
+	padding: 8px;
 	transition: background-color 0.1s;
-
 }
 
 .inventory_item_bin:hover {
 	background-color: #ffffff88;
 }
 .inventory_item_hotbar {
-	z-index:2;
+	z-index: 2;
 	display: inline-block;
-	color:white;
+	color: white;
 	background-color: #61616188;
-	height:64px;
-	width:64px;
-	font-size:20px;
-	text-align:center; 
+	height: 64px;
+	width: 64px;
+	font-size: 20px;
+	text-align: center;
 	margin: 2px;
-	padding:8px;
+	padding: 8px;
 	transition: background-color 0.1s;
 }
 
@@ -127,9 +200,9 @@
 
 .item_count {
 	position: relative;
-	bottom:21px;
-	right:-3px;
-	font-family:'lato';
+	bottom: 21px;
+	right: -3px;
+	font-family: 'lato';
 	font-weight: bold;
 	text-shadow: black 1px 1px;
 	pointer-events: none;
@@ -138,8 +211,8 @@
 .item_icon {
 	image-rendering: pixelated;
 	background-size: cover;
-   	height:48px;
-	width:48px;
+	height: 48px;
+	width: 48px;
 	display: block;
 	margin: auto auto;
 	pointer-events: none;
@@ -157,142 +230,137 @@
 	z-index: 10;
 }
 
-.cube_face-top  { 
+.cube_face-top {
 	transform: rotatex(90deg) translateX(40.1px) translateY(24.4px) translateZ(48.8px);
 }
-.cube_face-left  { 
+.cube_face-left {
 	transform: rotatey(90deg) translateX(0px) translateY(-0.7px) translateZ(16.5px) translateX(15px);
-	filter: brightness(80%)
+	filter: brightness(80%);
 }
 .cube_face-right {
-	filter: brightness(90%)
+	filter: brightness(90%);
 }
-
 
 .cube_face {
 	background-size: cover;
 	position: absolute;
-	height:32px;
-	width:32px;
+	height: 32px;
+	width: 32px;
 	top: 25px;
-	right:25px;
+	right: 25px;
 }
 .cube {
 	transform-style: preserve-3d;
 	transform: rotateX(-30deg) rotateY(-45deg) rotateZ(0deg);
-
-	
 }
 
 #game_chatbox {
-	position:absolute;
-	bottom:75px;
-	left:5px;
-	z-index:0;
-	color:white;
-	font-family:'lato';
+	position: absolute;
+	bottom: 75px;
+	left: 5px;
+	z-index: 0;
+	color: white;
+	font-family: 'lato';
 	text-shadow: 1px 1px black;
-	background-color:rgba(0,0,0,0.3);
-	font-size:22px;
-	margin:4px;
-	max-height:500px;
+	background-color: rgba(0, 0, 0, 0.3);
+	font-size: 22px;
+	margin: 4px;
+	max-height: 500px;
 	overflow-y: scroll;
-	display:flex;
+	display: flex;
 	flex-direction: column-reverse;
 }
 
 #game_chatinput {
-	position:absolute;
-	bottom:8px;
-	left:8px;
-	z-index:1;
-	color:white;
-	font-family:'lato';
+	position: absolute;
+	bottom: 8px;
+	left: 8px;
+	z-index: 1;
+	color: white;
+	font-family: 'lato';
 	text-shadow: 1px 1px black;
-	background-color:rgba(0,0,0,0.65);
+	background-color: rgba(0, 0, 0, 0.65);
 	border: 0px;
-    border-radius: 0px;
-	font-size:22px;
-	max-height:37px;
+	border-radius: 0px;
+	font-size: 22px;
+	max-height: 37px;
 }
 
 #game_version {
-	font-family:'lato';
+	font-family: 'lato';
 }
 
 #game_tab {
 	background-color: #18181888;
-	font-family:'lato';
-	color:white;
-	font-size:22px;
+	font-family: 'lato';
+	color: white;
+	font-size: 22px;
 	max-height: 400px;
 	max-width: 600px;
 	min-width: 200px;
 	min-height: 100px;
 	position: absolute;
-	z-index:1;
+	z-index: 1;
 	position: fixed;
-	bottom:50%;
-	left:50%;
+	bottom: 50%;
+	left: 50%;
 	transform: translate(-50%, 50%);
 	padding: 20px;
 }
 
 .chat_line p {
 	margin-top: 0;
-    margin-bottom: 0.2rem;
+	margin-bottom: 0.2rem;
 }
 
-
 body {
-	background-image: url("./textures/block/birch_planks.png");
+	background-image: url('./textures/block/birch_planks.png');
 	background-size: 80px;
 	image-rendering: pixelated;
 	overflow: hidden;
 }
 
 #game_inventory ::-webkit-scrollbar {
-    width: 8px;
+	width: 8px;
 }
 
 #game_inventory ::-webkit-scrollbar-track {
-	background: rgba(2,0,0,0.4); 
+	background: rgba(2, 0, 0, 0.4);
 }
 
 #game_inventory ::-webkit-scrollbar-thumb {
-    background: rgba(255,0,0,0.6); 
+	background: rgba(255, 0, 0, 0.6);
 }
 #game_inventory ::-webkit-scrollbar-thumb:window-inactive {
-	background: rgba(255,0,0,0.4); 
+	background: rgba(255, 0, 0, 0.4);
 }
 
-
 #game_chatbox::-webkit-scrollbar {
-    width: 0px;
+	width: 0px;
 }
 
 #game_version {
-	position:absolute;
-	top:5;
-	left:5;
-	z-index:0;
-	color:white;
+	position: absolute;
+	top: 5;
+	left: 5;
+	z-index: 0;
+	color: white;
 	text-shadow: 1px 1px black;
-	font-size:20px;
-	margin:4px;
+	font-size: 20px;
+	margin: 4px;
 }
 
 #game_cross {
-	position:absolute;
-	top:50%;
-	left:50%;
-	z-index:0;
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	z-index: 0;
 	transform: translate(-50% -50%);
-	border-radius:50%;
+	border-radius: 50%;
 	background-color: white;
 	filter: opacity(0.5);
-	height:6px;
-	width:6px;
+	height: 6px;
+	width: 6px;
 	backdrop-filter: invert(1);
 }
 
@@ -303,16 +371,15 @@ body {
 	right: 0px;
 	bottom: 0px;
 	left: 0px;
-	z-index:1;
-	color:white;
-	height:auto;
-	width:auto;
+	z-index: 1;
+	color: white;
+	height: auto;
+	width: auto;
 	background-color: #00000055;
-	font-size:2em;
-	text-align:center;
-	padding:3px;
-	min-width:2em;
-	
+	font-size: 2em;
+	text-align: center;
+	padding: 3px;
+	min-width: 2em;
 }
 
 #game_inventory {
@@ -320,13 +387,12 @@ body {
 	position: relative;
 	top: 50%;
 	transform: translate(0, -50%);
-	z-index:2;
+	z-index: 2;
 	width: 100%;
-	color:white;
-	padding:3px;
-	min-width:2em;
+	color: white;
+	padding: 3px;
+	min-width: 2em;
 }
-
 
 #game_inventory_backpack {
 	max-height: 410px;
@@ -334,7 +400,6 @@ body {
 	display: inline-block;
 	overflow-y: scroll;
 }
-
 
 #menu_screen {
 	/*backdrop-filter: blur(2px);*/
@@ -344,8 +409,8 @@ body {
 	bottom: 0px;
 	left: 0px;
 	z-index: 100;
-	height:auto;
-	width:auto;
+	height: auto;
+	width: auto;
 	/*background-color: #00000055;*/
 	background-size: cover;
 }
@@ -356,12 +421,12 @@ body {
 	top: 5vh;
 	left: 5vh;
 	z-index: 100;
-	color:white;
+	color: white;
 	height: 90vh;
 	width: calc(200px + 50vw);
 	background-color: #00000066;
-	padding:3px;
-	min-width:2em;
+	padding: 3px;
+	min-width: 2em;
 }
 
 #menu_options {
@@ -369,10 +434,10 @@ body {
 	position: absolute;
 	top: 50%;
 	transform: translate(0, -50%);
-	z-index:101;
-	color:white;
-	padding:3px;
-	font-size:1.5em;
+	z-index: 101;
+	color: white;
+	padding: 3px;
+	font-size: 1.5em;
 }
 
 #menu_logo {
@@ -387,7 +452,7 @@ body {
 	position: absolute;
 	bottom: 5px;
 	right: 5px;
-	z-index:190;
+	z-index: 190;
 }
 
 .menu_list {
@@ -408,9 +473,8 @@ body {
 }
 
 #menu_serverlist {
-	margin-top:10px;
+	margin-top: 10px;
 }
-
 
 #menu_pause {
 	backdrop-filter: blur(2px);
@@ -420,8 +484,8 @@ body {
 	bottom: 0px;
 	left: 0px;
 	z-index: 100;
-	height:auto;
-	width:auto;
+	height: auto;
+	width: auto;
 	background-color: #00000066;
 	background-size: cover;
 }
@@ -431,9 +495,9 @@ body {
 	top: 5vh;
 	left: 5vh;
 	z-index: 100;
-	color:white;
+	color: white;
 	height: 90vh;
 	width: calc(200px + 50vw);
-	padding:3px;
-	min-width:2em;
+	padding: 3px;
+	min-width: 2em;
 }

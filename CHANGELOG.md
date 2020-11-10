@@ -2,6 +2,9 @@
 - Changed communication library from Socket.io to ProtobufJS
 - Added basic animation to player
 - Moved from HTML guis to BabylonJS ones
+- Chunk compression support
+- Electron version with singleplayer mode
+- And many other small changes
 
 # 0.1.8
 - New main menu screen

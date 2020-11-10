@@ -3,8 +3,9 @@ import * as GUI from '@babylonjs/gui/';
 import buildSingleplayer from './singleplayer';
 import buildMultiplayer from './multiplayer';
 import buildSettings from './settings';
-import { gameVersion, hostedOn } from '../../values';
+import { gameVersion, getSplash, hostedOn } from '../../values';
 import { createItem } from '../../gui-uni/menu';
+import { FormTextBlock } from '../../gui-uni/formtextblock';
 
 export let holder: GUI.Rectangle;
 
@@ -85,6 +86,39 @@ export function buildMainMenu(noa) {
 		holder.zIndex = 15;
 		menu.addControl(logo);
 
+		const splash = new FormTextBlock();
+		splash.text = getSplash();
+		splash.fontFamily = 'Lato';
+		splash.fontSize = `${9 * scale}px`;
+		splash.color = 'yellow';
+		splash.zIndex = 20;
+		splash.width = `${200 * scale}px`;
+		splash.height = `${10 * scale}px`;
+		splash.textHorizontalAlignment = 2;
+		splash.textVerticalAlignment = 2;
+		splash.left = `${65 * scale}px`;
+		if (window.innerHeight > 230 * scale) splash.top = `-${60 * scale}px`;
+		else splash.top = `-${window.innerHeight / 4}px`;
+		splash.rotation = -0.22;
+
+		splash.shadowColor = '#111111';
+		splash.shadowOffsetX = 1;
+		splash.shadowOffsetY = 1;
+		let addSplash = 0.005;
+
+		window['changeSplash'] = () => {
+			splash.text = getSplash();
+		};
+
+		const splashAnim = setInterval(() => {
+			splash.scaleX = splash.scaleX + addSplash;
+			splash.scaleY = splash.scaleY + addSplash;
+			if (splash.scaleX > 1.1) addSplash = -0.005;
+			else if (splash.scaleX < 1) addSplash = 0.005;
+		}, 20);
+
+		holder.addControl(splash);
+
 		const items = new GUI.StackPanel();
 		items.zIndex = 20;
 		menu.addControl(items);
@@ -96,7 +130,6 @@ export function buildMainMenu(noa) {
 				openMenu('singleplayer');
 			});
 			items.addControl(singleplayer.item);
-	
 		}
 
 		const multiplayer = createItem();
@@ -135,6 +168,13 @@ export function buildMainMenu(noa) {
 			logo.width = `${210 * scale}px`;
 			logo.height = `${64 * scale}px`;
 
+			splash.left = `${65 * scale}px`;
+			if (window.innerHeight > 230 * scale) splash.top = `-${60 * scale}px`;
+			else splash.top = `-${window.innerHeight / 4}px`;
+			splash.fontSize = `${9 * scale}px`;
+			splash.width = `${200 * scale}px`;
+			splash.height = `${10 * scale}px`;
+
 			items._children.forEach((z) => {
 				z.width = `${100 * scale}px`;
 				z.height = `${18 * scale}px`;
@@ -146,6 +186,8 @@ export function buildMainMenu(noa) {
 		event.on('scale-change', rescale);
 
 		menu.onDisposeObservable.add(() => {
+			clearInterval(splashAnim);
+			splash.dispose();
 			event.off('scale-change', rescale);
 		});
 

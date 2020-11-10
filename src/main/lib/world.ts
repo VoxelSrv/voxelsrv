@@ -1,20 +1,20 @@
-import ndarray = require('ndarray');
-import * as pako from 'pako';
+import * as ndarray from 'ndarray';
 import { EventEmitter } from 'events';
 import { IWorldChunkLoad } from 'voxelsrv-protocol/js/server';
-
 export const event = new EventEmitter();
 
 let chunkStorage: { [index: string]: any } = {};
 
-export function setChunk(data: IWorldChunkLoad) {
-	let array: Uint16Array
+declare function inflate(x: Uint8Array, y: number): Promise<Uint8Array>;
+
+export async function setChunk(data: IWorldChunkLoad) {
+	let array: Uint16Array;
 	if (data.compressed) {
 		let x = 0;
 		if (data.type) x = 32 * 256 * 32;
 		else x = 32 ^ 3;
 
-		//data.data = pako.inflate(data.data, new Uint16Array(x));
+		data.data = await inflate(data.data, x);
 	}
 
 	array = new Uint16Array(data.data.buffer, data.data.byteOffset);
@@ -32,7 +32,7 @@ export function setChunk(data: IWorldChunkLoad) {
 					for (let y = 0; y < 32; y++) {
 						const block = chunk.get(x, y + yoff * 32, z);
 						noaChunk.set(x, y, z, block);
-						if (block > 255) console.log(block)
+						if (block > 255) console.log(block);
 					}
 				}
 			}
@@ -59,13 +59,12 @@ export function getChunk(id: string): Promise<ndarray> {
 		if (chunkStorage[id] != undefined) resolve(new ndarray(chunkStorage[id].data, chunkStorage[id].shape));
 		else {
 			event.once(`load-${id}`, (noaChunk) => resolve(new ndarray(noaChunk.data, noaChunk.shape)));
-			setTimeout(()=>{
-				reject('Timeout')
-			}, 100000)
+			setTimeout(() => {
+				reject('Timeout');
+			}, 100000);
 		}
 	});
 }
-
 
 export function chunkSetBlock(id: number, x: number, y: number, z: number) {
 	const cid = [Math.floor(x / 32), Math.floor(y / 32), Math.floor(z / 32)].join('|');
