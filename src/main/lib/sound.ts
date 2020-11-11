@@ -1,5 +1,6 @@
 import * as BABYLON from '@babylonjs/core/Legacy/legacy';
 import { gameSettings } from '../values';
+import { getAsset } from './assets';
 
 export const sounds = {};
 
@@ -13,10 +14,7 @@ export function playSound(sound: string, volume: number, position: number[], noa
 
 	console.log('Playing: ' + sound, 'Volume: ' + volume, 'Position: ' + position);
 
-	let url: string;
-
-	if (sound.startsWith('http://') || (sound.startsWith('https://') && gameSettings.allowcustom == true)) url = sound;
-	else url = 'audio/' + sound;
+	let url: string = getAsset(sound, 'sound')
 
 	if (position != undefined) {
 		sounds[id] = new BABYLON.Sound('Sound', url, noa.rendering.getScene(), play, {

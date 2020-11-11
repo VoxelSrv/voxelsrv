@@ -9,7 +9,7 @@ export function warningFirefox() {
 
 	const text = new GUI.TextBlock();
 	text.text = `Warning. Firefox might have performance issues. For the best performance, you should use Chromium(-based) browser.
-				I know you aren't too happy about it, but I can't do much about it.`;
+				I know you aren't too happy about it, but I can't do much about it. You can also checkout electron builds!`;
 	text.textWrapping = 1;
 	text.fontSize = 20;
 	text.color = '#111111';
@@ -20,6 +20,18 @@ export function warningFirefox() {
 	warning.main.paddingBottom = 10;
 
 	warning.main.addControl(text);
+
+	const electronButton = createItem();
+
+	electronButton.item.verticalAlignment = 1;
+	electronButton.item.top = '-35px'
+	electronButton.text.text = [{ text: 'I want to try electron', color: '#222222' }];
+	electronButton.item.onPointerClickObservable.add(() => {
+		warning.window.dispose()
+		window.open('https://github.com/VoxelSrv/voxelsrv/actions', '_blank')
+	});
+
+	warning.main.addControl(electronButton.item);
 
 	const okButton = createItem();
 

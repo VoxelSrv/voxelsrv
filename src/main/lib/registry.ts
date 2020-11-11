@@ -1,5 +1,5 @@
-import { gameSettings } from '../values';
 import * as BABYLON from '@babylonjs/core/Legacy/legacy';
+import { getAsset } from './assets';
 
 export let blocks = {};
 export let items = {};
@@ -35,19 +35,15 @@ export function registerBlocks(noa, blockList) {
 			let txtTransparent = options.opaque == false ? true : false;
 			let color = options.color != undefined ? Object.values(options.color) : [0, 0, 0];
 
-			if (texture == undefined) texture = ['']
+			if (texture == undefined) texture = [''];
 
 			if (texture.length == 1 && options.material == undefined) {
-				if ((texture[0].startsWith('http://') || texture[0].startsWith('https://')) && gameSettings.allowcustom == true)
-					noa.registry.registerMaterial(name, color, texture[0], txtTransparent);
-				else noa.registry.registerMaterial(name, color, texture[0] != '' ? 'textures/' + texture[0] + '.png' : null, txtTransparent);
+				noa.registry.registerMaterial(name, color, texture[0] != '' ? getAsset(texture[0], 'texture') : null, txtTransparent);
 				mat = name;
 			} else if (options.material == undefined) {
 				mat = new Array();
 				for (let x = 0; x < texture.length; x++) {
-					if ((texture[x].startsWith('http://') || texture[x].startsWith('https://')) && gameSettings.allowcustom == true)
-						noa.registry.registerMaterial(name + x, color, texture[x], txtTransparent);
-					else noa.registry.registerMaterial(name + x, color, texture[x] != '' ? 'textures/' + texture[x] + '.png' : null, txtTransparent);
+					noa.registry.registerMaterial(name + x, color, texture[x] != '' ? getAsset(texture[x], 'texture') : null, txtTransparent);
 					mat.push(name + x);
 				}
 			} else {
@@ -71,9 +67,7 @@ export function registerBlocks(noa, blockList) {
 
 			let tex: any;
 
-			if ((texture[0].startsWith('http://') || texture[0].startsWith('https://')) && gameSettings.allowcustom == true)
-				tex = new BABYLON.Texture(texture[0], scene, true, true, BABYLON.Texture.NEAREST_SAMPLINGMODE);
-			else tex = new BABYLON.Texture('textures/' + texture[0] + '.png', scene, true, true, BABYLON.Texture.NEAREST_SAMPLINGMODE);
+			tex = new BABYLON.Texture(getAsset(texture[0], 'texture'), scene, true, true, BABYLON.Texture.NEAREST_SAMPLINGMODE);
 
 			mat.diffuseTexture = tex;
 			mat.opacityTexture = mat.diffuseTexture;
@@ -99,10 +93,7 @@ export function registerItems(noa, itemList) {
 
 function makePlantSpriteMesh(noa, scene, url, name) {
 	const matname = name || 'sprite-mat';
-	let tex: any;
-	if ((url.startsWith('http://') || url.startsWith('https://')) && gameSettings.allowcustom == true)
-		tex = new BABYLON.Texture(url, scene, true, true, BABYLON.Texture.NEAREST_SAMPLINGMODE);
-	else tex = new BABYLON.Texture('textures/' + url + '.png', scene, true, true, BABYLON.Texture.NEAREST_SAMPLINGMODE);
+	let tex = new BABYLON.Texture(getAsset(url, 'texture'), scene, true, true, BABYLON.Texture.NEAREST_SAMPLINGMODE);
 	tex.hasAlpha = true;
 	const mesh = BABYLON.Mesh.CreatePlane('sprite-' + matname, 1, scene);
 	const mat = noa.rendering.makeStandardMaterial(matname);
@@ -128,16 +119,13 @@ function makeCactusMesh(noa, scene, url, name) {
 		mesh[x] = BABYLON.Mesh.CreatePlane('sprite-' + matname, 1, scene);
 		mat[x] = noa.rendering.makeStandardMaterial(matname + x);
 		mat[x].backFaceCulling = false;
-		if (((x < 4 ? url[1] : url[0]).startsWith('http://') || (x < 4 ? url[1] : url[0]).startsWith('https://')) && gameSettings.allowcustom == true)
-			mat[x].diffuseTexture = new BABYLON.Texture(x < 4 ? url[1] : url[0], scene, true, true, BABYLON.Texture.NEAREST_SAMPLINGMODE);
-		else
-			mat[x].diffuseTexture = new BABYLON.Texture(
-				'textures/' + (x < 4 ? url[1] : url[0]) + '.png',
-				scene,
-				true,
-				true,
-				BABYLON.Texture.NEAREST_SAMPLINGMODE
-			);
+		mat[x].diffuseTexture = new BABYLON.Texture(
+			getAsset(x < 4 ? url[1] : url[0], 'texture'),
+			scene,
+			true,
+			true,
+			BABYLON.Texture.NEAREST_SAMPLINGMODE
+		);
 
 		mat[x].diffuseTexture.hasAlpha = true;
 		mesh[x].material = mat[x];

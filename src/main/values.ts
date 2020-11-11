@@ -2,7 +2,7 @@ import { saveSettings } from './lib/storage';
 import { isMobile, isFirefox } from 'mobile-device-detect';
 import { setScale } from './gui/main';
 
-export const gameVersion = '0.2.0-beta.9.2';
+export const gameVersion = '0.2.0-beta.9.3';
 
 export const gameProtocol = 2;
 
@@ -150,9 +150,19 @@ const splashes = [
 	[{ text: `In development` }],
 	[{ text: `404: File not found` }],
 	[{ text: `:concern:` }],
-	[{ text: `🥔` }],
+	[{ text: `[🥔]` }],
 	[{ text: `Works in browser` }],
 	[{ text: `youtu.be/dQw4w9WgXcQ` }],
+	[{ text: `Do not do it` }],
+	[{ text: `discord.gg/K9PdsDh` }],
+	[{ text: `Not for sale` }],
+	[{ text: `Includes bugs` }],
+	[{ text: `Checkout on github!` }],
+	[{ text: `+ 5 new DLC characters` }],
+	[{ text: `TODO: Add accounts` }],
+	[{ text: `Does anyone read these?` }],
+	[{ text: `Created by Patbox` }],
+	[{ text: gameVersion }],
 ];
 
 if (window['electron'] != undefined) {

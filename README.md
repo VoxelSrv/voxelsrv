@@ -14,5 +14,4 @@ If you want to create a server, you should check this repo: https://github.com/V
 
 # Assets used in this project (graphics/sounds):
 - Pixel Perfection Community Edition (https://github.com/Athemis/PixelPerfectionCE)
-- Json Entity Models by ewanhowell5195 (https://www.curseforge.com/minecraft/texture-packs/template-cem)
-- Some remixes by bulby
+- Models by ewanhowell5195 (https://www.curseforge.com/minecraft/texture-packs/template-cem)

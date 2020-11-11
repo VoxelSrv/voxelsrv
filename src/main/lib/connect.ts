@@ -14,7 +14,22 @@ import { cloudMesh, setupClouds } from './sky';
 import * as vec3 from 'gl-vec3';
 import { BaseSocket } from '../socket';
 import { setTab } from '../gui/tab';
-import { IChatMessage, ILoginRequest, ILoginSuccess, IPlayerEntity, IPlayerInventory, IPlayerKick, IPlayerSlotUpdate, IPlayerTeleport, IUpdateGameplaySetting, IWorldBlockUpdate, IWorldChunkLoad, IWorldChunkUnload } from 'voxelsrv-protocol/js/server';
+import {
+	IChatMessage,
+	ILoginRequest,
+	ILoginSuccess,
+	IPlayerEntity,
+	IPlayerInventory,
+	IPlayerKick,
+	IPlayerSlotUpdate,
+	IPlayerTeleport,
+	IUpdateGameplaySetting,
+	IWorldBlockUpdate,
+	IWorldChunkLoad,
+	IWorldChunkUnload,
+} from 'voxelsrv-protocol/js/server';
+import { Engine as BabylonEngine } from '@babylonjs/core';
+import { setAssetServer } from './assets';
 
 export let socket: BaseSocket | null = null;
 let chunkInterval: any = null;
@@ -26,10 +41,16 @@ export function socketSend(type, data) {
 }
 
 let noa;
+let entityList = {};
 
 export function disconnect() {
 	socket.close();
 	stopListening(noa);
+	noa.ents.getPhysics(noa.playerEntity).body.airDrag = 9999;
+	Object.values(entityList).forEach((x) => {
+		noa.ents.deleteEntity(x, true);
+	});
+	entityList = {};
 	destroyGuis();
 	updateServerSettings({ ingame: false });
 	buildMainMenu(noa);
@@ -38,14 +59,14 @@ export function disconnect() {
 export function connect(noax, socketx) {
 	document.title = 'VoxelSrv - Connecting to server...';
 	noa = noax;
+	const engine: BabylonEngine = noa.rendering.getScene().getEngine();
 	noa.worldName = 'World' + Math.round(Math.random() * 1000);
 	socket = socketx;
 	console.log('Username: ' + gameSettings.nickname, 'Server: ' + socket.server);
 	let firstLogin = true;
+	entityList = {};
 
 	if (holder != null) holder.dispose();
-
-	const entityList = {};
 
 	socket.on('PlayerKick', function (data: IPlayerKick) {
 		socket.close();
@@ -71,6 +92,8 @@ export function connect(noax, socketx) {
 		if (dataLogin.auth) {
 			// Todo, there is not auth yet
 		}
+
+		setAssetServer(socket.server);
 
 		socket.send('LoginResponse', {
 			username: gameSettings.nickname,
@@ -190,6 +213,7 @@ export function connect(noax, socketx) {
 					entityList[data.uuid] = noa.ents.add(Object.values(entData.position), 1, 2, null, null, false, true);
 
 					applyModel(entityList[data.uuid], data.uuid, entData.model, entData.texture, entData.offset, entData.nametag, entData.name, entData.hitbox);
+					noa.ents.getState(entityList[data.uuid], 'position').newPosition = noa.ents.getState(entityList[data.uuid], 'position').position;
 				}
 			});
 
@@ -219,8 +243,9 @@ export function connect(noax, socketx) {
 			moveEvent = () => {
 				const rot = noa.camera.heading;
 				const pitch = noa.camera.pitch;
-				if (JSON.stringify(lastPos) != JSON.stringify(pos.position) || lastRot != rot || lastPitch != pitch) {
+				if (vec3.dist(lastPos, pos.position) > 0.15 || lastRot != rot || lastPitch != pitch) {
 					lastPos = [...pos.position];
+					lastPitch = pitch;
 					lastRot = rot;
 					socket.send('ActionMove', { x: pos.position[0], y: pos.position[1], z: pos.position[2], rotation: rot, pitch: pitch });
 				}
@@ -230,15 +255,16 @@ export function connect(noax, socketx) {
 
 			entityEvent = async function () {
 				Object.values(entityList).forEach(async function (id: number) {
-					const posx = noa.ents.getState(id, 'position').position;
-					const newPos = noa.ents.getState(id, 'position').newPosition;
+					const pos = noa.ents.getState(id, 'position');
+					const posx = pos.position;
+					const newPos = pos.newPosition;
 					const mainMesh = noa.ents.getState(id, noa.entities.names.mesh);
 					const model = noa.ents.getState(id, 'model');
 					if (mainMesh != undefined && newPos != undefined && posx != undefined) {
 						let move = vec3.create();
-						vec3.lerp(move, posx, newPos, 0.1);
-						const rot = noa.ents.getState(id, 'position').rotation;
-						const pitch = noa.ents.getState(id, 'position').pitch;
+						vec3.lerp(move, posx, newPos, 12 / engine.getFps());
+						const rot = pos.rotation ? pos.rotation : 0;
+						const pitch = pos.pitch ? pos.pitch : 0;
 						noa.ents.setPosition(id, move[0], move[1], move[2]);
 
 						const pos2da = [newPos[0], 0, newPos[2]];
@@ -266,6 +292,8 @@ export function connect(noax, socketx) {
 						model.models.right_arm.rotation.x = sin;
 						model.models.right_leg.rotation.x = -sin;
 						model.models.left_leg.rotation.x = sin;
+
+						if (!mainMesh.mesh.rotation.y) mainMesh.mesh.rotation.y = 0;
 
 						const oldRot = mainMesh.mesh.rotation.y;
 

@@ -1,5 +1,6 @@
 import * as BABYLON from '@babylonjs/core/Legacy/legacy';
 import { gameSettings } from '../values';
+import { getAsset } from './assets';
 
 const models = {};
 
@@ -14,10 +15,19 @@ export function defineModelComp(noa2) {
 	});
 }
 
-export function applyModel(eid: number, uuid: string, model: string, texture: string, offset: number[], nametag: boolean, name: string, hitbox: number[]) {
+export function applyModel(
+	eid: number,
+	uuid: string,
+	model: string,
+	texture: string,
+	offset: number[],
+	nametag: boolean,
+	name: string,
+	hitbox: number[]
+) {
 	const scene = noa.rendering.getScene();
 	if (models[model] == undefined) {
-		fetch('./models/' + model + '.json')
+		fetch(getAsset(model, 'model'))
 			.then((response) => response.json())
 			.then(function (data) {
 				const builded: any = buildModel(data, texture);
@@ -40,7 +50,8 @@ export function applyModel(eid: number, uuid: string, model: string, texture: st
 				hitboxMesh.setParent(builded.main);
 				hitboxMesh.setPositionWithLocalVector(new BABYLON.Vector3(0, hitbox[1] / 2, 0));
 				hitboxMesh.material = noa.rendering.makeStandardMaterial();
-				hitboxMesh.material.wireframe = true;
+				//hitboxMesh.material.wireframe = true;
+				hitboxMesh.isVisible = false;
 
 				noa.rendering.addMeshToScene(hitboxMesh, false);
 
@@ -64,7 +75,7 @@ export function applyModel(eid: number, uuid: string, model: string, texture: st
 
 function buildModel(model, texture) {
 	const scene = noa.rendering.getScene();
-	const scale = 0.06
+	const scale = 0.06;
 	const txtSize = [model.geometry.texturewidth, model.geometry.textureheight];
 
 	const main = new BABYLON.Mesh('main', scene);
@@ -139,17 +150,19 @@ function buildModel(model, texture) {
 				scene
 			);
 
-			part[y].position = new BABYLON.Vector3(-(pos[0] + (size[0] - add/2) / 2) * scale, (pos[1] + (size[1] - add/2) / 2) * scale, (pos[2] + (size[2] - add/2) / 2) * scale);
+			part[y].position = new BABYLON.Vector3(
+				-(pos[0] + (size[0] - add / 2) / 2) * scale,
+				(pos[1] + (size[1] - add / 2) / 2) * scale,
+				(pos[2] + (size[2] - add / 2) / 2) * scale
+			);
 
 			var mat = noa.rendering.makeStandardMaterial('modelmaterial-' + mdata.name + '-' + y);
 			part[y].material = mat;
-			if ((texture.startsWith('http://') || texture.startsWith('https://')) && gameSettings.allowcustom == true)
-				mat.diffuseTexture = new BABYLON.Texture(texture, scene, true, true, BABYLON.Texture.NEAREST_SAMPLINGMODE);
-			else mat.diffuseTexture = new BABYLON.Texture('textures/' + texture + '.png', scene, true, true, BABYLON.Texture.NEAREST_SAMPLINGMODE);
+			mat.diffuseTexture = new BABYLON.Texture(getAsset(texture, 'texture'), scene, true, true, BABYLON.Texture.NEAREST_SAMPLINGMODE);
 
 			part[y].opaque = false;
 			mat.diffuseTexture.hasAlpha = true;
-		}		
+		}
 		const mesh = BABYLON.Mesh.MergeMeshes(part, true, true, undefined, true, true);
 		mesh.setParent(main);
 		mesh.setPivotMatrix(BABYLON.Matrix.Translation(-pivot[0] * scale, -pivot[1] * scale, -pivot[2] * scale));
@@ -158,7 +171,6 @@ function buildModel(model, texture) {
 
 		noa.rendering.addMeshToScene(mesh);
 	}
-
 	return { main: main, models: meshlist };
 }
 
@@ -203,6 +215,8 @@ function addNametag(mainMesh, name, height) {
 
 	// @ts-ignore
 	plane.opaque = false;
+	plane.rotation.x = 0;
+	plane.rotation.y = 0;
 
 	plane.setParent(mainMesh);
 	noa.rendering.addMeshToScene(plane);
