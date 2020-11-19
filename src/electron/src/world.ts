@@ -22,7 +22,9 @@ const functions = {
 
 		wss.on('connection', (s) => {
 			console.log('Player connects!')
-			server.connectPlayer(new WSSocket(s));
+			// @ts-ignore
+			const socket = new WSSocket(s, 'localhost')
+			server.connectPlayer(socket);
 		});
 
 		server.on('player-join', (player) => {

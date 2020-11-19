@@ -181,7 +181,6 @@ export function buildInventory(noa, socket) {
 				}
 
 				socket.send('ActionInventoryClick', { slot: y + 27 * page, type: click, inventory: 'main' });
-				console.log('ActionInventoryClick', { slot: y + 27 * page, type: click, inventory: 'main' });
 			});
 
 			container.onPointerEnterObservable.add((e) => {
@@ -289,10 +288,11 @@ export function buildInventory(noa, socket) {
 	const crafting = new GUI.Rectangle();
 	crafting.zIndex = 40;
 	crafting.verticalAlignment = 2;
-	crafting.top = `${-29 * scale}px`;
-	crafting.left = `${18 * scale}px`;
-	crafting.height = `${72 * scale}px`;
-	crafting.width = `${118 * scale}px`;
+	crafting.horizontalAlignment = 2;
+	crafting.top = `${-47 * scale}px`;
+	crafting.left = `${43 * scale}px`;
+	crafting.height = `${35 * scale}px`;
+	crafting.width = `${66 * scale}px`;
 	crafting.thickness = 0;
 
 	inventory.addControl(crafting);
@@ -302,6 +302,7 @@ export function buildInventory(noa, socket) {
 		const container = craftingSlots[x].container;
 		container.zIndex = 50;
 		container.verticalAlignment = 0;
+		container.horizontalAlignment = 0;
 		if (x == 4) {
 			container.left = `${48 * scale}px`;
 			container.top = `${10 * scale}px`;
@@ -377,7 +378,7 @@ export function buildInventory(noa, socket) {
 		button2.width = `${11 * scale}px`;
 		button2.onPointerClickObservable.add((e) => {
 			page = page - 1;
-			if (page < 0) page = Math.round(27 / ((inv.size - 9) / 27) / 3 - 1);
+			if (page < 0) page = Math.floor((inv.size - 9) / 27);
 		});
 		button2.isPointerBlocker = true;
 		box.addControl(button2);
@@ -527,10 +528,10 @@ export function buildInventory(noa, socket) {
 			}
 		}
 
-		crafting.top = `${-29 * scale2}px`;
-		crafting.left = `${18 * scale2}px`;
-		crafting.height = `${72 * scale2}px`;
-		crafting.width = `${118 * scale2}px`;
+		crafting.top = `${-47 * scale}px`;
+		crafting.left = `${43 * scale}px`;
+		crafting.height = `${35 * scale}px`;
+		crafting.width = `${66 * scale}px`;
 
 		for (let x = 0; x < 5; x++) {
 			if (x == 4) {

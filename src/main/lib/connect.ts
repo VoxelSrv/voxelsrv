@@ -53,6 +53,7 @@ export function disconnect() {
 	entityList = {};
 	destroyGuis();
 	updateServerSettings({ ingame: false });
+	document.exitPointerLock();
 	buildMainMenu(noa);
 }
 
@@ -79,6 +80,7 @@ export function connect(noax, socketx) {
 		destroyGuis();
 		buildDisconnect(data.reason, socket.server, connect, noa);
 		updateServerSettings({ ingame: false });
+		document.exitPointerLock();
 		return;
 	});
 

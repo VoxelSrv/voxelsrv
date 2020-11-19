@@ -54,6 +54,11 @@ export function removeChunk(id: string) {
 	delete chunkStorage[id];
 }
 
+export function getChunkSync(id: string): ndarray {
+	if (chunkStorage[id] != undefined) return new ndarray(chunkStorage[id].data, chunkStorage[id].shape);
+	else null;
+}
+
 export function getChunk(id: string): Promise<ndarray> {
 	return new Promise((resolve, reject) => {
 		if (chunkStorage[id] != undefined) resolve(new ndarray(chunkStorage[id].data, chunkStorage[id].shape));
@@ -61,7 +66,7 @@ export function getChunk(id: string): Promise<ndarray> {
 			event.once(`load-${id}`, (noaChunk) => resolve(new ndarray(noaChunk.data, noaChunk.shape)));
 			setTimeout(() => {
 				reject('Timeout');
-			}, 100000);
+			}, 200000);
 		}
 	});
 }

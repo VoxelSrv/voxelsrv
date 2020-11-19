@@ -17,8 +17,6 @@ export function changeState(state: boolean) {
 }
 
 export function setupChat() {
-	const ui = getScreen(1);
-
 	input = new GUI.InputText();
 
 	input.width = 100;
@@ -34,7 +32,7 @@ export function setupChat() {
 	input.shadowColor = '';
 	input.fontSize = '32';
 	input.promptMessage = 'Enter chat message';
-	ui.addControl(input);
+	getScreen(1).addControl(input);
 
 	chatContainer = new GUI.StackPanel();
 	if (isMobile) {
@@ -53,7 +51,7 @@ export function setupChat() {
 	chatContainer.background = '#11111177';
 	chatContainer.height = 0;
 
-	ui.addControl(chatContainer);
+	getScreen(0).addControl(chatContainer);
 
 	const scaleEvent = (x) => {
 		if (isMobile) {

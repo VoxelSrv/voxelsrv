@@ -3,12 +3,13 @@ import * as BABYLON from '@babylonjs/core/Legacy/legacy';
 import { isMobile } from 'mobile-device-detect';
 import { gameSettings, serverSettings } from '../values';
 import { blockIDmap, blocks } from './registry';
-import { inventory } from '../gui/inventory';
-import { input as chatInput, changeState as chanceChatState } from '../gui/chat';
+import { hotbar, inventory } from '../gui/inventory';
+import { input as chatInput, changeState as chanceChatState, chatContainer } from '../gui/chat';
 import { socketSend } from './connect';
 import { getUI } from '../gui/main';
 import { pauseScreen } from '../gui/pause';
 import { tabContainer } from '../gui/tab';
+import { debug, dot } from '../gui/debug';
 
 const screenshot = require('canvas-screenshot');
 
@@ -196,18 +197,33 @@ export function setupControls(noa: any) {
 	});
 
 	noa.inputs.down.on('tab', function () {
+		if (chatInput == undefined || chatInput.isVisible) return;
+
 		tabContainer.isVisible = true;
 	});
 
 	noa.inputs.up.on('tab', function () {
+		if (chatInput == undefined || chatInput.isVisible) return;
+
 		tabContainer.isVisible = false;
 	});
 
 	noa.inputs.up.on('screenshot', function () {
-		if (chatInput.isVisible) return;
+		if (chatInput == undefined || chatInput.isVisible) return;
 		if (document.pointerLockElement == noa.container.canvas) {
 			screenshot(noa.container.canvas, { filename: 'VoxelSRV-' + Date.now() + '.png' });
 		}
+	});
+
+	let hidden = false;
+
+	noa.inputs.up.on('hide', function () {
+		if (chatInput == undefined || chatInput.isVisible) return;
+		hidden = !hidden;
+
+		hotbar.isVisible = !hidden;
+		debug.isVisible = !hidden;
+		dot.isVisible = !hidden;
 	});
 
 	// each tick, consume any scroll events and use them to zoom camera

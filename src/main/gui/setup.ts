@@ -4,6 +4,7 @@ import { setupHand } from './hand';
 import { setupChat, chatContainer, input } from './chat';
 import buildPause from './pause';
 import { setupTab, tabContainer } from './tab';
+import { pauseScreen } from './pause'  
 
 export function setupGuis(noa, socket, dataPlayer, dataLogin) {
 	buildHotbar(noa, socket);
@@ -24,4 +25,6 @@ export function destroyGuis() {
 	if (tabContainer != null) tabContainer.dispose();
 	if (debug != null) debug.dispose();
 	if (dot != null) dot.dispose();
+	if (pauseScreen != null) pauseScreen.dispose();
+
 }
