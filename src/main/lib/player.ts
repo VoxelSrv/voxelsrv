@@ -75,7 +75,7 @@ export function setupControls(noa: any) {
 			//startBreakingBlock(noa.targetedBlock.position, noa.targetedBlock.blockID)
 			const pos = noa.targetedBlock.position;
 			socketSend('ActionClick', { type: 'left', x: pos[0], y: pos[1], z: pos[2], onBlock: true });
-			socketSend('ActionBlockBreak', { x: pos[0], y: pos[1], z: pos[2] });
+			socketSend('ActionBlockBreak', { x: pos[0], y: pos[1], z: pos[2], finished: true });
 			return;
 		} else socketSend('ActionClick', { type: 'left', x: 0, y: 0, z: 0, onBlock: false });
 

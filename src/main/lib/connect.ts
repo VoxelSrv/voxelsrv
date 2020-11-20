@@ -1,4 +1,4 @@
-import { gameSettings, gameProtocol, updateServerSettings, gameVersion } from '../values';
+import { gameSettings, gameProtocol, updateServerSettings, gameVersion, noaOpts } from '../values';
 import { isMobile } from 'mobile-device-detect';
 import { buildMainMenu, holder } from '../gui/menu/main';
 import { setupGuis, destroyGuis } from '../gui/setup';
@@ -10,6 +10,8 @@ import { registerBlocks, registerItems } from './registry';
 import { setChunk, clearStorage, removeChunk, chunkSetBlock } from './world';
 import { playSound } from './sound';
 import { cloudMesh, setupClouds } from './sky';
+
+import * as BABYLON from '@babylonjs/core/Legacy/legacy';
 
 import * as vec3 from 'gl-vec3';
 import { BaseSocket } from '../socket';
@@ -23,12 +25,14 @@ import {
 	IPlayerKick,
 	IPlayerSlotUpdate,
 	IPlayerTeleport,
-	IUpdateGameplaySetting,
+	IGameplaySettingUpdate,
 	IWorldBlockUpdate,
 	IWorldChunkLoad,
 	IWorldChunkUnload,
+	IEnvironmentFogUpdate,
+	IEnvironmentSkyUpdate,
 } from 'voxelsrv-protocol/js/server';
-import { Engine as BabylonEngine } from '@babylonjs/core';
+import { Engine as BabylonEngine, Scene } from '@babylonjs/core';
 import { setAssetServer } from './assets';
 
 export let socket: BaseSocket | null = null;
@@ -69,7 +73,7 @@ export function connect(noax, socketx) {
 
 	if (holder != null) holder.dispose();
 
-	socket.on('PlayerKick', function (data: IPlayerKick) {
+	socket.on('PlayerKick', (data: IPlayerKick) => {
 		socket.close();
 		noa.ents.getPhysics(noa.playerEntity).body.airDrag = 9999;
 		Object.values(entityList).forEach((x) => {
@@ -84,10 +88,12 @@ export function connect(noax, socketx) {
 		return;
 	});
 
-	socket.on('LoginRequest', function (dataLogin: ILoginRequest) {
+	socket.on('LoginRequest', (dataLogin: ILoginRequest) => {
 		noa.worldName = `World-${Math.random() * 10000}`;
 		noa.camera.heading = 0;
 		noa.camera.pitch = 0;
+
+		const scene: Scene = noa.rendering.getScene();
 
 		let auth = '';
 
@@ -108,16 +114,27 @@ export function connect(noax, socketx) {
 
 		let entityIgnore: string = '';
 
-		socket.on('PlayerEntity', function (data: IPlayerEntity) {
+		socket.on('PlayerEntity', (data: IPlayerEntity) => {
 			console.log('Ignoring player-entity: ' + data.uuid);
 			entityIgnore = data.uuid;
 			if (entityList[data.uuid] != undefined && noa != undefined) noa.ents.deleteEntity(entityList[data.uuid]);
 			delete entityList[data.uuid];
 		});
 
+		const noaDef = noaOpts();
+
+		scene.fogMode = 0;
+		scene.fogStart = 20;
+		scene.fogEnd = 60;
+		scene.fogDensity = 0.1;
+		scene.fogColor = new BABYLON.Color3(0, 0, 0);
+
+		scene.clearColor = new BABYLON.Color4(noaDef.clearColor[0], noaDef.clearColor[1], noaDef.clearColor[2], 1);
+		cloudMesh.isVisible = true;
+
 		if (!firstLogin) return;
 
-		socket.on('LoginSuccess', function (dataPlayer: ILoginSuccess) {
+		socket.on('LoginSuccess', (dataPlayer: ILoginSuccess) => {
 			updateServerSettings({ ingame: true });
 			destroyGuis();
 			clearStorage();
@@ -139,25 +156,40 @@ export function connect(noax, socketx) {
 			if (!firstLogin) return;
 			firstLogin = false;
 
-			socket.on('WorldChunkLoad', function (data: IWorldChunkLoad) {
+			socket.on('WorldChunkLoad', (data: IWorldChunkLoad) => {
 				setChunk(data);
 			});
 
-			socket.on('WorldChunkUnload', function (data: IWorldChunkUnload) {
+			socket.on('WorldChunkUnload', (data: IWorldChunkUnload) => {
 				if (data.type) {
 					for (let x = 0; x <= 8; x++) removeChunk(`${data.x}|${x}|${data.z}`);
 				} else removeChunk(`${data.x}|${data.y}|${data.z}`);
 			});
 
-			socket.on('WorldBlockUpdate', function (data: IWorldBlockUpdate) {
+			socket.on('WorldBlockUpdate', (data: IWorldBlockUpdate) => {
 				noa.setBlock(data.id, data.x, data.y, data.z);
 				chunkSetBlock(data.id, data.x, data.y, data.z);
 			});
 
-			socket.on('UpdateGameplaySetting', function (data: IUpdateGameplaySetting) {
+			socket.on('GameplaySettingUpdate', (data: IGameplaySettingUpdate) => {
 				const x = {};
 				x[data.key] = data.value;
 				updateServerSettings(x);
+			});
+
+			socket.on('EnvironmentFogUpdate', (data: IEnvironmentFogUpdate) => {
+				if (data.mode != undefined) scene.fogMode = data.mode;
+				if (data.start != undefined) scene.fogStart = data.start;
+				if (data.end != undefined) scene.fogEnd = data.end;
+				if (data.density != undefined) scene.fogDensity = data.density;
+				if ((data.colorRed != undefined, data.colorGreen != undefined, data.colorBlue != undefined))
+					scene.fogColor = new BABYLON.Color3(data.colorRed, data.colorGreen, data.colorBlue);
+			});
+
+			socket.on('EnvironmentSkyUpdate', (data: IEnvironmentSkyUpdate) => {
+				if ((data.colorRed != undefined, data.colorGreen != undefined, data.colorBlue != undefined))
+					scene.clearColor = new BABYLON.Color4(data.colorRed, data.colorGreen, data.colorBlue, 1);
+				if (data.clouds != undefined) cloudMesh.isVisible = data.clouds;
 			});
 
 			socket.on('PlayerInventory', function (data: IPlayerInventory) {
@@ -242,6 +274,8 @@ export function connect(noax, socketx) {
 			let lastRot = 0;
 			let lastPitch = 0;
 
+			let ping = 0;
+
 			moveEvent = () => {
 				const rot = noa.camera.heading;
 				const pitch = noa.camera.pitch;
@@ -249,7 +283,21 @@ export function connect(noax, socketx) {
 					lastPos = [...pos.position];
 					lastPitch = pitch;
 					lastRot = rot;
-					socket.send('ActionMove', { x: pos.position[0], y: pos.position[1], z: pos.position[2], rotation: rot, pitch: pitch });
+					socket.send('ActionMoveLook', { x: pos.position[0], y: pos.position[1], z: pos.position[2], rotation: rot, pitch: pitch });
+				} else if (vec3.dist(lastPos, pos.position) > 0.15) {
+					lastPos = [...pos.position];
+					socket.send('ActionMove', { x: pos.position[0], y: pos.position[1], z: pos.position[2] });
+				} else if (lastRot != rot || lastPitch != pitch) {
+					lastPitch = pitch;
+					lastRot = rot;
+					socket.send('ActionLook', { rotation: rot, pitch: pitch });
+				}
+
+				ping = ping + 1;
+
+				if (ping >= 120) {
+					socket.send('Ping', { time: Date.now() });
+					ping = 0;
 				}
 			};
 
