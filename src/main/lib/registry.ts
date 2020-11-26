@@ -63,13 +63,9 @@ export function registerBlocks(noa, blockList) {
 			finOpts.blockMesh = mesh;
 			noa.registry.registerBlock(id, finOpts);
 		} else if (type == 4) {
-			const mat = noa.rendering.makeStandardMaterial(name);
+			/*const mat = noa.rendering.makeStandardMaterial(name);
 
-			let tex: any;
-
-			tex = new BABYLON.Texture(getAsset(texture[0], 'texture'), scene, true, true, BABYLON.Texture.NEAREST_SAMPLINGMODE);
-
-			mat.diffuseTexture = tex;
+			mat.diffuseTexture = new BABYLON.Texture(getAsset(texture[0], 'texture'), scene, true, true, BABYLON.Texture.NEAREST_SAMPLINGMODE);;
 			mat.opacityTexture = mat.diffuseTexture;
 			mat.backFaceCulling = true;
 
@@ -77,10 +73,44 @@ export function registerBlocks(noa, blockList) {
 			mesh.material = mat;
 			mesh.bakeTransformIntoVertices(BABYLON.Matrix.Scaling(1, 1, 1).setTranslation(new BABYLON.Vector3(0, 0.5, 0)));
 			mesh.opaque = false;
-			mesh.material.needDepthPrePass = true;
+			mesh.material.needDepthPrePass = true;*/
+
+			let matl;
+
+			if (texture.length == 1 && options.material == undefined) {
+				const mat = noa.rendering.makeStandardMaterial(name);
+
+				let tex: any;
+
+				tex = new BABYLON.Texture(getAsset(texture[0], 'texture'), scene, true, true, BABYLON.Texture.NEAREST_SAMPLINGMODE);
+
+				mat.diffuseTexture = tex;
+				mat.opacityTexture = mat.diffuseTexture;
+				mat.backFaceCulling = true;
+				noa.registry.registerMaterial(name, null, null, false, mat);
+				matl = name;
+			} else if (options.material == undefined) {
+				matl = new Array();
+				for (let x = 0; x < texture.length; x++) {
+					const mat = noa.rendering.makeStandardMaterial(name);
+
+					let tex: any;
+
+					tex = new BABYLON.Texture(getAsset(texture[0], 'texture'), scene, true, true, BABYLON.Texture.NEAREST_SAMPLINGMODE);
+
+					mat.diffuseTexture = tex;
+					mat.opacityTexture = mat.diffuseTexture;
+					mat.backFaceCulling = true;
+
+					noa.registry.registerMaterial(name + x, null, null, false, mat);
+					mat.push(name + x);
+				}
+			}
 
 			const finOpts = options;
-			finOpts.blockMesh = mesh;
+			finOpts.material = matl;
+
+			//finOpts.blockMesh = mesh;
 			noa.registry.registerBlock(id, finOpts);
 		}
 	}

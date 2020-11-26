@@ -36,16 +36,14 @@ export async function setChunk(data: IWorldChunkLoad) {
 					}
 				}
 			}
-			event.emit(`load-${localID}`, noaChunk);
-			event.emit(`loadany`, localID, noaChunk);
+			event.emit(`load`, [data.x, data.y + yoff, data.z], noaChunk);
 			chunkStorage[localID] = noaChunk;
 		}
 	} else {
 		const localID = [data.x, data.y, data.z].join('|');
 		const chunk = new ndarray(array, [32, 32, 32]);
 
-		event.emit(`load-${localID}`, chunk);
-		event.emit(`loadany`, localID, chunk);
+		event.emit(`load`, [data.x, data.y, data.z], chunk);
 		chunkStorage[localID] = chunk;
 	}
 }
@@ -54,10 +52,14 @@ export function removeChunk(id: string) {
 	delete chunkStorage[id];
 }
 
-export function getChunkSync(id: string): ndarray {
+export function getChunkSync(id: string): ndarray | null {
 	if (chunkStorage[id] != undefined) return new ndarray(chunkStorage[id].data, chunkStorage[id].shape);
-	else null;
+	else return null;
 }
+
+/**
+ * @deprecated
+ */
 
 export function getChunk(id: string): Promise<ndarray> {
 	return new Promise((resolve, reject) => {

@@ -70,6 +70,7 @@ export function buildHotbar(noa, socket) {
 		}
 	};
 
+
 	noa.on('tick', update);
 
 	const scaleEvent = (x) => {

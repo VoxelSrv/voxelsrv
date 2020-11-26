@@ -14,7 +14,7 @@ import { connect } from './lib/connect';
 import { setupMobile } from './gui/mobile';
 import { setupGamepad } from './lib/gamepad';
 import { warningFirefox } from './gui/warnings';
-import { getChunk, event as worldEvent } from './lib/world';
+import { event as worldEvent, getChunkSync } from './lib/world';
 
 import * as ndarray from 'ndarray';
 import { spawn, Worker } from 'threads';
@@ -48,19 +48,45 @@ setupControls(noa);
 setupGamepad(noa);
 //setupSkybox(noa)
 
-noa.world.on('worldDataNeeded', async (id: string, array) => {
-	const x = id.split('|');
-	id = `${x[0]}|${x[1]}|${x[2]}`;
-	getChunk(id)
-		.then((chunk) => noa.world.setChunkData(`${id}|${x[3]}`, chunk))
-		.catch(() => {
-			noa.world._chunkIDsPending.remove(id);
-		});
+const chunkLoadArray: [number, number, number][] = []
+
+noa.world.on('worldDataNeeded', async (id: string) => {
+	const ida = id.split('|');
+	id = `${ida[0]}|${ida[1]}|${ida[2]}`;
+
+	const out = loadChunk(id)
+	if (!out) {
+		const x = parseInt(ida[0]),
+			y = parseInt(ida[1]),
+			z = parseInt(ida[2]);
+
+		
+		if (!noa.world._chunksPending.includes(x, y, z)) return;
+		chunkLoadArray.push([x, y, z])
+	}
 });
 
-worldEvent.on('loadany', (id, chunk) => {
-	noa.world.setChunkData(id, new ndarray(chunk.data, chunk.shape));
-});
+setInterval(()=> {
+	if (chunkLoadArray.length == 0) return;
+
+	const [x, y, z] = chunkLoadArray.shift();
+
+	if (!noa.world._chunksPending.includes(x, y, z)) return;
+	const out = loadChunk([x, y, z].join('|'))
+	if (!out) {
+		chunkLoadArray.push([x, y, z])
+	}
+
+}, 8)
+
+function loadChunk(id) {
+	const chunk = getChunkSync(id);
+	if (chunk != null) {
+		noa.world.setChunkData(id, chunk);
+		return true
+	}
+	return false
+}
 
 let x = 0;
 noa.on('beforeRender', async () => {
@@ -70,6 +96,10 @@ noa.on('beforeRender', async () => {
 		noa.camera.pitch = 0;
 	}
 });
+
+/*worldEvent.on('load', (id, chunk) => {
+	noa.world.setChunkData(id.join('|'), chunk)
+})*/
 
 window.onerror = function (msg, url, lineNo, columnNo, error) {
 	alert(`${msg}\nPlease report this error at: https://github.com/VoxelSrv/voxelsrv/issues`);
