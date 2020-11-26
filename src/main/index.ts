@@ -48,44 +48,42 @@ setupControls(noa);
 setupGamepad(noa);
 //setupSkybox(noa)
 
-const chunkLoadArray: [number, number, number][] = []
+const chunkLoadArray: [number, number, number][] = [];
 
 noa.world.on('worldDataNeeded', async (id: string) => {
 	const ida = id.split('|');
 	id = `${ida[0]}|${ida[1]}|${ida[2]}`;
 
-	const out = loadChunk(id)
+	const out = loadChunk(id);
 	if (!out) {
 		const x = parseInt(ida[0]),
 			y = parseInt(ida[1]),
 			z = parseInt(ida[2]);
 
-		
 		if (!noa.world._chunksPending.includes(x, y, z)) return;
-		chunkLoadArray.push([x, y, z])
+		chunkLoadArray.push([x, y, z]);
 	}
 });
 
-setInterval(()=> {
+setInterval(() => {
 	if (chunkLoadArray.length == 0) return;
 
 	const [x, y, z] = chunkLoadArray.shift();
 
 	if (!noa.world._chunksPending.includes(x, y, z)) return;
-	const out = loadChunk([x, y, z].join('|'))
+	const out = loadChunk([x, y, z].join('|'));
 	if (!out) {
-		chunkLoadArray.push([x, y, z])
+		chunkLoadArray.push([x, y, z]);
 	}
-
-}, 8)
+}, 1);
 
 function loadChunk(id) {
 	const chunk = getChunkSync(id);
 	if (chunk != null) {
 		noa.world.setChunkData(id, chunk);
-		return true
+		return true;
 	}
-	return false
+	return false;
 }
 
 let x = 0;
@@ -97,9 +95,9 @@ noa.on('beforeRender', async () => {
 	}
 });
 
-/*worldEvent.on('load', (id, chunk) => {
-	noa.world.setChunkData(id.join('|'), chunk)
-})*/
+worldEvent.on('load', (id, chunk) => {
+	noa.world.setChunkData(id.join('|'), chunk);
+});
 
 window.onerror = function (msg, url, lineNo, columnNo, error) {
 	alert(`${msg}\nPlease report this error at: https://github.com/VoxelSrv/voxelsrv/issues`);
