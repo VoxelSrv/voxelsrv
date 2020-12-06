@@ -71,6 +71,13 @@ export function setupControls(noa: any) {
 	// on left mouse, set targeted block to be air
 	noa.inputs.down.on('fire', async function () {
 		if (!serverSettings.ingame) return;
+
+		const entClick = castRay();
+		if (!!entClick) {
+			socketSend('ActionClickEntity', { type: 'left', uuid: entClick[0], distance: entClick[1] });
+			socketSend('ActionClick', { type: 'left', x: 0, y: 0, z: 0, onBlock: false });
+			return;
+		}
 		if (noa.targetedBlock) {
 			//startBreakingBlock(noa.targetedBlock.position, noa.targetedBlock.blockID)
 			const pos = noa.targetedBlock.position;
@@ -78,9 +85,6 @@ export function setupControls(noa: any) {
 			socketSend('ActionBlockBreak', { x: pos[0], y: pos[1], z: pos[2], finished: true });
 			return;
 		} else socketSend('ActionClick', { type: 'left', x: 0, y: 0, z: 0, onBlock: false });
-
-		const entClick = castRay();
-		if (!!entClick) socketSend('ActionClickEntity', { type: 'left', uuid: entClick[0], distance: entClick[1] });
 	});
 
 	noa.inputs.up.on('fire', function () {
@@ -91,6 +95,13 @@ export function setupControls(noa: any) {
 	// place block on alt-fire (RMB/E)
 	noa.inputs.down.on('alt-fire', function () {
 		if (!serverSettings.ingame) return;
+		const entClick = castRay();
+		if (!!entClick) {
+			socketSend('ActionClickEntity', { type: 'right', uuid: entClick[0], distance: entClick[1] });
+			socketSend('ActionClick', { type: 'right', x: 0, y: 0, z: 0, onBlock: false });
+			return;
+		}
+
 		if (noa.targetedBlock != undefined) {
 			const pos = noa.targetedBlock.adjacent;
 			const pos2 = noa.targetedBlock.position;
@@ -101,8 +112,7 @@ export function setupControls(noa: any) {
 			return;
 		} else socketSend('ActionClick', { type: 'right', x: 0, y: 0, z: 0, onBlock: false });
 
-		const entClick = castRay();
-		if (!!entClick) socketSend('ActionClickEntity', { type: 'right', uuid: entClick[0], distance: entClick[1] });
+		
 	});
 
 	// pick block on middle fire (MMB/Q)

@@ -3,6 +3,7 @@ import { gameSettings } from '../values';
 import { getAsset } from './assets';
 
 const models = {};
+const templateModels: { [i: string]: BABYLON.Mesh } = {};
 
 let noa: any;
 
@@ -15,7 +16,7 @@ export function defineModelComp(noa2) {
 	});
 }
 
-export function applyModel(
+export async function applyModel(
 	eid: number,
 	uuid: string,
 	model: string,
@@ -29,8 +30,8 @@ export function applyModel(
 	if (models[model] == undefined) {
 		fetch(getAsset(model, 'model'))
 			.then((response) => response.json())
-			.then(function (data) {
-				const builded: any = buildModel(data, texture);
+			.then(async (data) => {
+				const builded: any = await buildModel(model, data, texture);
 				models[model] = data;
 
 				if (nametag) builded.nametag = addNametag(builded.main, name, noa.ents.getPositionData(eid).height);
@@ -61,19 +62,64 @@ export function applyModel(
 				});
 			});
 	} else {
-		const builded: any = buildModel(models[model], texture);
+		const builded: any = await buildModel(model, models[model], texture);
 		if (nametag) builded.nametag = addNametag(builded.main, name, noa.ents.getPositionData(eid).height);
 
 		noa.ents.addComponent(eid, 'model', builded);
+
+		const hitboxMesh = BABYLON.MeshBuilder.CreateBox(
+			`hitbox-${uuid}`,
+			{
+				height: hitbox[1],
+				width: hitbox[0],
+				depth: hitbox[2],
+			},
+			scene
+		);
+
+		hitboxMesh.setParent(builded.main);
+		hitboxMesh.setPositionWithLocalVector(new BABYLON.Vector3(0, hitbox[1] / 2, 0));
+		hitboxMesh.material = noa.rendering.makeStandardMaterial();
+		//hitboxMesh.material.wireframe = true;
+		hitboxMesh.isVisible = false;
+
+		noa.rendering.addMeshToScene(hitboxMesh, false);
 
 		noa.entities.addComponent(eid, noa.entities.names.mesh, {
 			mesh: builded.main,
 			offset: offset,
 		});
+
 	}
 }
 
-function buildModel(model, texture) {
+async function buildModel(name, model, texture) {
+	const scene = noa.rendering.getScene();
+	const meshlist = { main: null, models: {} };
+
+	if (templateModels[name] == undefined) createTemplateModel(name, model);
+
+	const mesh = templateModels[name].clone(name, null, false, false);
+	noa.rendering.addMeshToScene(mesh);
+
+	mesh.getChildMeshes().forEach((cmesh: BABYLON.Mesh) => {
+		let partName = cmesh.name.substr(12);
+		partName = partName.substr(0, partName.length - 9);
+
+		const mat = noa.rendering.makeStandardMaterial('modelmaterial-' + partName);
+		cmesh.material = mat;
+		mat.diffuseTexture = new BABYLON.Texture(getAsset(texture, 'texture'), scene, true, true, BABYLON.Texture.NEAREST_SAMPLINGMODE);
+		mat.diffuseTexture.hasAlpha = true;
+		noa.rendering.addMeshToScene(cmesh);
+		meshlist.models[partName] = cmesh;
+	});
+
+	meshlist.main = mesh;
+
+	return meshlist;
+}
+
+function createTemplateModel(name, model) {
 	const scene = noa.rendering.getScene();
 	const scale = 0.06;
 	const txtSize = [model.geometry.texturewidth, model.geometry.textureheight];
@@ -81,8 +127,6 @@ function buildModel(model, texture) {
 	const main = new BABYLON.Mesh('main', scene);
 
 	const modeldata = model.geometry.bones;
-
-	const meshlist = {};
 
 	for (var x = 0; x < modeldata.length; x++) {
 		const mdata = modeldata[x];
@@ -158,20 +202,17 @@ function buildModel(model, texture) {
 
 			var mat = noa.rendering.makeStandardMaterial('modelmaterial-' + mdata.name + '-' + y);
 			part[y].material = mat;
-			mat.diffuseTexture = new BABYLON.Texture(getAsset(texture, 'texture'), scene, true, true, BABYLON.Texture.NEAREST_SAMPLINGMODE);
 
 			part[y].opaque = false;
-			mat.diffuseTexture.hasAlpha = true;
 		}
 		const mesh = BABYLON.Mesh.MergeMeshes(part, true, true, undefined, true, true);
 		mesh.setParent(main);
 		mesh.setPivotMatrix(BABYLON.Matrix.Translation(-pivot[0] * scale, -pivot[1] * scale, -pivot[2] * scale));
-
-		meshlist[mdata.name] = mesh;
-
-		noa.rendering.addMeshToScene(mesh);
 	}
-	return { main: main, models: meshlist };
+
+	templateModels[name] = main;
+
+	return main;
 }
 
 function addNametag(mainMesh, name, height) {

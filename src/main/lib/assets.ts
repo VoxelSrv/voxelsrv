@@ -7,8 +7,11 @@ export function setAssetServer(t: string) {
 }
 
 export function getAsset(asset: string, type: string): string {
-	if (asset.startsWith('http://') || asset.startsWith('https://'))
-		return type == 'texture' ? './textures/error.png' : type == 'model' ? './models/player.json' : '';
+	if (asset.startsWith('http://') || asset.startsWith('https://')){
+		//console.log(gameSettings.allowcustom)
+		//if (!gameSettings.allowcustom) return type == 'texture' ? './textures/error.png' : type == 'model' ? './models/player.json' : '';
+		return asset
+}	
 	else if (asset.startsWith('server:')) {
 		if (!gameSettings.allowcustom) return type == 'texture' ? './textures/error.png' : type == 'model' ? './models/player.json' : '';
 		asset = asset.substr(7);

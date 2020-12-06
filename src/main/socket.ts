@@ -1,5 +1,14 @@
-import * as protocol from './lib/protocol';
-import Peer from 'peerjs';
+import { spawn, Worker } from 'threads';
+
+let protocol: {
+	parseToMessage(type: string, name, data): Promise<Buffer>;
+	parseToObject(type: string, data): Promise<any>;
+};
+
+spawn(new Worker('./protocol.js')).then((x) => {
+	// @ts-ignore
+	protocol = x;
+});
 
 export class BaseSocket {
 	socket: any;
@@ -8,12 +17,7 @@ export class BaseSocket {
 
 	constructor() {}
 
-	send(type: string, data: Object) {
-		const packet = protocol.parseToMessage('client', type, data);
-		if (packet != null) {
-			this.socket.send(packet);
-		}
-	}
+	async send(type: string, data: Object) {}
 
 	close() {
 		this.listeners = {};
@@ -57,37 +61,18 @@ export class MPSocket extends BaseSocket {
 			setTimeout(() => this.emit('PlayerKick', { reason: `Connection closed!` }), 500);
 		};
 
-		this.socket.onmessage = (data) => {
-			const packet = protocol.parseToObject('server', new Uint8Array(data.data));
+		this.socket.onmessage = async (data) => {
+			const packet = await protocol.parseToObject('server', new Uint8Array(data.data));
+			if (true) console.log(packet);
 			if (packet != null) this.emit(packet.type, packet.data);
 		};
 	}
 
-	close() {
-		this.listeners = {};
-		this.socket.close();
-	}
-}
-
-export class PeerSocket extends BaseSocket {
-	peer: Peer;
-	socket: Peer.DataConnection;
-	constructor(server: string) {
-		super();
-		this.server = server;
-		this.peer = new Peer();
-
-		this.socket = this.peer.connect(server);
-
-		console.log(`Your peer id: ${this.peer.id}`);
-
-		this.socket.on('open', () => setTimeout(() => this.emit('connection', {}), 500));
-		this.socket.on('close', () => setTimeout(() => this.emit('PlayerKick', { reason: `Connection closed!` }), 500));
-		this.socket.on('error', () => setTimeout(() => this.emit('PlayerKick', { reason: `Can't connect to peer` }), 500));
-		this.socket.on('data', (data) => {
-			const packet = protocol.parseToObject('server', new Uint8Array(data.data));
-			if (packet != null) this.emit(packet.type, packet.data);
-		});
+	async send(type: string, data: Object) {
+		const packet = await protocol.parseToMessage('client', type, data);
+		if (packet != null) {
+			this.socket.send(packet);
+		}
 	}
 
 	close() {

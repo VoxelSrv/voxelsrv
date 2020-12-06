@@ -25,13 +25,13 @@ module.exports = (env) => ({
 		maxEntrypointSize: 1.5e6,
 		maxAssetSize: 1.5e6,
 	},
-	output: {
-		path: buildPath,
-		filename: 'bundle.js',
+	entry: {
+		bundle: './index.ts',
+		protocol: './lib/protocol.ts',
+		inflate: './lib/worldInflate.ts',
 	},
-	stats: {
-		modules: false,
-		warningsFilter: [/..\/node_modules\/peerjs\/dist\/peerjs.min.js/],
+	output: {
+		filename: '[name].js',
 	},
 	devServer: {
 		contentBase: buildPath,
@@ -55,5 +55,5 @@ module.exports = (env) => ({
 			},
 		},
 	},
-	plugins: [new ThreadsPlugin()],
+	plugins: [],
 });

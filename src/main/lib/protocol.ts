@@ -1,3 +1,5 @@
+import { expose } from 'threads/worker';
+
 import * as client from 'voxelsrv-protocol/js/client';
 import * as server from 'voxelsrv-protocol/js/server';
 import { default as mapClient } from 'voxelsrv-protocol/idmap/client.json';
@@ -9,7 +11,7 @@ let revMapClient = {};
 mapClient.forEach((x, i) => (revMapClient[x] = i));
 mapServer.forEach((x, i) => (revMapServer[x] = i));
 
-export function parseToObject(pType, data) {
+function parseToObject(pType, data) {
 	let type = '';
 	let packet: any;
 	if (pType == 'server') {
@@ -37,10 +39,10 @@ export function parseToObject(pType, data) {
 		return null;
 	}
 
-	return { data: packet.toObject(message), type: type };
+	return { data: packet.toObject(message, {defaults: true}), type: type };
 }
 
-export function parseToMessage(pType, type, data) {
+function parseToMessage(pType, type, data) {
 	let packet: any;
 	let typeRaw: number = 0;
 	if (pType == 'server') {
@@ -73,3 +75,11 @@ export function parseToMessage(pType, type, data) {
 
 	return out.buffer;
 }
+
+expose({
+	parseToMessage,
+	parseToObject,
+});
+
+
+self['rootWindow'] = { location: { reload() {} } };

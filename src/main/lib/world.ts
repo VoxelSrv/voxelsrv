@@ -32,7 +32,6 @@ export async function setChunk(data: IWorldChunkLoad) {
 					for (let y = 0; y < 32; y++) {
 						const block = chunk.get(x, y + yoff * 32, z);
 						noaChunk.set(x, y, z, block);
-						if (block > 255) console.log(block);
 					}
 				}
 			}
@@ -53,7 +52,9 @@ export function removeChunk(id: string) {
 }
 
 export function getChunkSync(id: string): ndarray | null {
-	if (chunkStorage[id] != undefined) return new ndarray(chunkStorage[id].data, chunkStorage[id].shape);
+	if (chunkStorage[id] != undefined && chunkStorage[id].data != null) {
+		return new ndarray(chunkStorage[id].data.subarray(0), [...chunkStorage[id].shape]);
+	}	
 	else return null;
 }
 

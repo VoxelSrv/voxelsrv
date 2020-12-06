@@ -6,7 +6,7 @@ import { defineModelComp } from './lib/model';
 import { noaOpts, updateSettings, serverSettings, defaultFonts, setNoa, updateServerSettings, gameSettings } from './values';
 import { constructScreen } from './gui/main';
 
-import { MPSocket, PeerSocket } from './socket';
+import { MPSocket } from './socket';
 import { getSettings } from './lib/storage';
 import { setupClouds } from './lib/sky';
 import { buildMainMenu } from './gui/menu/main';
@@ -19,7 +19,7 @@ import { event as worldEvent, getChunkSync } from './lib/world';
 import * as ndarray from 'ndarray';
 import { spawn, Worker } from 'threads';
 
-spawn(new Worker('./lib/worldInflate')).then((x) => {
+spawn(new Worker('./inflate.js')).then((x) => {
 	window['inflate'] = x;
 });
 
@@ -65,7 +65,7 @@ noa.world.on('worldDataNeeded', async (id: string) => {
 	}
 });
 
-setInterval(() => {
+setInterval(async () => {
 	if (chunkLoadArray.length == 0) return;
 
 	const [x, y, z] = chunkLoadArray.shift();
@@ -75,7 +75,7 @@ setInterval(() => {
 	if (!out) {
 		chunkLoadArray.push([x, y, z]);
 	}
-}, 1);
+}, 6);
 
 function loadChunk(id) {
 	const chunk = getChunkSync(id);
@@ -96,19 +96,17 @@ noa.on('beforeRender', async () => {
 });
 
 worldEvent.on('load', (id, chunk) => {
+	const [x, y, z] = id;
+	if (!noa.world._chunksPending.includes(x, y, z)) return;
+
 	noa.world.setChunkData(id.join('|'), chunk);
 });
-
 window.onerror = function (msg, url, lineNo, columnNo, error) {
 	alert(`${msg}\nPlease report this error at: https://github.com/VoxelSrv/voxelsrv/issues`);
 };
 
 window['connect'] = (x) => {
 	connect(noa, new MPSocket(x));
-};
-
-window['peer'] = (x) => {
-	connect(noa, new PeerSocket(x));
 };
 
 window['forceplay'] = () => {
@@ -138,9 +136,6 @@ setTimeout(() => {
 
 	if (!!options.get('server')) {
 		const socket = new MPSocket('ws://' + options.get('server'));
-		connect(noa, socket);
-	} else if (!!options.get('peer')) {
-		const socket = new PeerSocket(options.get('peer'));
 		connect(noa, socket);
 	} else {
 		setTimeout(() => {

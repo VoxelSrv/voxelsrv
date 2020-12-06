@@ -2,7 +2,7 @@ import { saveSettings } from './lib/storage';
 import { isMobile, isFirefox } from 'mobile-device-detect';
 import { setScale } from './gui/main';
 
-export const gameVersion = '0.2.0-beta.10.1';
+export const gameVersion = '0.2.0-beta.10.2';
 
 export const gameProtocol = 2;
 
@@ -51,11 +51,11 @@ export function noaOpts() {
 		chunkAddDistance: gameSettings.viewDistance, // Make it changeable?
 		chunkRemoveDistance: gameSettings.viewDistance + 0.5, // ^
 		blockTestDistance: 7, // Per Gamemode?
-		tickRate: isMobile ? 65 : 50, // Maybe make it lower
+		tickRate: isMobile ? 40 : 50, // Maybe make it lower
 		texturePath: '',
 		playerStart: [0, 100, 0],
 		playerHeight: 1.85,
-		playerWidth: 0.5,
+		playerWidth: 0.6,
 		playerAutoStep: gameSettings.autostep ? 1 : 0,
 		clearColor: [0.8, 0.9, 1],
 		ambientColor: [1, 1, 1],
@@ -66,6 +66,7 @@ export function noaOpts() {
 		AOmultipliers: [0.93, 0.8, 0.5],
 		reverseAOmultiplier: 1.0,
 		preserveDrawingBuffer: true,
+		stickyPointerLock: false,
 		adaptToDeviceRatio: false,
 		gravity: [0, -14, 0],
 		bindings: {
