@@ -74,6 +74,18 @@ export default function buildSettings(noa, openMenu) {
 
 	settings.addControl(gamepad.main);
 
+	const fov = createSlider();
+	fov.name.text = `FOV: ${gameSettings.fov}`;
+	fov.slider.value = gameSettings.fov;
+	fov.slider.minimum = 20;
+	fov.slider.maximum = 120;
+	fov.slider.step = 1;
+	fov.slider.onValueChangedObservable.add((x) => {
+		fov.name.text = `FOV: ${x}`;
+	});
+
+	settings.addControl(fov.main);
+
 	const view = createSlider();
 	view.name.text = `View Distance: ${gameSettings.viewDistance}`;
 	view.slider.value = gameSettings.viewDistance;
@@ -97,13 +109,16 @@ export default function buildSettings(noa, openMenu) {
 			scale: scaleS.slider.value,
 			gamepad: gamepad.isChecked,
 			viewDistance: view.slider.value,
+			fov: fov.slider.value
 		});
 
 		noa.camera.sensitivityX = mouse.slider.value;
 		noa.camera.sensitivityY = mouse.slider.value;
 
 		noa.world.chunkAddDistance = view.slider.value;
-		noa.world.chunkRemoveDistance = view.slider.value + 1;
+		noa.world.chunkRemoveDistance = view.slider.value + 0.5;
+
+		noa.rendering.getScene().cameras[0].fov = fov.slider.value * Math.PI / 180;
 
 		menu.dispose();
 		openMenu('main');

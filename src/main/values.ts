@@ -2,7 +2,7 @@ import { saveSettings } from './lib/storage';
 import { isMobile, isFirefox } from 'mobile-device-detect';
 import { setScale } from './gui/main';
 
-export const gameVersion = '0.2.0-beta.11';
+export const gameVersion = '0.2.0-beta.11.1';
 
 export const gameProtocol = 2;
 
@@ -14,9 +14,11 @@ export const defaultSettings = {
 	singleplayer: false,
 	allowcustom: false,
 	mouse: isMobile ? 50 : 15,
-	viewDistance: isMobile ? 3 : isFirefox ? 2 : 6,
+	viewDistance: isMobile ? 3 : isFirefox ? 2 : 5,
 	hotbarsize: 9,
 	scale: 3,
+	fov: 70,
+	fpslimit: 0,
 };
 
 export let gameSettings = { ...defaultSettings, version: gameVersion };
@@ -49,7 +51,7 @@ export function noaOpts() {
 		sensitivityY: gameSettings.mouse,
 		chunkSize: 32, // Don't touch this
 		chunkAddDistance: gameSettings.viewDistance, // Make it changeable?
-		chunkRemoveDistance: gameSettings.viewDistance + 1, // ^
+		chunkRemoveDistance: gameSettings.viewDistance, // ^
 		blockTestDistance: 7, // Per Gamemode?
 		tickRate: isMobile ? 18 : 20, // Maybe make it lower
 		texturePath: '',
@@ -88,6 +90,7 @@ export function noaOpts() {
 			menu: ['<escape>'],
 			screenshot: ['P'],
 			hide: ['O'],
+			zoom: ['Z'],
 		},
 		tickInUnloadedChunks: true,
 		ignorePointerLock: false,

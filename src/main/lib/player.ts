@@ -218,6 +218,19 @@ export function setupControls(noa: any) {
 		tabContainer.isVisible = false;
 	});
 
+	noa.inputs.down.on('zoom', function () {
+		if (chatInput == undefined || chatInput.isVisible) return;
+
+		scene.cameras[0].fov = 0.4;
+	});
+
+	noa.inputs.up.on('zoom', function () {
+		if (chatInput == undefined || chatInput.isVisible) return;
+
+		scene.cameras[0].fov = gameSettings.fov * Math.PI / 180;
+	});
+
+
 	noa.inputs.up.on('screenshot', function () {
 		if (chatInput == undefined || chatInput.isVisible) return;
 		if (document.pointerLockElement == noa.container.canvas) {
@@ -284,8 +297,6 @@ export function setupPlayer(noa: any, invData: object, arrData: object, movement
 	const eyeOffset = 0.9 * noa.ents.getPositionData(noa.playerEntity).height;
 
 	const offset = [0, h / 2, 0];
-
-	noa.rendering.getScene().cameras[0].fov = 1;
 
 	// Gamemode and players settings
 

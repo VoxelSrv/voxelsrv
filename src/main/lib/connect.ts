@@ -58,6 +58,7 @@ export function disconnect() {
 	destroyGuis();
 	updateServerSettings({ ingame: false });
 	document.exitPointerLock();
+	noa.rendering.getScene().cameras[0].fov = 0.8;
 	buildMainMenu(noa);
 }
 
@@ -75,6 +76,7 @@ export function connect(noax, socketx) {
 
 	socket.on('PlayerKick', (data: IPlayerKick) => {
 		socket.close();
+		noa.rendering.getScene().cameras[0].fov = 0.8;
 		noa.ents.getPhysics(noa.playerEntity).body.airDrag = 9999;
 		Object.values(entityList).forEach((x) => {
 			noa.ents.deleteEntity(x, true);
@@ -132,6 +134,8 @@ export function connect(noax, socketx) {
 		scene.fogEnd = 60;
 		scene.fogDensity = 0.1;
 		scene.fogColor = new BABYLON.Color3(0, 0, 0);
+
+		scene.cameras[0].fov = gameSettings.fov * Math.PI / 180;
 
 		scene.clearColor = new BABYLON.Color4(noaDef.clearColor[0], noaDef.clearColor[1], noaDef.clearColor[2], 1);
 		cloudMesh.isVisible = true;
