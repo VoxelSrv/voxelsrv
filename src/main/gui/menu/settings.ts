@@ -103,7 +103,7 @@ export default function buildSettings(noa, openMenu) {
 		noa.camera.sensitivityY = mouse.slider.value;
 
 		noa.world.chunkAddDistance = view.slider.value;
-		noa.world.chunkRemoveDistance = view.slider.value;
+		noa.world.chunkRemoveDistance = view.slider.value + 1;
 
 		menu.dispose();
 		openMenu('main');

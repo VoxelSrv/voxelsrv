@@ -270,17 +270,6 @@ export function setupControls(noa: any) {
 			noa.ents.getState(eid, 'inventory').selected = pickedID;
 		}
 	});
-
-	setTimeout(() => {
-		noa.on('tick', async () => {
-			if (!serverSettings.ingame) return;
-			if ((document.pointerLockElement != noa.container.canvas && !isMobile) || chatInput.isVisible || pauseScreen.isVisible || inventory.isVisible) {
-				noa.ents.getState(noa.playerEntity, 'receivesInputs').ignore = true;
-			} else {
-				noa.ents.getState(noa.playerEntity, 'receivesInputs').ignore = false;
-			}
-		});
-	}, 100);
 }
 
 export function setupPlayer(noa: any, invData: object, arrData: object, movement: object) {

@@ -92,6 +92,10 @@ export function connect(noax, socketx) {
 		noa.worldName = `World-${Math.random() * 10000}`;
 		noa.camera.heading = 0;
 		noa.camera.pitch = 0;
+		clearStorage();
+		noa.world._chunksKnown.forEach((loc) => {
+			noa.world.manuallyUnloadChunk(loc[0] * 32, loc[1] * 32, loc[2] * 32);
+		});
 
 		const scene: Scene = noa.rendering.getScene();
 

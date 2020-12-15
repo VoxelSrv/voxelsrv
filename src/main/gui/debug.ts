@@ -36,7 +36,9 @@ export function setupDebug(noa, server) {
 
 	const update = async () => {
 		const pos = `${dat.position[0].toFixed(1)}, ${dat.position[1].toFixed(1)}, ${dat.position[2].toFixed(1)}`;
-		const text = `VoxelSrv ${gameVersion}\nNoa: ${noa.version}\nXYZ: ${pos}\n${serverText}`;
+		const chunk = `${Math.floor(dat.position[0]/32)}, ${Math.floor(dat.position[1]/32)}, ${Math.floor(dat.position[2]/32)}`;
+
+		const text = `VoxelSrv ${gameVersion}\nNoa: ${noa.version}\nXYZ: ${pos}\nChunk: ${chunk}\n${serverText}`;
 		debug.text = text;
 		if (oldScale != scale) {
 			oldScale = scale;

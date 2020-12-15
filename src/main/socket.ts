@@ -63,7 +63,6 @@ export class MPSocket extends BaseSocket {
 
 		this.socket.onmessage = async (data) => {
 			const packet = await protocol.parseToObject('server', new Uint8Array(data.data));
-			if (true) console.log(packet);
 			if (packet != null) this.emit(packet.type, packet.data);
 		};
 	}

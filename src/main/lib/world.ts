@@ -58,6 +58,10 @@ export function getChunkSync(id: string): ndarray | null {
 	else return null;
 }
 
+export function chunkExist(id) {
+	return chunkStorage[id] != undefined;
+}
+
 /**
  * @deprecated
  */

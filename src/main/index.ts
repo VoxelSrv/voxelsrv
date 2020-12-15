@@ -14,7 +14,7 @@ import { connect } from './lib/connect';
 import { setupMobile } from './gui/mobile';
 import { setupGamepad } from './lib/gamepad';
 import { warningFirefox } from './gui/warnings';
-import { event as worldEvent, getChunkSync } from './lib/world';
+import { chunkExist, event as worldEvent, getChunkSync } from './lib/world';
 
 import * as ndarray from 'ndarray';
 import { spawn, Worker } from 'threads';
@@ -31,6 +31,8 @@ getSettings().then((data) => updateSettings(data));
 
 const noa: any = new Engine(noaOpts());
 
+//noa.world.maxChunksPendingCreation = Infinity;
+
 noa.ents.createComponent({
 	name: 'inventory',
 	state: { items: {}, selected: 0, tempslot: {}, armor: {}, crafting: {} },
@@ -39,7 +41,6 @@ noa.ents.createComponent({
 setNoa(noa);
 
 noa.ents.getPhysics(noa.playerEntity).body.airDrag = 9999;
-noa.world.maxChunksPendingCreation = Infinity;
 constructScreen(noa);
 setupClouds(noa);
 defineModelComp(noa);
@@ -48,43 +49,14 @@ setupControls(noa);
 setupGamepad(noa);
 //setupSkybox(noa)
 
-const chunkLoadArray: [number, number, number][] = [];
-
 noa.world.on('worldDataNeeded', async (id: string) => {
 	const ida = id.split('|');
-	id = `${ida[0]}|${ida[1]}|${ida[2]}`;
 
-	const out = loadChunk(id);
-	if (!out) {
-		const x = parseInt(ida[0]),
-			y = parseInt(ida[1]),
-			z = parseInt(ida[2]);
-
-		if (!noa.world._chunksPending.includes(x, y, z)) return;
-		chunkLoadArray.push([x, y, z]);
-	}
-});
-
-setInterval(async () => {
-	if (chunkLoadArray.length == 0) return;
-
-	const [x, y, z] = chunkLoadArray.shift();
-
-	if (!noa.world._chunksPending.includes(x, y, z)) return;
-	const out = loadChunk([x, y, z].join('|'));
-	if (!out) {
-		chunkLoadArray.push([x, y, z]);
-	}
-}, 6);
-
-function loadChunk(id) {
-	const chunk = getChunkSync(id);
+	const chunk = getChunkSync(`${ida[0]}|${ida[1]}|${ida[2]}`);
 	if (chunk != null) {
 		noa.world.setChunkData(id, chunk);
-		return true;
 	}
-	return false;
-}
+});
 
 let x = 0;
 noa.on('beforeRender', async () => {
@@ -95,12 +67,55 @@ noa.on('beforeRender', async () => {
 	}
 });
 
-worldEvent.on('load', (id, chunk) => {
-	const [x, y, z] = id;
-	if (!noa.world._chunksPending.includes(x, y, z)) return;
+document.addEventListener(
+	'pointerlockchange',
+	() => {
+		if (document.pointerLockElement == noa.container.canvas) {
+			noa.ignorePointerLock = true;
+			noa.ents.getState(noa.playerEntity, 'receivesInputs').ignore = false;
+		} else {
+			noa.ignorePointerLock = false;
+			noa.ents.getState(noa.playerEntity, 'receivesInputs').ignore = true;
+		}
+	},
+	false
+);
 
-	noa.world.setChunkData(id.join('|'), chunk);
-});
+setInterval(async () => {
+	const pos = noa.ents.getPosition(noa.playerEntity);
+	const ci = Math.ceil(pos[0] / 32);
+	const cj = Math.ceil(pos[1] / 32);
+	const ck = Math.ceil(pos[2] / 32);
+
+	const add = Math.ceil(noa.world.chunkAddDistance);
+	let i, j, k;
+
+	for (i = ci - add; i <= ci + add; ++i) {
+		for (j = cj - add; j <= cj + add; ++j) {
+			for (k = ck - add; k <= ck + add; ++k) {
+				if (noa.world._chunksKnown.includes(i, j, k)) continue;
+
+				if (chunkExist([i, j, k].join('|'))) {
+					noa.world.manuallyLoadChunk(i * 32, j * 32, k * 32);
+				}
+			}
+		}
+	}
+
+	setTimeout(() => {
+		//const remDistSq =  * noa.world.chunkRemoveDistance;
+		const dist = noa.world.chunkRemoveDistance
+
+		noa.world._chunksKnown.forEach((loc) => {
+			if (noa.world._chunksToRemove.includes(loc[0], loc[1], loc[2])) return;
+			var di = loc[0] - ci;
+			var dj = loc[1] - cj;
+			var dk = loc[2] - ck;
+			if (dist <= Math.abs(di) || dist <= Math.abs(dj) || dist <= Math.abs(dk) ) noa.world.manuallyUnloadChunk(loc[0] * 32, loc[1] * 32, loc[2] * 32);
+		});
+	}, 500);
+}, 2000);
+
 window.onerror = function (msg, url, lineNo, columnNo, error) {
 	alert(`${msg}\nPlease report this error at: https://github.com/VoxelSrv/voxelsrv/issues`);
 };

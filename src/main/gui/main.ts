@@ -6,13 +6,12 @@ export const event = new EventEmitter();
 
 let available = false;
 
-let layer0: any;
-let layer1: any;
-let ui0: any;
-let ui1: any;
+let layer0: BABYLON.Scene;
+let ui0: GUI.AdvancedDynamicTexture;
+let ui1: GUI.AdvancedDynamicTexture;
 let screen0: GUI.Rectangle;
 let screen1: GUI.Rectangle;
-export let engine: any;
+export let engine: BABYLON.Engine;
 
 export let scale = 3;
 export let maxScale = 3;
@@ -45,8 +44,8 @@ export function getEngine() {
 window['scale'] = setScale;
 
 export function constructScreen(noa) {
-	engine = noa.rendering.getEngine();
 	const scene = noa.rendering.getScene();
+	engine = scene.getEngine();
 
 	layer0 = new BABYLON.Scene(engine);
 
@@ -83,7 +82,10 @@ export function constructScreen(noa) {
 
 	available = true;
 
-	noa.rendering._multiscenes.push(layer0);
+	noa.on('afterRender', () => {
+		layer0.render();
+	})
+
 	updateScale();
 }
 

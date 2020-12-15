@@ -1,9 +1,6 @@
 var path = require('path');
 var buildPath = path.resolve('..', '..', 'docs');
 
-var webpack = require('webpack');
-const ThreadsPlugin = require('threads-plugin');
-
 module.exports = (env) => ({
 	mode: (() => {
 		return env && env.production ? 'production' : 'development';
