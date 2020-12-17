@@ -1,4 +1,5 @@
 import * as BABYLON from '@babylonjs/core/Legacy/legacy';
+import { Mesh } from '@babylonjs/core/Legacy/legacy';
 import { gameSettings } from '../values';
 import { getAsset } from './assets';
 
@@ -31,66 +32,57 @@ export async function applyModel(
 		fetch(getAsset(model, 'model'))
 			.then((response) => response.json())
 			.then(async (data) => {
-				const builded: any = await buildModel(model, data, texture);
 				models[model] = data;
+				models[model].animations = buildAnimations(data.animations);
 
-				if (nametag) builded.nametag = addNametag(builded.main, name, noa.ents.getPositionData(eid).height);
-
-				noa.ents.addComponent(eid, 'model', builded);
-
-				const hitboxMesh = BABYLON.MeshBuilder.CreateBox(
-					`hitbox-${uuid}`,
-					{
-						height: hitbox[1],
-						width: hitbox[0],
-						depth: hitbox[2],
-					},
-					scene
-				);
-
-				hitboxMesh.setParent(builded.main);
-				hitboxMesh.setPositionWithLocalVector(new BABYLON.Vector3(0, hitbox[1] / 2, 0));
-				hitboxMesh.material = noa.rendering.makeStandardMaterial();
-				//hitboxMesh.material.wireframe = true;
-				hitboxMesh.isVisible = false;
-
-				noa.rendering.addMeshToScene(hitboxMesh, false);
-
-				noa.entities.addComponent(eid, noa.entities.names.mesh, {
-					mesh: builded.main,
-					offset: offset,
-				});
+				applyModelTo(model, data, texture, name, nametag, eid, uuid, hitbox, scene, offset);
 			});
 	} else {
-		const builded: any = await buildModel(model, models[model], texture);
-		if (nametag) builded.nametag = addNametag(builded.main, name, noa.ents.getPositionData(eid).height);
-
-		noa.ents.addComponent(eid, 'model', builded);
-
-		const hitboxMesh = BABYLON.MeshBuilder.CreateBox(
-			`hitbox-${uuid}`,
-			{
-				height: hitbox[1],
-				width: hitbox[0],
-				depth: hitbox[2],
-			},
-			scene
-		);
-
-		hitboxMesh.setParent(builded.main);
-		hitboxMesh.setPositionWithLocalVector(new BABYLON.Vector3(0, hitbox[1] / 2, 0));
-		hitboxMesh.material = noa.rendering.makeStandardMaterial();
-		//hitboxMesh.material.wireframe = true;
-		hitboxMesh.isVisible = false;
-
-		noa.rendering.addMeshToScene(hitboxMesh, false);
-
-		noa.entities.addComponent(eid, noa.entities.names.mesh, {
-			mesh: builded.main,
-			offset: offset,
-		});
-
+		applyModelTo(model, models[model], texture, name, nametag, eid, uuid, hitbox, scene, offset);
 	}
+}
+
+async function applyModelTo(
+	model: string,
+	data: object,
+	texture: string,
+	name: string,
+	nametag: boolean,
+	eid: number,
+	uuid: string,
+	hitbox: number[],
+	scene: BABYLON.Scene,
+	offset
+) {
+	const builded: any = await buildModel(model, data, texture);
+
+	builded.nametag = addNametag(builded.main, name, noa.ents.getPositionData(eid).height, nametag);
+
+	noa.ents.addComponent(eid, 'model', builded);
+
+	const hitboxMesh = BABYLON.MeshBuilder.CreateBox(
+		`hitbox-${uuid}`,
+		{
+			height: hitbox[1],
+			width: hitbox[0],
+			depth: hitbox[2],
+		},
+		scene
+	);
+
+	hitboxMesh.setParent(builded.main);
+	hitboxMesh.setPositionWithLocalVector(new BABYLON.Vector3(0, hitbox[1] / 2, 0));
+	hitboxMesh.material = noa.rendering.makeStandardMaterial();
+	//hitboxMesh.material.wireframe = true;
+	hitboxMesh.isVisible = false;
+
+	noa.rendering.addMeshToScene(hitboxMesh, false);
+
+	noa.entities.addComponent(eid, noa.entities.names.mesh, {
+		mesh: builded.main,
+		offset: offset,
+		animations: models[model].animations,
+	});
 }
 
 async function buildModel(name, model, texture) {
@@ -117,6 +109,18 @@ async function buildModel(name, model, texture) {
 	meshlist.main = mesh;
 
 	return meshlist;
+}
+
+type AnimationsList = {[index: string]: {
+	speed: number;
+	parts: {
+		[index: string]: string
+	}
+}}
+
+function buildAnimations(data: AnimationsList) {
+	const builded = {}
+	return;
 }
 
 function createTemplateModel(name, model) {
@@ -215,7 +219,7 @@ function createTemplateModel(name, model) {
 	return main;
 }
 
-function addNametag(mainMesh, name, height) {
+export function addNametag(mainMesh: Mesh, name: string, height: number, visible: boolean) {
 	const scene = noa.rendering.getScene();
 
 	const font_size = 96;
@@ -258,6 +262,8 @@ function addNametag(mainMesh, name, height) {
 	plane.opaque = false;
 	plane.rotation.x = 0;
 	plane.rotation.y = 0;
+
+	plane.isVisible = visible;
 
 	plane.setParent(mainMesh);
 	noa.rendering.addMeshToScene(plane);

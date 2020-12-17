@@ -59,5 +59,13 @@
 				]
 			}
 		]
+	},
+	"animations": {
+		"walk": {
+			"speed": 1,
+			"parts": {
+				"left_arm": ""
+			}
+		}
 	}
 }

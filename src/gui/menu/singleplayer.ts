@@ -3,10 +3,8 @@ import * as GUI from '@babylonjs/gui/';
 import { FormTextBlock } from '../../gui-uni/formtextblock';
 import { createItem, createButton, createInput } from '../../gui-uni/menu';
 
-import type { IpcRenderer } from 'electron';
 import { gameVersion } from '../../values';
-declare const window: Window & { electron: IpcRenderer };
-
+/*
 export default function buildSingleplayer(noa, openMenu) {
 	const menu = new GUI.Rectangle();
 	menu.thickness = 0;
@@ -291,3 +289,5 @@ function openWorldCreation() {
 	menu.addControl(settings);
 	ui.addControl(menu);
 }
+
+*/

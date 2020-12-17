@@ -5,7 +5,7 @@ import { setupGuis, destroyGuis } from '../gui/setup';
 import buildDisconnect from '../gui/menu/disconnect';
 import { addMessage } from '../gui/chat';
 import { setupPlayer } from './player';
-import { applyModel } from './model';
+import { addNametag, applyModel } from './model';
 import { registerBlocks, registerItems } from './registry';
 import { setChunk, clearStorage, removeChunk, chunkSetBlock } from './world';
 import { playSound } from './sound';
@@ -31,6 +31,17 @@ import {
 	IWorldChunkUnload,
 	IEnvironmentFogUpdate,
 	IEnvironmentSkyUpdate,
+	IWorldMultiBlockUpdate,
+	IEntityNameUpdate,
+	IPlayerUpdateMovement,
+	IPlayerUpdatePhysics,
+	IPlayerApplyImpulse,
+	IEntityCreate,
+	IEntityRemove,
+	IEntityMove,
+	IEntityHeldItem,
+	IEntityArmor,
+	ISoundPlay,
 } from 'voxelsrv-protocol/js/server';
 import { Engine as BabylonEngine, Scene } from '@babylonjs/core';
 import { setAssetServer } from './assets';
@@ -135,7 +146,7 @@ export function connect(noax, socketx) {
 		scene.fogDensity = 0.1;
 		scene.fogColor = new BABYLON.Color3(0, 0, 0);
 
-		scene.cameras[0].fov = gameSettings.fov * Math.PI / 180;
+		scene.cameras[0].fov = (gameSettings.fov * Math.PI) / 180;
 
 		scene.clearColor = new BABYLON.Color4(noaDef.clearColor[0], noaDef.clearColor[1], noaDef.clearColor[2], 1);
 		cloudMesh.isVisible = true;
@@ -172,6 +183,13 @@ export function connect(noax, socketx) {
 				if (data.type) {
 					for (let x = 0; x <= 8; x++) removeChunk(`${data.x}|${x}|${data.z}`);
 				} else removeChunk(`${data.x}|${data.y}|${data.z}`);
+			});
+
+			socket.on('WorldMultiBlockUpdate', (data: IWorldMultiBlockUpdate) => {
+				Object.values(data.blocks).forEach((block) => {
+					noa.setBlock(block.id, block.x, block.y, block.z);
+					chunkSetBlock(block.id, block.x, block.y, block.z);
+				});
 			});
 
 			socket.on('WorldBlockUpdate', (data: IWorldBlockUpdate) => {
@@ -235,21 +253,21 @@ export function connect(noax, socketx) {
 				noa.ents.setPosition(noa.playerEntity, data.x, data.y, data.z);
 			});
 
-			socket.on('PlayerUpdateMovement', function (data) {
+			socket.on('PlayerUpdateMovement', (data: IPlayerUpdateMovement) => {
 				const move = noa.ents.getMovement(noa.playerEntity);
 				move[data.key] = data.value;
 			});
 
-			socket.on('PlayerUpdatePhysics', function (data) {
+			socket.on('PlayerUpdatePhysics', (data: IPlayerUpdatePhysics) => {
 				const move = noa.ents.getPhysicsBody(noa.playerEntity);
 				move[data.key] = data.value;
 			});
 
-			socket.on('PlayerApplyImpulse', function (data) {
+			socket.on('PlayerApplyImpulse', (data: IPlayerApplyImpulse) => {
 				noa.ents.getPhysicsBody(noa.playerEntity).applyImpulse([data.x, data.y, data.z]);
 			});
 
-			socket.on('EntityCreate', async function (data) {
+			socket.on('EntityCreate', async (data: IEntityCreate) => {
 				if (entityIgnore != data.uuid) {
 					const entData = JSON.parse(data.data);
 					entityList[data.uuid] = noa.ents.add(Object.values(entData.position), 1, 2, null, null, false, true);
@@ -259,12 +277,18 @@ export function connect(noax, socketx) {
 				}
 			});
 
-			socket.on('EntityRemove', function (data) {
+			socket.on('EntityNameUpdate', (data: IEntityNameUpdate) => {
+				const model = noa.ents.getState(entityList[data.uuid], 'model');
+				model.nametag.dispose();
+				model.nametag = addNametag(model.main, data.name, noa.ents.getPositionData(entityList[data.uuid]).height, data.visible);
+			})
+
+			socket.on('EntityRemove', (data: IEntityRemove) => {
 				if (entityList[data.uuid] != undefined) noa.ents.deleteEntity(entityList[data.uuid]);
 				delete entityList[data.uuid];
 			});
 
-			socket.on('EntityMove', function (data) {
+			socket.on('EntityMove', (data: IEntityMove) => {
 				if (entityList[data.uuid] != undefined) {
 					var pos = [data.x, data.y, data.z];
 					noa.ents.getState(entityList[data.uuid], 'position').newPosition = pos;
@@ -273,7 +297,10 @@ export function connect(noax, socketx) {
 				}
 			});
 
-			socket.on('SoundPlay', function (data) {
+			socket.on('EntityHeldItem', (data: IEntityHeldItem) => {})
+			socket.on('EntityArmor', (data: IEntityArmor) => {})
+
+			socket.on('SoundPlay', (data: ISoundPlay) => {
 				playSound(data.sound, data.volume, data.x != undefined ? [data.x, data.y, data.z] : null, noa);
 			});
 

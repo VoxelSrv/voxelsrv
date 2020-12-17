@@ -2,9 +2,11 @@ import { saveSettings } from './lib/storage';
 import { isMobile, isFirefox } from 'mobile-device-detect';
 import { setScale } from './gui/main';
 
-export const gameVersion = '0.2.0-beta.11.1';
+export const gameVersion = '0.2.0-beta.12';
 
-export const gameProtocol = 2;
+export const gameProtocol = 3;
+
+export const heartbeatServer = 'http://localhost:9001'
 
 export const defaultSettings = {
 	version: '0.0.0',

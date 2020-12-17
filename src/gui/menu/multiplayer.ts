@@ -5,6 +5,23 @@ import { MPSocket } from '../../socket';
 import { connect } from '../../lib/connect';
 import { Vector2 } from '@babylonjs/core';
 import { createItem } from '../../gui-uni/menu';
+import { heartbeatServer } from '../../values';
+
+export interface IServerInfo {
+	name: string;
+	ip: string;
+	motd: string;
+	protocol: number;
+	players: {
+		online: number;
+		max: number;
+	};
+	type: number;
+	software: string;
+	useProxy: boolean;
+	featured: boolean;
+	compabilityLayer?: string;
+}
 
 export default function buildMultiplayer(noa, openMenu) {
 	const menu = new GUI.Rectangle();
@@ -58,21 +75,22 @@ export default function buildMultiplayer(noa, openMenu) {
 		let address = input.text;
 		if (!(address.startsWith('wss://') || address.startsWith('ws://'))) address = 'ws://' + address;
 		connect(noa, new MPSocket(address));
-
 	});
 
 	const buttontext = new FormTextBlock();
 	buttontext.text = [{ text: 'Connect', color: 'white', font: 'Lato' }];
 	buttontext.textHorizontalAlignment = 2;
 	buttontext.fontSize = 6 * scale;
-	buttontext.onPointerEnterObservable.add((e) => {
+	button.onPointerEnterObservable.add((e) => {
 		buttontext.text.forEach((x) => (x.underline = true));
 		buttontext._markAsDirty();
+		button.background = '#5d5d5daa';
 	});
 
-	buttontext.onPointerOutObservable.add((e) => {
+	button.onPointerOutObservable.add((e) => {
 		buttontext.text.forEach((x) => (x.underline = false));
 		buttontext._markAsDirty();
+		button.background = '#4d4d4daa';
 	});
 	button.addControl(buttontext);
 
@@ -132,55 +150,99 @@ export default function buildMultiplayer(noa, openMenu) {
 
 	serverListScroll.addControl(serverList);
 
-	fetch('http://pb4.eu:9001')
-		.then((response) => response.json())
-		.then((data: any) => {
-			Object.values(data).forEach((server: any) => {
-				const row = createRow();
-
-				const sname = new GUI.TextBlock();
-				sname.text = server.name;
-				sname.color = '#222222';
-				row.name.addControl(sname);
-
-				const smotd = new GUI.TextBlock();
-				smotd.text = server.motd;
-				smotd.color = '#222222';
-				row.motd.addControl(smotd);
-
-				const splayer = new GUI.TextBlock();
-				splayer.text = `${server.numberplayers}/${server.maxplayers}`;
-				splayer.color = '#222222';
-				row.players.addControl(splayer);
-
-				const ssoftware = new GUI.TextBlock();
-				ssoftware.text = server.software;
-				ssoftware.color = '#222222';
-				row.software.addControl(ssoftware);
-
-				row.main.onPointerEnterObservable.add((e) => {
-					row.main.background = '#ffffff67';
-				});
-
-				row.main.onPointerOutObservable.add((e) => {
-					row.main.background = '#ffffff00';
-				});
-
-				let click = 0;
-
-				row.main.onPointerClickObservable.add((e) => {
-					input.text = server.ip;
-					click = click + 1;
-					if (click > 1) button.onPointerClickObservable.notifyObservers(new GUI.Vector2WithInfo(new Vector2(0, 0), 0));
-
-					setTimeout(() => {
-						click = 0;
-					}, 1000);
-				});
-
-				serverList.addControl(row.main);
-			});
+	function updateList() {
+		serverList.children.forEach((x) => {
+			x.dispose();
 		});
+		serverList.clearControls();
+
+		fetch(heartbeatServer + '/api/servers')
+			.then((response) => response.json())
+			.then((data: any) => {
+				const array = Object.values(data);
+				array.sort(sortServerList)
+
+				array.forEach((server: IServerInfo) => {
+					const row = createRow();
+
+					const sname = new GUI.TextBlock();
+					sname.text = server.name;
+					sname.color = '#222222';
+					row.name.addControl(sname);
+
+					const smotd = new GUI.TextBlock();
+					smotd.text = server.motd;
+					smotd.color = '#222222';
+					row.motd.addControl(smotd);
+
+					const splayer = new GUI.TextBlock();
+					splayer.text = `${server.players.online}/${server.players.max}`;
+					splayer.color = '#222222';
+					row.players.addControl(splayer);
+
+					const ssoftware = new GUI.TextBlock();
+					ssoftware.text = server.software;
+					ssoftware.color = '#222222';
+					row.software.addControl(ssoftware);
+
+					row.main.background = server.featured ? '#DAA52022' : '#ffffff00';
+
+
+					row.main.onPointerEnterObservable.add((e) => {
+						row.main.background = server.featured ? '#DAA52067' : '#ffffff67';
+					});
+
+					row.main.onPointerOutObservable.add((e) => {
+						row.main.background = server.featured ? '#DAA52022' : '#ffffff00';
+					});
+
+					let click = 0;
+
+					row.main.onPointerClickObservable.add((e) => {
+						input.text = server.ip;
+						click = click + 1;
+						if (click > 1) button.onPointerClickObservable.notifyObservers(new GUI.Vector2WithInfo(new Vector2(0, 0), 0));
+
+						setTimeout(() => {
+							click = 0;
+						}, 1000);
+					});
+
+					serverList.addControl(row.main);
+				});
+			});
+	}
+
+	const reloadButton = new GUI.Rectangle();
+	reloadButton.height = `${17 * scale}px`;
+	reloadButton.width = `${17 * scale}px`;
+	reloadButton.top = `${-5 * scale}px`;
+	reloadButton.left = `${-5 * scale}px`;
+	reloadButton.verticalAlignment = 1;
+	reloadButton.horizontalAlignment = 1;
+	reloadButton.thickness = 0;
+	reloadButton.background = '#4d4d4daa';
+	reloadButton.color = '#666666';
+
+	reloadButton.onPointerClickObservable.add(() => {
+		updateList();
+	});
+
+	const reloadButtonText = new FormTextBlock();
+	reloadButtonText.text = [{ text: '↻', color: 'white', font: 'Lato' }];
+	reloadButtonText.textHorizontalAlignment = 2;
+	reloadButtonText.fontSize = 11 * scale;
+	reloadButton.onPointerEnterObservable.add((e) => {
+		reloadButton.background = '#5d5d5daa';
+	});
+
+	reloadButton.onPointerOutObservable.add((e) => {
+		reloadButton.background = '#4d4d4daa';
+	});
+
+	reloadButton.addControl(reloadButtonText);
+
+	serverListContainer.addControl(reloadButton);
 
 	const back = createItem();
 	back.item.verticalAlignment = 1;
@@ -191,6 +253,8 @@ export default function buildMultiplayer(noa, openMenu) {
 		openMenu('main');
 	});
 	menu.addControl(back.item);
+
+	updateList();
 
 	const rescale = (x) => {
 		if (window.innerHeight > 230 * scale) menu.height = `${230 * scale}px`;
@@ -275,4 +339,13 @@ function createRow() {
 	main.addControl(software);
 
 	return { main, name, motd, players, software };
+}
+
+
+function sortServerList(a: IServerInfo, b: IServerInfo) {
+	if (a.featured == b.featured) {
+		return (a.players.online < b.players.online) ? 1 : (a.players.online == b.players.online) ? 0 : -1
+	}
+	else return (a.featured == false) ? 1 : -1
+
 }

@@ -1,6 +1,6 @@
 import { getScreen, scale, event } from '../main';
 import * as GUI from '@babylonjs/gui/';
-import buildSingleplayer from './singleplayer';
+//import buildSingleplayer from './singleplayer';
 import buildMultiplayer from './multiplayer';
 import buildSettings from './settings';
 import { gameVersion, getSplash, hostedOn } from '../../values';
@@ -43,7 +43,7 @@ export function buildMainMenu(noa) {
 		if (!!activeMenu) activeMenu.dispose();
 		switch (type) {
 			case 'singleplayer':
-				activeMenu = buildSingleplayer(noa, openMenu);
+				//activeMenu = buildSingleplayer(noa, openMenu);
 				active = 'singleplayer';
 				document.title = 'VoxelSrv - Singleplayer Menu';
 				break;

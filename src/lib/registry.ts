@@ -1,4 +1,5 @@
 import * as BABYLON from '@babylonjs/core/Legacy/legacy';
+import Engine from 'noa-engine';
 import { getAsset } from './assets';
 
 export let blocks = {};
@@ -63,18 +64,6 @@ export function registerBlocks(noa, blockList) {
 			finOpts.blockMesh = mesh;
 			noa.registry.registerBlock(id, finOpts);
 		} else if (type == 4) {
-			/*const mat = noa.rendering.makeStandardMaterial(name);
-
-			mat.diffuseTexture = new BABYLON.Texture(getAsset(texture[0], 'texture'), scene, true, true, BABYLON.Texture.NEAREST_SAMPLINGMODE);;
-			mat.opacityTexture = mat.diffuseTexture;
-			mat.backFaceCulling = true;
-
-			const mesh: any = BABYLON.MeshBuilder.CreateBox(name, { size: 1 }, noa.rendering.getScene());
-			mesh.material = mat;
-			mesh.bakeTransformIntoVertices(BABYLON.Matrix.Scaling(1, 1, 1).setTranslation(new BABYLON.Vector3(0, 0.5, 0)));
-			mesh.opaque = false;
-			mesh.material.needDepthPrePass = true;*/
-
 			let matl;
 
 			if (texture.length == 1 && options.material == undefined) {
@@ -141,24 +130,20 @@ function makePlantSpriteMesh(noa, scene, url, name) {
 	return BABYLON.Mesh.MergeMeshes([mesh, clone], true);
 }
 
-function makeCactusMesh(noa, scene, url, name) {
+function makeCactusMesh(noa, scene: BABYLON.Scene, url: string[], name: string) {
 	const mesh = {};
-	const mat = {};
-	for (let x = 0; x < 6; x++) {
-		let matname = name + '-' + x || 'sprite-mat';
-		mesh[x] = BABYLON.Mesh.CreatePlane('sprite-' + matname, 1, scene);
-		mat[x] = noa.rendering.makeStandardMaterial(matname + x);
-		mat[x].backFaceCulling = false;
-		mat[x].diffuseTexture = new BABYLON.Texture(
-			getAsset(x < 4 ? url[1] : url[0], 'texture'),
-			scene,
-			true,
-			true,
-			BABYLON.Texture.NEAREST_SAMPLINGMODE
-		);
 
-		mat[x].diffuseTexture.hasAlpha = true;
-		mesh[x].material = mat[x];
+	let matname = name || 'sprite-mat';
+	const mat = noa.rendering.makeStandardMaterial(matname);
+	mat.backFaceCulling = false;
+	mat.diffuseTexture = BABYLON.CubeTexture.CreateFromImages([url[0], url[0], url[0], url[0], url[0], url[0]], scene, true)
+	mat.diffuseTexture.updateSamplingMode(BABYLON.Texture.NEAREST_SAMPLINGMODE);
+	mat.diffuseTexture.hasAlpha = true;
+
+	for (let x = 0; x < 6; x++) {
+		mesh[x] = BABYLON.Mesh.CreatePlane('sprite-' + matname, 1, scene);
+
+		mesh[x].material = mat;
 		let offset: any;
 		switch (x) {
 			case 0:
