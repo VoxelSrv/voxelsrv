@@ -1,4 +1,4 @@
-import { gameSettings, gameProtocol, updateServerSettings, gameVersion, noaOpts } from '../values';
+import { gameSettings, gameProtocol, updateServerSettings, gameVersion, noaOpts, heartbeatServer } from '../values';
 import { isMobile } from 'mobile-device-detect';
 import { buildMainMenu, holder } from '../gui/menu/main';
 import { setupGuis, destroyGuis } from '../gui/setup';
@@ -14,7 +14,9 @@ import { cloudMesh, setupClouds } from './sky';
 import * as BABYLON from '@babylonjs/core/Legacy/legacy';
 
 import * as vec3 from 'gl-vec3';
-import { BaseSocket } from '../socket';
+import { BaseSocket, MPSocket } from '../socket';
+import createTranslationC030 from '../protocolWrappers/0.30c/socket';
+
 import { setTab } from '../gui/tab';
 import {
 	IChatMessage,
@@ -42,9 +44,12 @@ import {
 	IEntityHeldItem,
 	IEntityArmor,
 	ISoundPlay,
+	ILoginStatus,
 } from 'voxelsrv-protocol/js/server';
 import { Engine as BabylonEngine, Scene } from '@babylonjs/core';
 import { setAssetServer } from './assets';
+import { IServerInfo, servers } from '../gui/menu/multiplayer';
+import buildConnect from '../gui/menu/connect';
 
 export let socket: BaseSocket | null = null;
 let chunkInterval: any = null;
@@ -59,7 +64,7 @@ let noa;
 let entityList = {};
 
 export function disconnect() {
-	socket.close();
+	socket.close(0);
 	stopListening(noa);
 	noa.ents.getPhysics(noa.playerEntity).body.airDrag = 9999;
 	Object.values(entityList).forEach((x) => {
@@ -73,8 +78,33 @@ export function disconnect() {
 	buildMainMenu(noa);
 }
 
-export function connect(noax, socketx) {
+export function connect(noa, server: string) {
+	let socket;
+	let tempAdress = server.split('|');
+	let data: IServerInfo;
+
+	data = servers[server];
+
+	if (tempAdress.length == 2) {
+		data = servers[tempAdress[1]];
+		const proxy = servers[tempAdress[1]]?.useProxy ? heartbeatServer : tempAdress[1];
+		if (server.startsWith('c0.30|')) socket = createTranslationC030(proxy, server);
+		else return;
+	} else if (!(server.startsWith('wss://') && !server.startsWith('ws://'))) socket = new MPSocket('ws://' + server);
+	else socket = new MPSocket(server);
+
+	console.log(data)
+
+	setupConnection(noa, socket, data);
+}
+
+export function setupConnection(noax, socketx, data: IServerInfo) {
 	document.title = 'VoxelSrv - Connecting to server...';
+	const conScreen = buildConnect();
+	if (data != undefined) {
+		conScreen.motd.text = !!data.motd ? data.motd : 'Unknown server';
+		conScreen.name.text = !!data.name ? data.name : socketx.server;
+	}
 	noa = noax;
 	const engine: BabylonEngine = noa.rendering.getScene().getEngine();
 	noa.worldName = 'World' + Math.round(Math.random() * 1000);
@@ -87,6 +117,7 @@ export function connect(noax, socketx) {
 
 	socket.on('PlayerKick', (data: IPlayerKick) => {
 		socket.close();
+		conScreen.menu.dispose();
 		noa.rendering.getScene().cameras[0].fov = 0.8;
 		noa.ents.getPhysics(noa.playerEntity).body.airDrag = 9999;
 		Object.values(entityList).forEach((x) => {
@@ -95,10 +126,14 @@ export function connect(noax, socketx) {
 		console.log(`You has been kicked from server \nReason: ${data.reason}`);
 		stopListening(noa);
 		destroyGuis();
-		buildDisconnect(data.reason, socket.server, connect, noa);
+		buildDisconnect(data.reason, socket.server, noa);
 		updateServerSettings({ ingame: false });
 		document.exitPointerLock();
 		return;
+	});
+
+	socket.on('LoginStatus', (status: ILoginStatus) => {
+		conScreen.status.text = status.message;
 	});
 
 	socket.on('LoginRequest', (dataLogin: ILoginRequest) => {
@@ -154,6 +189,8 @@ export function connect(noax, socketx) {
 		if (!firstLogin) return;
 
 		socket.on('LoginSuccess', (dataPlayer: ILoginSuccess) => {
+			conScreen.menu.dispose();
+
 			updateServerSettings({ ingame: true });
 			destroyGuis();
 			clearStorage();
@@ -281,7 +318,7 @@ export function connect(noax, socketx) {
 				const model = noa.ents.getState(entityList[data.uuid], 'model');
 				model.nametag.dispose();
 				model.nametag = addNametag(model.main, data.name, noa.ents.getPositionData(entityList[data.uuid]).height, data.visible);
-			})
+			});
 
 			socket.on('EntityRemove', (data: IEntityRemove) => {
 				if (entityList[data.uuid] != undefined) noa.ents.deleteEntity(entityList[data.uuid]);
@@ -297,8 +334,8 @@ export function connect(noax, socketx) {
 				}
 			});
 
-			socket.on('EntityHeldItem', (data: IEntityHeldItem) => {})
-			socket.on('EntityArmor', (data: IEntityArmor) => {})
+			socket.on('EntityHeldItem', (data: IEntityHeldItem) => {});
+			socket.on('EntityArmor', (data: IEntityArmor) => {});
 
 			socket.on('SoundPlay', (data: ISoundPlay) => {
 				playSound(data.sound, data.volume, data.x != undefined ? [data.x, data.y, data.z] : null, noa);

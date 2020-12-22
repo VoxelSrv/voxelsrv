@@ -10,7 +10,7 @@ let height = 0;
 
 
 export function setupTab() {
-	const ui = getScreen(1);
+	const ui = getScreen(2);
 
 	tabContainer = new GUI.StackPanel();
 	tabContainer.verticalAlignment = 2;

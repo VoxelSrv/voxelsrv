@@ -3,8 +3,8 @@ import { getScreen, getUI } from './main';
 export function setupMobile(noa) {
 	console.log('Using mobile controls');
 
-	const ui = getScreen(1);
-	const layer = getUI(1);
+	const ui = getScreen(2);
+	const layer = getUI(2);
 
 	let timer: number = 0;
 	let touchTime: number = 0;

@@ -10,7 +10,7 @@ export function buildHotbar(noa, socket) {
 		return noa.ents.getState(noa.playerEntity, 'inventory');
 	}
 
-	const ui = getScreen(1);
+	const ui = getScreen(2);
 
 	hotbar = new GUI.Rectangle();
 	hotbar.zIndex = 5;
@@ -118,7 +118,7 @@ export function buildInventory(noa, socket) {
 		return noa.ents.getState(noa.playerEntity, 'inventory');
 	}
 
-	const ui = getScreen(1);
+	const ui = getScreen(2);
 
 	inventory = new GUI.Rectangle();
 	inventory.zIndex = 15;

@@ -1,11 +1,12 @@
 import { scale, event } from '../main';
 import * as GUI from '@babylonjs/gui/';
 import { FormTextBlock } from '../../gui-uni/formtextblock';
-import { MPSocket } from '../../socket';
 import { connect } from '../../lib/connect';
 import { Vector2 } from '@babylonjs/core';
 import { createItem } from '../../gui-uni/menu';
 import { heartbeatServer } from '../../values';
+
+export let servers = {};
 
 export interface IServerInfo {
 	name: string;
@@ -20,6 +21,7 @@ export interface IServerInfo {
 	software: string;
 	useProxy: boolean;
 	featured: boolean;
+	icon: string;
 	compabilityLayer?: string;
 }
 
@@ -72,9 +74,9 @@ export default function buildMultiplayer(noa, openMenu) {
 	button.color = '#666666';
 
 	button.onPointerClickObservable.add(() => {
-		let address = input.text;
-		if (!(address.startsWith('wss://') || address.startsWith('ws://'))) address = 'ws://' + address;
-		connect(noa, new MPSocket(address));
+		if (input.text == '') return;
+
+		connect(noa, input.text);
 	});
 
 	const buttontext = new FormTextBlock();
@@ -136,7 +138,7 @@ export default function buildMultiplayer(noa, openMenu) {
 
 	const serverListScroll = new GUI.ScrollViewer();
 	serverListScroll.height = `${150 * scale}px`;
-	serverListScroll.top = `${13 * scale}px`;
+	serverListScroll.top = `${16 * scale}px`;
 	serverListScroll.thickness = 0;
 	serverListScroll.verticalAlignment = 0;
 	serverListScroll.barSize = 0;
@@ -156,14 +158,17 @@ export default function buildMultiplayer(noa, openMenu) {
 		});
 		serverList.clearControls();
 
-		fetch(heartbeatServer + '/api/servers')
+		fetch('http://' + heartbeatServer + '/api/servers')
 			.then((response) => response.json())
 			.then((data: any) => {
+				servers = data;
 				const array = Object.values(data);
-				array.sort(sortServerList)
+				array.sort(sortServerList);
 
 				array.forEach((server: IServerInfo) => {
 					const row = createRow();
+
+					row.icon.source = './servericons/' + server.icon + '.png';
 
 					const sname = new GUI.TextBlock();
 					sname.text = server.name;
@@ -187,7 +192,6 @@ export default function buildMultiplayer(noa, openMenu) {
 
 					row.main.background = server.featured ? '#DAA52022' : '#ffffff00';
 
-
 					row.main.onPointerEnterObservable.add((e) => {
 						row.main.background = server.featured ? '#DAA52067' : '#ffffff67';
 					});
@@ -199,7 +203,8 @@ export default function buildMultiplayer(noa, openMenu) {
 					let click = 0;
 
 					row.main.onPointerClickObservable.add((e) => {
-						input.text = server.ip;
+						console.log(server.compabilityLayer);
+						input.text = server.compabilityLayer == '0.30c' ? 'c0.30|' + server.ip : server.ip;
 						click = click + 1;
 						if (click > 1) button.onPointerClickObservable.notifyObservers(new GUI.Vector2WithInfo(new Vector2(0, 0), 0));
 
@@ -277,7 +282,7 @@ export default function buildMultiplayer(noa, openMenu) {
 
 		serverListContainer.width = `${290 * scale}px`;
 		serverListContainer.top = `${40 * scale}px`;
-		serverListScroll.top = `${13 * scale}px`;
+		serverListScroll.top = `${16 * scale}px`;
 		serverListHeader.main.fontSize = 7 * scale;
 		serverList.fontSize = 6 * scale;
 		serverListScroll.height = `${150 * scale}px`;
@@ -298,29 +303,25 @@ export default function buildMultiplayer(noa, openMenu) {
 
 function createRow() {
 	const main = new GUI.Rectangle();
-	main.height = `${13 * scale}px`;
+	main.height = `${16 * scale}px`;
 	main.thickness = 0;
 
-	const rescale = () => {
-		main.height = `${13 * scale}px`;
-	};
-
-	event.on('scale-change', rescale);
-
-	main.onDisposeObservable.add(() => {
-		event.off('scale-change', rescale);
-	});
+	const icon = new GUI.Image();
+	icon.width = `${16 * scale}px`;
+	icon.horizontalAlignment = 0;
+	main.addControl(icon);
 
 	const name = new GUI.Rectangle();
-	name.width = '20%';
+	name.width = '18%';
+	name.left = '5%';
 	name.horizontalAlignment = 0;
 	name.thickness = 0;
 	main.addControl(name);
 
 	const motd = new GUI.Rectangle();
-	motd.width = '50%';
+	motd.width = '47%';
 	motd.horizontalAlignment = 0;
-	motd.left = '20%';
+	motd.left = '23%';
 	motd.thickness = 0;
 	main.addControl(motd);
 
@@ -338,14 +339,23 @@ function createRow() {
 	software.thickness = 0;
 	main.addControl(software);
 
-	return { main, name, motd, players, software };
-}
+	const rescale = () => {
+		main.height = `${16 * scale}px`;
+		icon.width = `${16 * scale}px`;
+	};
 
+	event.on('scale-change', rescale);
+
+	main.onDisposeObservable.add(() => {
+		event.off('scale-change', rescale);
+	});
+
+	return { main, icon, name, motd, players, software };
+}
 
 function sortServerList(a: IServerInfo, b: IServerInfo) {
 	if (a.featured == b.featured) {
-		return (a.players.online < b.players.online) ? 1 : (a.players.online == b.players.online) ? 0 : -1
-	}
-	else return (a.featured == false) ? 1 : -1
-
+		if (a.type == b.type) return a.players.online < b.players.online ? 1 : a.players.online == b.players.online ? 0 : -1;
+		else return a.type == 0 ? -1 : 1;
+	} else return a.featured == false ? 1 : -1;
 }

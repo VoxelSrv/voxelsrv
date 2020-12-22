@@ -10,9 +10,10 @@ import { FormTextBlock } from '../../gui-uni/formtextblock';
 export let holder: GUI.Rectangle;
 
 export function buildMainMenu(noa) {
-	const ui = getScreen(1);
+	const ui = getScreen(2);
+
 	let activeMenu: GUI.Rectangle;
-	let active: string;
+	let active;
 
 	holder = new GUI.Rectangle();
 	holder.thickness = 0;

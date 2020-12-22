@@ -5,7 +5,7 @@ import { gameSettings } from '../values';
 import { getLayer } from './main';
 
 export function setupHand(noa) {
-	const scene = getLayer(0);
+	const scene = getLayer(1);
 	const eid = noa.playerEntity;
 
 	const hand = BABYLON.MeshBuilder.CreateBox('hand', { size: 0.08, wrap: true }, scene);

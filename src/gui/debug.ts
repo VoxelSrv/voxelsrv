@@ -7,7 +7,7 @@ import { chunkExist } from '../lib/world';
 export let debug: GUI.TextBlock;
 
 export function setupDebug(noa, server) {
-	const ui = getUI(0);
+	const ui = getUI(1);
 
 	const eid = noa.playerEntity;
 	const dat = noa.entities.getPositionData(eid);

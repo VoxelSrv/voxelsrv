@@ -63,7 +63,7 @@ getSettings().then((data) => {
 	document.addEventListener(
 		'pointerlockchange',
 		() => {
-			if (document.pointerLockElement == noa.container.canvas) {
+			if (document.pointerLockElement == noa.container.canvas || isMobile) {
 				noa.ignorePointerLock = true;
 				noa.ents.getState(noa.playerEntity, 'receivesInputs').ignore = false;
 			} else {
@@ -79,7 +79,7 @@ getSettings().then((data) => {
 	};
 
 	window['connect'] = (x) => {
-		connect(noa, new MPSocket(x));
+		connect(noa, x);
 	};
 
 	window['forceplay'] = () => {
@@ -108,18 +108,11 @@ getSettings().then((data) => {
 		const options = new URLSearchParams(window.location.search);
 
 		if (!!options.get('server')) {
-			const socket = new MPSocket('ws://' + options.get('server'));
-			connect(noa, socket);
+			connect(noa, options.get('server'));
 		} else {
 			setTimeout(() => {
 				buildMainMenu(noa);
 			}, 50);
-		}
-
-		if (window['electron'] != undefined) {
-			window['electron'].on('world-started', (e, port) => {
-				connect(noa, new MPSocket(`ws://localhost:${port}`));
-			});
 		}
 	}, 1000);
 });

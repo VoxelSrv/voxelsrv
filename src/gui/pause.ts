@@ -7,7 +7,7 @@ import buildSettings from './menu/settings'
 export let pauseScreen: GUI.Rectangle;
 
 export default function buildPause(noa) {
-	const ui = getScreen(1);
+	const ui = getScreen(2);
 
 	let activeMenu
 	let active

@@ -1,5 +1,7 @@
 import { spawn, Worker } from 'threads';
 
+import { EventEmitter } from 'events';
+
 let protocol: {
 	parseToMessage(type: string, name, data): Promise<Buffer>;
 	parseToObject(type: string, data): Promise<any>;
@@ -19,7 +21,7 @@ export class BaseSocket {
 
 	async send(type: string, data: Object) {}
 
-	close() {
+	close(x?: number) {
 		this.listeners = {};
 	}
 
@@ -74,8 +76,53 @@ export class MPSocket extends BaseSocket {
 		}
 	}
 
-	close() {
+	close(x?: number) {
 		this.listeners = {};
 		this.socket.close();
+	}
+}
+
+export class VirtualSocket extends BaseSocket {
+	toClient: EventEmitter;
+	toServer: EventEmitter;
+
+	closed: boolean = false;
+
+	constructor(toClient: EventEmitter, toServer: EventEmitter, server: string) {
+		super();
+		this.server = server;
+		this.toClient = toClient;
+		this.toServer = toServer;
+
+		this.toClient.on('open', () => {
+			setTimeout(() => this.toClient.emit('connection', {}), 500);
+		});
+
+		this.toClient.on('error', (e: string) => {
+			if (this.closed) return;
+			this.closed = true;
+			setTimeout(() => this.toClient.emit('PlayerKick', { reason: e }), 500);
+		});
+
+		this.toClient.on('close', () => {
+			if (this.closed) return;
+			this.closed = true;
+			setTimeout(() => this.toClient.emit('PlayerKick', { reason: `Connection closed!` }), 500);
+		});
+	}
+
+	async send(type: string, data: Object) {
+		this.toServer.emit(type, data);
+	}
+
+	close(x?: number) {
+		this.listeners = {};
+		if (this.closed) return;
+		this.closed = true;
+		this.toServer.emit('close', x)
+	}
+
+	on(type: string, func) {
+		this.toClient.on(type, func);
 	}
 }

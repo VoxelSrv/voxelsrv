@@ -4,8 +4,9 @@ import { FormTextBlock } from '../../gui-uni/formtextblock';
 import { buildMainMenu } from './main';
 import { MPSocket } from '../../socket';
 import { createItem } from '../../gui-uni/menu';
+import { connect } from '../../lib/connect';
 
-export default function buildDisconnect(reasontext, server, connect, noa) {
+export default function buildDisconnect(reasontext, server, noa) {
 	document.title = 'VoxelSrv - Disconnected!';
 
 	const menu = new GUI.Rectangle();
@@ -16,7 +17,7 @@ export default function buildDisconnect(reasontext, server, connect, noa) {
 	menu.width = `${180 * scale}px`;
 	menu.background = '#11111166';
 
-	getScreen(1).addControl(menu);
+	getScreen(2).addControl(menu);
 
 	const name = new GUI.TextBlock();
 	name.fontFamily = 'Lato';
@@ -45,7 +46,7 @@ export default function buildDisconnect(reasontext, server, connect, noa) {
 
 	reconnect.item.onPointerClickObservable.add(() => {
 		menu.dispose();
-		connect(noa, new MPSocket(server));
+		connect(noa, server);
 	});
 	menu.addControl(reconnect.item);
 

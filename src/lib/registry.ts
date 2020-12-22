@@ -111,7 +111,7 @@ export function registerItems(noa, itemList) {
 }
 
 function makePlantSpriteMesh(noa, scene, url, name) {
-	const matname = name || 'sprite-mat';
+	const matname = name || 'mat';
 	let tex = new BABYLON.Texture(getAsset(url, 'texture'), scene, true, true, BABYLON.Texture.NEAREST_SAMPLINGMODE);
 	tex.hasAlpha = true;
 	const mesh = BABYLON.Mesh.CreatePlane('sprite-' + matname, 1, scene);
@@ -133,16 +133,25 @@ function makePlantSpriteMesh(noa, scene, url, name) {
 function makeCactusMesh(noa, scene: BABYLON.Scene, url: string[], name: string) {
 	const mesh = {};
 
-	let matname = name || 'sprite-mat';
-	const mat = noa.rendering.makeStandardMaterial(matname);
+	let matname = name || 'mat';
+
+	const mat: BABYLON.StandardMaterial = noa.rendering.makeStandardMaterial(matname);
+	const mat2: BABYLON.StandardMaterial = noa.rendering.makeStandardMaterial(matname);
+
 	mat.backFaceCulling = false;
-	mat.diffuseTexture = BABYLON.CubeTexture.CreateFromImages([url[0], url[0], url[0], url[0], url[0], url[0]], scene, true)
-	mat.diffuseTexture.updateSamplingMode(BABYLON.Texture.NEAREST_SAMPLINGMODE);
+	mat2.backFaceCulling = false;
+
+	const top = getAsset(url[0], 'texture');
+	const side = getAsset(url[1], 'texture');
+
+	mat.diffuseTexture = new BABYLON.Texture(side, scene, true, true, BABYLON.Texture.NEAREST_LINEAR)//new BABYLON.CubeTexture(side, scene, [], false, [side, top, side, side, top, side]);
 	mat.diffuseTexture.hasAlpha = true;
+
+	mat2.diffuseTexture = new BABYLON.Texture(top, scene, true, true, BABYLON.Texture.NEAREST_LINEAR)//new BABYLON.CubeTexture(side, scene, [], false, [side, top, side, side, top, side]);
+	mat2.diffuseTexture.hasAlpha = true;
 
 	for (let x = 0; x < 6; x++) {
 		mesh[x] = BABYLON.Mesh.CreatePlane('sprite-' + matname, 1, scene);
-
 		mesh[x].material = mat;
 		let offset: any;
 		switch (x) {
@@ -173,7 +182,31 @@ function makeCactusMesh(noa, scene: BABYLON.Scene, url: string[], name: string) 
 		mesh[x].bakeTransformIntoVertices(offset);
 	}
 
-	const newmesh = BABYLON.Mesh.MergeMeshes(Object.values(mesh), true, true, undefined, false, false);
+	const newmesh = BABYLON.Mesh.MergeMeshes(Object.values(mesh), true, true, undefined, true, false);
+
+	for (let x = 0; x < 6; x++) {
+		switch (x) {
+			case 0:
+				newmesh.subMeshes[x].materialIndex = 1;
+				break;
+			case 1:
+				newmesh.subMeshes[x].materialIndex = 1;
+				break;
+			case 2:
+				newmesh.subMeshes[x].materialIndex = 0;
+				break;
+			case 3:
+				newmesh.subMeshes[x].materialIndex = 0;
+				break;
+			case 4:
+				newmesh.subMeshes[x].materialIndex = 0;
+				break;
+			case 5:
+				newmesh.subMeshes[x].materialIndex = 0;
+				break;
+		}
+
+	}
 
 	return newmesh;
 }

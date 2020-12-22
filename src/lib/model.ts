@@ -22,7 +22,7 @@ export async function applyModel(
 	uuid: string,
 	model: string,
 	texture: string,
-	offset: number[],
+	offset: number,
 	nametag: boolean,
 	name: string,
 	hitbox: number[]
@@ -52,7 +52,7 @@ async function applyModelTo(
 	uuid: string,
 	hitbox: number[],
 	scene: BABYLON.Scene,
-	offset
+	offset: number
 ) {
 	const builded: any = await buildModel(model, data, texture);
 
@@ -220,6 +220,7 @@ function createTemplateModel(name, model) {
 }
 
 export function addNametag(mainMesh: Mesh, name: string, height: number, visible: boolean) {
+	console.log(mainMesh, name, height, visible)
 	const scene = noa.rendering.getScene();
 
 	const font_size = 96;
@@ -256,7 +257,6 @@ export function addNametag(mainMesh: Mesh, name: string, height: number, visible
 	const plane = BABYLON.MeshBuilder.CreatePlane('plane', { width: planeWidth, height: planeHeight }, scene);
 	plane.material = mat;
 
-	plane.setPositionWithLocalVector(new BABYLON.Vector3(0, height + 0.2, 0));
 
 	// @ts-ignore
 	plane.opaque = false;
@@ -266,6 +266,7 @@ export function addNametag(mainMesh: Mesh, name: string, height: number, visible
 	plane.isVisible = visible;
 
 	plane.setParent(mainMesh);
+	plane.setPositionWithLocalVector(new BABYLON.Vector3(0, height + 0.2, 0));
 	noa.rendering.addMeshToScene(plane);
 
 	return plane;
