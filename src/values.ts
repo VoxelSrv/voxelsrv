@@ -6,7 +6,7 @@ export const gameVersion = '0.2.0-beta.12';
 
 export const gameProtocol = 3;
 
-export const heartbeatServer = 'localhost:9001'
+export const heartbeatServer = 'pb4.eu:9001'
 
 export const defaultSettings = {
 	version: '0.0.0',

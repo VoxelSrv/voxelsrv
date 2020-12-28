@@ -519,6 +519,9 @@ export default function (proxyIp: string, server: string): BaseSocket {
 					}
 				}
 			}
+
+			classic.send('message', { message: 'This user connected to this server with VoxelSrv' });
+
 		});
 	});
 
