@@ -2,6 +2,7 @@ import { isMobile } from 'mobile-device-detect';
 import { getScreen, scale, event } from './main';
 import { items } from '../lib/registry';
 import * as GUI from '@babylonjs/gui/';
+import { ActionInventoryClick } from 'voxelsrv-protocol/js/client';
 
 export let hotbar: GUI.Rectangle;
 
@@ -69,7 +70,6 @@ export function buildHotbar(noa, socket) {
 			updateSlot(hotbarSlots[x], inv.items[x]);
 		}
 	};
-
 
 	noa.on('tick', update);
 
@@ -168,20 +168,19 @@ export function buildInventory(noa, socket) {
 			container.zIndex = 50;
 			container.left = `${-18 * scale * 4 + 18 * scale * (y % 9)}px`;
 			container.onPointerClickObservable.add((e) => {
-				let click = 'left';
+				let click = ActionInventoryClick.Type.LEFT;
 				switch (e.buttonIndex) {
 					case 0:
-						click = 'left';
+						click = ActionInventoryClick.Type.LEFT;
 						break;
 					case 1:
-						click = 'middle';
+						click = ActionInventoryClick.Type.MIDDLE;
 						break;
 					case 2:
-						click = 'right';
+						click = ActionInventoryClick.Type.RIGHT;
 						break;
 				}
-
-				socket.send('ActionInventoryClick', { slot: y + 27 * page, type: click, inventory: 'main' });
+				socket.send('ActionInventoryClick', { slot: y + 27 * page, type: click, inventory: ActionInventoryClick.TypeInv.MAIN });
 			});
 
 			container.onPointerEnterObservable.add((e) => {
@@ -212,20 +211,19 @@ export function buildInventory(noa, socket) {
 		container.zIndex = 40;
 		container.left = `${-18 * scale * 4 + 18 * scale * x}px`;
 		container.onPointerClickObservable.add((e) => {
-			let click = 'left';
+			let click = ActionInventoryClick.Type.LEFT;
 			switch (e.buttonIndex) {
 				case 0:
-					click = 'left';
+					click = ActionInventoryClick.Type.LEFT;
 					break;
 				case 1:
-					click = 'middle';
+					click = ActionInventoryClick.Type.MIDDLE;
 					break;
 				case 2:
-					click = 'right';
+					click = ActionInventoryClick.Type.RIGHT;
 					break;
 			}
-
-			socket.send('ActionInventoryClick', { slot: x, type: click, inventory: 'main' });
+			socket.send('ActionInventoryClick', { slot: x, type: click, inventory: ActionInventoryClick.TypeInv.MAIN });
 		});
 
 		container.onPointerEnterObservable.add((e) => {
@@ -259,19 +257,19 @@ export function buildInventory(noa, socket) {
 		container.verticalAlignment = 0;
 		container.top = `${18 * scale * x}px`;
 		container.onPointerClickObservable.add((e) => {
-			let click = 'left';
+			let click = ActionInventoryClick.Type.LEFT;
 			switch (e.buttonIndex) {
 				case 0:
-					click = 'left';
+					click = ActionInventoryClick.Type.LEFT;
 					break;
 				case 1:
-					click = 'middle';
+					click = ActionInventoryClick.Type.MIDDLE;
 					break;
 				case 2:
-					click = 'right';
+					click = ActionInventoryClick.Type.RIGHT;
 					break;
 			}
-			socket.send('ActionInventoryClick', { slot: x, type: click, inventory: 'armor' });
+			socket.send('ActionInventoryClick', { slot: x, type: click, inventory: ActionInventoryClick.TypeInv.ARMOR });
 		});
 
 		container.onPointerEnterObservable.add((e) => {
@@ -313,19 +311,19 @@ export function buildInventory(noa, socket) {
 		}
 
 		container.onPointerClickObservable.add((e) => {
-			let click = 'left';
+			let click = ActionInventoryClick.Type.LEFT;
 			switch (e.buttonIndex) {
 				case 0:
-					click = 'left';
+					click = ActionInventoryClick.Type.LEFT;
 					break;
 				case 1:
-					click = 'middle';
+					click = ActionInventoryClick.Type.MIDDLE;
 					break;
 				case 2:
-					click = 'right';
+					click = ActionInventoryClick.Type.RIGHT;
 					break;
 			}
-			socket.send('ActionInventoryClick', { slot: x, type: click, inventory: 'crafting' });
+			socket.send('ActionInventoryClick', { slot: x, type: click, inventory: ActionInventoryClick.TypeInv.CRAFTING });
 		});
 		container.onPointerEnterObservable.add((e) => {
 			container.background = '#ffffff22';

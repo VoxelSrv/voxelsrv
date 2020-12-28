@@ -49,10 +49,10 @@ export function setupTab() {
 	tabContainer.isVisible = false;
 }
 
-export async function setTab(msg: Array<IFormatedText>) {
+export async function setTab(msg) {
 	messages.forEach((message) => message.dispose());
 	messages = [];
-	const data = Object.values(msg);
+	const data: IFormatedText[] = Object.values(msg);
 	let x = '';
 	data.forEach((y) => {
 		x = x + y.text;

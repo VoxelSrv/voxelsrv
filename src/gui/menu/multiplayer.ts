@@ -204,7 +204,7 @@ export default function buildMultiplayer(noa, openMenu) {
 
 					row.main.onPointerClickObservable.add((e) => {
 						console.log(server.compabilityLayer);
-						input.text = server.compabilityLayer == '0.30c' ? 'c0.30|' + server.ip : server.ip;
+						input.text = server.compabilityLayer == '0.30c' ? 'c0.30|' + (server.useProxy ? '*' : '') + server.ip : server.ip;
 						click = click + 1;
 						if (click > 1) button.onPointerClickObservable.notifyObservers(new GUI.Vector2WithInfo(new Vector2(0, 0), 0));
 

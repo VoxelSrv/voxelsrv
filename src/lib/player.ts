@@ -10,6 +10,7 @@ import { getUI } from '../gui/main';
 import { pauseScreen } from '../gui/pause';
 import { tabContainer } from '../gui/tab';
 import { debug, dot } from '../gui/debug';
+import { ActionInventoryClick, ActionInventoryClose } from 'voxelsrv-protocol/js/client';
 
 const screenshot = require('canvas-screenshot');
 
@@ -111,8 +112,6 @@ export function setupControls(noa: any) {
 			}
 			return;
 		} else socketSend('ActionClick', { type: 'right', x: 0, y: 0, z: 0, onBlock: false });
-
-		
 	});
 
 	// pick block on middle fire (MMB/Q)
@@ -123,9 +122,9 @@ export function setupControls(noa: any) {
 			const slot = inventoryHasItem(item, 1);
 			const sel = noa.ents.getState(eid, 'inventory').selected;
 			if (slot != -1 && slot < 9) {
-				socketSend('ActionInventoryClick', { type: 'select', slot: slot });
+				socketSend('ActionInventoryClick', { slot: slot, inventory: ActionInventoryClick.TypeInv.MAIN, type: ActionInventoryClick.Type.SELECT });
 				noa.ents.getState(eid, 'inventory').selected = slot;
-			} else if (slot != -1) socketSend('ActionInventoryClick', { type: 'switch', slot: slot, slot2: sel });
+			} else if (slot != -1) socketSend('ActionInventoryPick', { slot: slot, slot2: sel, block: noa.targetedBlock.blockID });
 		}
 	});
 
@@ -143,9 +142,9 @@ export function setupControls(noa: any) {
 		if (inventory.isVisible) {
 			inventory.isVisible = false;
 			noa.container.canvas.requestPointerLock();
-			socketSend('ActionInventoryClose', { inventory: 'main' });
+			socketSend('ActionInventoryClose', { inventory: ActionInventoryClose.Type.MAIN });
 		} else {
-			socketSend('ActionInventoryOpen', { inventory: 'main' });
+			socketSend('ActionInventoryOpen', { inventory: ActionInventoryClose.Type.MAIN });
 			inventory.isVisible = true;
 			document.exitPointerLock();
 		}
@@ -184,7 +183,7 @@ export function setupControls(noa: any) {
 
 		if (inventory.isVisible) {
 			inventory.isVisible = false;
-			socketSend('ActionInventoryClose', { inventory: 'main' });
+			socketSend('ActionInventoryClose', { inventory: ActionInventoryClose.Type.MAIN });
 			return;
 		}
 
@@ -227,9 +226,8 @@ export function setupControls(noa: any) {
 	noa.inputs.up.on('zoom', function () {
 		if (chatInput == undefined || chatInput.isVisible) return;
 
-		scene.cameras[0].fov = gameSettings.fov * Math.PI / 180;
+		scene.cameras[0].fov = (gameSettings.fov * Math.PI) / 180;
 	});
-
 
 	noa.inputs.up.on('screenshot', function () {
 		if (chatInput == undefined || chatInput.isVisible) return;
@@ -259,7 +257,7 @@ export function setupControls(noa: any) {
 			pickedID = pickedID + change;
 			if (pickedID >= gameSettings.hotbarsize) pickedID = 0;
 			else if (pickedID < 0) pickedID = 8;
-			socketSend('ActionInventoryClick', { slot: pickedID, type: 'select' });
+			socketSend('ActionInventoryClick', { slot: pickedID, type: ActionInventoryClick.Type.SELECT, inventory: ActionInventoryClick.TypeInv.MAIN });
 			noa.ents.getState(eid, 'inventory').selected = pickedID;
 		}
 
@@ -279,7 +277,7 @@ export function setupControls(noa: any) {
 			const num = parseInt(e.key);
 			let pickedID = noa.ents.getState(eid, 'inventory').selected;
 			pickedID = num - 1;
-			socketSend('ActionInventoryClick', { slot: pickedID, type: 'select' });
+			socketSend('ActionInventoryClick', { slot: pickedID, type: ActionInventoryClick.Type.SELECT, inventory: ActionInventoryClick.TypeInv.MAIN });
 			noa.ents.getState(eid, 'inventory').selected = pickedID;
 		}
 	});

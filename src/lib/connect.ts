@@ -7,7 +7,7 @@ import { addMessage } from '../gui/chat';
 import { setupPlayer } from './player';
 import { addNametag, applyModel } from './model';
 import { registerBlocks, registerItems } from './registry';
-import { setChunk, clearStorage, removeChunk, chunkSetBlock } from './world';
+import { setChunk, clearStorage, removeChunk, chunkSetBlock, chunkExist } from './world';
 import { playSound } from './sound';
 import { cloudMesh, setupClouds } from './sky';
 
@@ -27,7 +27,6 @@ import {
 	IPlayerKick,
 	IPlayerSlotUpdate,
 	IPlayerTeleport,
-	IGameplaySettingUpdate,
 	IWorldBlockUpdate,
 	IWorldChunkLoad,
 	IWorldChunkUnload,
@@ -45,6 +44,13 @@ import {
 	IEntityArmor,
 	ISoundPlay,
 	ILoginStatus,
+	IPlayerSetBlockReach,
+	IUpdateTextBoard,
+	UpdateTextBoard,
+	IWorldChunksRemoveAll,
+	IWorldChunkIsLoaded,
+	IPlayerOpenInventory,
+	PlayerOpenInventory,
 } from 'voxelsrv-protocol/js/server';
 import { Engine as BabylonEngine, Scene } from '@babylonjs/core';
 import { setAssetServer } from './assets';
@@ -87,13 +93,13 @@ export function connect(noa, server: string) {
 
 	if (tempAdress.length == 2) {
 		data = servers[tempAdress[1]];
-		const proxy = servers[tempAdress[1]]?.useProxy ? heartbeatServer : tempAdress[1];
+		const proxy = server.charAt(6) == '*' ? heartbeatServer : tempAdress[1];
 		if (server.startsWith('c0.30|')) socket = createTranslationC030(proxy, server);
 		else return;
-	} else if (!(server.startsWith('wss://') && !server.startsWith('ws://'))) socket = new MPSocket('ws://' + server);
+	} else if (!(server.startsWith('wss://') || server.startsWith('ws://'))) socket = new MPSocket('ws://' + server);
 	else socket = new MPSocket(server);
 
-	console.log(data)
+	console.log(data);
 
 	setupConnection(noa, socket, data);
 }
@@ -180,6 +186,7 @@ export function setupConnection(noax, socketx, data: IServerInfo) {
 		scene.fogEnd = 60;
 		scene.fogDensity = 0.1;
 		scene.fogColor = new BABYLON.Color3(0, 0, 0);
+		noa.blockTestDistance = 7;
 
 		scene.cameras[0].fov = (gameSettings.fov * Math.PI) / 180;
 
@@ -217,9 +224,16 @@ export function setupConnection(noax, socketx, data: IServerInfo) {
 			});
 
 			socket.on('WorldChunkUnload', (data: IWorldChunkUnload) => {
-				if (data.type) {
-					for (let x = 0; x <= 8; x++) removeChunk(`${data.x}|${x}|${data.z}`);
-				} else removeChunk(`${data.x}|${data.y}|${data.z}`);
+				const height = data.height > 0 ? data.height : 1;
+				for (let x = 0; x <= height; x++) removeChunk(`${data.x}|${data.y + x}|${data.z}`);
+			});
+
+			socket.on('WorldChunksRemoveAll', (data: IWorldChunksRemoveAll) => {
+				if (data.confirm) clearStorage();
+			});
+
+			socket.on('WorldChunkIsLoaded', (data: IWorldChunkIsLoaded) => {
+				socket.send('WorldChunkIsLoadedResponce', { x: data.x, y: data.y, z: data.z, loaded: chunkExist([data.x, data.y, data.z].join('|')) });
 			});
 
 			socket.on('WorldMultiBlockUpdate', (data: IWorldMultiBlockUpdate) => {
@@ -232,12 +246,6 @@ export function setupConnection(noax, socketx, data: IServerInfo) {
 			socket.on('WorldBlockUpdate', (data: IWorldBlockUpdate) => {
 				noa.setBlock(data.id, data.x, data.y, data.z);
 				chunkSetBlock(data.id, data.x, data.y, data.z);
-			});
-
-			socket.on('GameplaySettingUpdate', (data: IGameplaySettingUpdate) => {
-				const x = {};
-				x[data.key] = data.value;
-				updateServerSettings(x);
 			});
 
 			socket.on('EnvironmentFogUpdate', (data: IEnvironmentFogUpdate) => {
@@ -278,12 +286,20 @@ export function setupConnection(noax, socketx, data: IServerInfo) {
 				else if (data.type == 'hook') inv.hook.items[data.slot] = item;
 			});
 
-			socket.on('ChatMessage', function (data) {
+			socket.on('PlayerSetBlockReach', (data: IPlayerSetBlockReach) => {
+				noa.blockTestDistance = data.value;
+			});
+
+			socket.on('PlayerOpenInventory', (data: IPlayerOpenInventory) => {
+				if (data.type == PlayerOpenInventory.Type.MAIN) noa.inputs.down.emit('inventory');
+			});
+
+			socket.on('ChatMessage', (data: IChatMessage) => {
 				addMessage(data.message);
 			});
 
-			socket.on('TabUpdate', function (data) {
-				setTab(data.message);
+			socket.on('UpdateTextBoard', (data: IUpdateTextBoard) => {
+				if (data.type == UpdateTextBoard.Type.TAB) setTab(data.message);
 			});
 
 			socket.on('PlayerTeleport', function (data: IPlayerTeleport) {

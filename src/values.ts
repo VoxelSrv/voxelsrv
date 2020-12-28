@@ -145,7 +145,7 @@ else if (hostname == 'pb4.eu') tempHost = '';
 else if (window['electron'] != undefined) tempHost = '';
 else tempHost = 'Unofficial/Undefined rehost!';
 
-export const hostedOn = tempHost;
+export let hostedOn = tempHost;
 
 const splashes = [
 	[{ text: `It's not Minecraft clone... or is it?` }],
@@ -172,12 +172,11 @@ const splashes = [
 	[{ text: `TODO: Add accounts` }],
 	[{ text: `Does anyone read these?` }],
 	[{ text: `Created by Patbox` }],
+	[{ text: `Classical gameplay` }],
+	[{ text: `Hello World` }],
+	[{ text: `Works on mobile`}],
 	[{ text: gameVersion }],
 ];
-
-if (window['electron'] != undefined) {
-	splashes.push([{ text: `Now with singleplayer` }]);
-}
 
 export function getSplash() {
 	let x = Math.floor(Math.random() * splashes.length);

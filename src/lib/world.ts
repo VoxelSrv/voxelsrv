@@ -9,42 +9,34 @@ declare function inflate(x: Uint8Array, y: number): Promise<Uint8Array>;
 
 export async function setChunk(data: IWorldChunkLoad) {
 	let array: Uint16Array;
-	if (data.compressed) {
-		let x = 0;
-		if (data.type) x = 32 * 256 * 32;
-		else x = 32 ^ 3;
+	const height = data.height > 0 ? data.height : 1;
 
+	if (data.compressed) {
+		let x = 32 * 32 * 32 * height;
 		data.data = await inflate(data.data, x);
 	}
 
 	array = new Uint16Array(data.data.buffer, data.data.byteOffset);
 
-	if (data.type) {
-		const chunk = new ndarray(array, [32, 256, 32]);
+	const chunk = new ndarray(array, [32, 32 * height, 32]);
 
-		for (var yoff = 0; yoff < 8; yoff++) {
-			const noaChunk = new ndarray(new Uint16Array(32 * 32 * 32), [32, 32, 32]);
+	for (var yoff = 0; yoff < height; yoff++) {
+		const noaChunk = new ndarray(new Uint16Array(32 * 32 * 32), [32, 32, 32]);
 
-			const localID = [data.x, yoff, data.z].join('|');
+		const localID = [data.x, data.y + yoff, data.z].join('|');
 
-			for (let x = 0; x < 32; x++) {
-				for (let z = 0; z < 32; z++) {
-					for (let y = 0; y < 32; y++) {
-						const block = chunk.get(x, y + yoff * 32, z);
-						noaChunk.set(x, y, z, block);
-					}
+		for (let x = 0; x < 32; x++) {
+			for (let z = 0; z < 32; z++) {
+				for (let y = 0; y < 32; y++) {
+					const block = chunk.get(x, y + yoff * 32, z);
+					noaChunk.set(x, y, z, block);
 				}
 			}
-			event.emit(`load`, [data.x, data.y + yoff, data.z], noaChunk);
-			chunkStorage[localID] = noaChunk;
 		}
-	} else {
-		const localID = [data.x, data.y, data.z].join('|');
-		const chunk = new ndarray(array, [32, 32, 32]);
-
-		event.emit(`load`, [data.x, data.y, data.z], chunk);
-		chunkStorage[localID] = chunk;
+		event.emit(`load`, [data.x, data.y + yoff, data.z], noaChunk);
+		chunkStorage[localID] = noaChunk;
 	}
+	
 }
 
 export function removeChunk(id: string) {

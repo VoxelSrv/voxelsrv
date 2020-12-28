@@ -20,6 +20,7 @@ import {
 	IActionClick,
 	IActionClickEntity,
 	ILoginResponse,
+	ActionInventoryClick,
 } from 'voxelsrv-protocol/js/client';
 import { IPlayerTeleport, IWorldChunkLoad } from 'voxelsrv-protocol/js/server';
 import { socket } from '../../lib/connect';
@@ -109,6 +110,8 @@ const movement = {
 export default function (proxyIp: string, server: string): BaseSocket {
 	const toClient = new EventEmitter();
 	const toServer = new EventEmitter();
+
+	server = server.replace('*', '');
 
 	const proxy = new WebSocket('ws://' + proxyIp);
 	proxy.binaryType = 'arraybuffer';
@@ -226,26 +229,8 @@ export default function (proxyIp: string, server: string): BaseSocket {
 		}
 
 		toServer.on('ActionInventoryClick', (data: IActionInventoryClick) => {
-			if (data.type == 'select') {
+			if (data.type == ActionInventoryClick.Type.SELECT) {
 				inventory.selected = data.slot;
-			} else if (data.type == 'switch') {
-				let temp1 = inventory.items[data.slot2];
-				let temp2 = inventory.items[data.slot];
-
-				inventory.items[data.slot] = temp1;
-				inventory.items[data.slot2] = temp2;
-
-				toClient.emit('PlayerSlotUpdate', {
-					slot: data.slot2,
-					data: JSON.stringify(inventory.items[data.slot2]),
-					type: 'main',
-				});
-
-				toClient.emit('PlayerSlotUpdate', {
-					slot: data.slot,
-					data: JSON.stringify(inventory.items[data.slot]),
-					type: 'main',
-				});
 			} else {
 				let temp1 = inventory.tempslot;
 				let temp2 = inventory.items[data.slot];
@@ -526,8 +511,8 @@ export default function (proxyIp: string, server: string): BaseSocket {
 							y: j,
 							z: i,
 							data: Buffer.from(chunk.data.buffer, chunk.data.byteOffset),
-							type: false,
 							compressed: false,
+							height: 1
 						};
 
 						worldPackets.push(data);

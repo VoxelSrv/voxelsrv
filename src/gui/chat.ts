@@ -103,8 +103,8 @@ export function setupChat() {
 	});
 }
 
-export async function addMessage(msg: Array<IFormatedText>) {
-	const data = Object.values(msg);
+export async function addMessage(msg) {
+	const data: Array<IFormatedText> = Object.values(msg);
 	let x = '';
 	data.forEach((y) => {
 		x = x + y.text;
