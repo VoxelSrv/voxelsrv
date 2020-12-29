@@ -1,8 +1,8 @@
-import { saveSettings } from './lib/storage';
+import { saveSettings } from './lib/helpers/storage';
 import { isMobile, isFirefox } from 'mobile-device-detect';
 import { setScale } from './gui/main';
 
-export const gameVersion = '0.2.0-beta.12';
+export const gameVersion = '0.2.0-beta.13';
 
 export const gameProtocol = 3;
 
@@ -21,6 +21,7 @@ export const defaultSettings = {
 	scale: 3,
 	fov: 70,
 	fpslimit: 0,
+	debugInfo: false
 };
 
 export let gameSettings = { ...defaultSettings, version: gameVersion };

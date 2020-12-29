@@ -1,22 +1,24 @@
 import { isMobile, isFirefox } from 'mobile-device-detect';
 import Engine from 'noa-engine';
-import { setupControls } from './lib/player';
-import { defineModelComp } from './lib/model';
+import { setupControls } from './lib/player/controls';
+import { defineModelComp } from './lib/helpers/model';
 
-import { noaOpts, updateSettings, serverSettings, defaultFonts, setNoa, updateServerSettings, gameSettings } from './values';
+import { noaOpts, updateSettings, serverSettings, defaultFonts, setNoa, updateServerSettings, gameSettings, gameProtocol } from './values';
 import { constructScreen } from './gui/main';
 
 import { MPSocket } from './socket';
-import { getSettings } from './lib/storage';
-import { setupClouds } from './lib/sky';
+import { getSettings } from './lib/helpers/storage';
+import { setupClouds } from './lib/gameplay/sky';
 import { buildMainMenu } from './gui/menu/main';
-import { connect } from './lib/connect';
+import { connect, setupConnection } from './lib/gameplay/connect';
 import { setupMobile } from './gui/mobile';
-import { setupGamepad } from './lib/gamepad';
+import { setupGamepad } from './lib/player/gamepad';
 import { warningFirefox } from './gui/warnings';
-import { setupWorld } from './lib/world';
+import { setupWorld } from './lib/gameplay/world';
 
 import { spawn, Worker } from 'threads';
+import { createSingleplayerServer } from './lib/singleplayer/setup';
+import { IServerInfo } from './gui/menu/multiplayer';
 
 spawn(new Worker('./inflate.js')).then((x) => {
 	window['inflate'] = x;
@@ -50,7 +52,7 @@ getSettings().then((data) => {
 	//setupSkybox(noa)
 
 	setupWorld(noa);
-	
+
 	let x = 0;
 	noa.on('beforeRender', async () => {
 		if (!serverSettings.ingame) {
@@ -72,7 +74,7 @@ getSettings().then((data) => {
 			}
 		},
 		false
-	)
+	);
 
 	window.onerror = function (msg, url, lineNo, columnNo, error) {
 		alert(`${msg}\nPlease report this error at: https://github.com/VoxelSrv/voxelsrv/issues`);
@@ -80,6 +82,25 @@ getSettings().then((data) => {
 
 	window['connect'] = (x) => {
 		connect(noa, x);
+	};
+
+	window['singleplayerTest'] = () => {
+		const info: IServerInfo = {
+			name: 'Singleplayer World',
+			ip: 'Internal',
+			motd: '',
+			protocol: gameProtocol,
+			software: 'VoxelSrv',
+			featured: true,
+			icon: 'voxelsrv',
+			type: 0,
+			players: {
+				max: 1,
+				online: 0,
+			},
+			useProxy: false,
+		};
+		setupConnection(noa, createSingleplayerServer(), info);
 	};
 
 	window['forceplay'] = () => {

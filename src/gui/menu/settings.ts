@@ -1,7 +1,6 @@
 import { scale, event, setScale } from '../main';
 import * as GUI from '@babylonjs/gui/';
-import { FormTextBlock } from '../../gui-uni/formtextblock';
-import { createItem, createInput, createSlider, createCheckbox } from '../../gui-uni/menu';
+import { createItem, createInput, createSlider, createCheckbox } from '../parts/menu';
 import { gameSettings, updateSettings } from '../../values';
 
 export default function buildSettings(noa, openMenu) {
@@ -24,13 +23,23 @@ export default function buildSettings(noa, openMenu) {
 
 	menu.addControl(name);
 
-	const settings = new GUI.StackPanel();
-	settings.verticalAlignment = 0;
-	settings.top = `${18 * scale}px`;
-	settings.width = `${210 * scale}px`;
-	settings.height = `80%`;
+	const scroll = new GUI.ScrollViewer();
+	scroll.verticalAlignment = 0;
+	scroll.top = `${18 * scale}px`;
+	scroll.width = `${210 * scale}px`;
+	scroll.height = `80%`;
+	scroll.thickness = 0;
+	scroll.barColor = '#ffffff44'
+	scroll.barBackground = '#00000000'
 
-	menu.addControl(settings);
+	//@ts-ignore
+	scroll.verticalBar.thickness = 0;
+
+
+	menu.addControl(scroll)
+
+	const settings = new GUI.StackPanel();
+	scroll.addControl(settings);
 
 	const nickname = createInput();
 	nickname.name.text = 'Nickname';
@@ -98,6 +107,16 @@ export default function buildSettings(noa, openMenu) {
 
 	settings.addControl(view.main);
 
+	const debug = createCheckbox();
+	debug.name.text = `Enable debug info: ${gameSettings.debugInfo}`;
+	debug.isChecked = gameSettings.debugInfo;
+	debug.main.onPointerClickObservable.add(() => {
+		debug.isChecked = !debug.isChecked;
+		debug.name.text = `Enable debug info: ${debug.isChecked}`;
+	});
+
+	settings.addControl(debug.main);
+
 	const back = createItem();
 	back.item.verticalAlignment = 1;
 	back.text.text = [{ text: 'Back', color: 'white', font: 'Lato' }];
@@ -109,7 +128,8 @@ export default function buildSettings(noa, openMenu) {
 			scale: scaleS.slider.value,
 			gamepad: gamepad.isChecked,
 			viewDistance: view.slider.value,
-			fov: fov.slider.value
+			fov: fov.slider.value,
+			debugInfo: debug.isChecked,
 		});
 
 		noa.camera.sensitivityX = mouse.slider.value;
@@ -118,7 +138,7 @@ export default function buildSettings(noa, openMenu) {
 		noa.world.chunkAddDistance = view.slider.value;
 		noa.world.chunkRemoveDistance = view.slider.value + 0.5;
 
-		noa.rendering.getScene().cameras[0].fov = fov.slider.value * Math.PI / 180;
+		noa.rendering.getScene().cameras[0].fov = (fov.slider.value * Math.PI) / 180;
 
 		menu.dispose();
 		openMenu('main');
@@ -133,8 +153,8 @@ export default function buildSettings(noa, openMenu) {
 
 		name.fontSize = 11 * scale;
 
-		settings.top = `${18 * scale}px`;
-		settings.width = `${210 * scale}px`;
+		scroll.top = `${18 * scale}px`;
+		scroll.width = `${210 * scale}px`;
 
 		back.item.width = `${100 * scale}px`;
 		back.item.height = `${18 * scale}px`;

@@ -2,10 +2,10 @@
 	"name": "voxelsrv",
 	"version": "0.2.0-beta.12",
 	"description": "Simple voxel game",
-	"main": "src/electron/dist/index.js",
+	"main": "",
 	"scripts": {
-		"start": "cd src && npx webpack-dev-server",
-		"build": "rm docs/*.js & cd src && npx webpack --env.production"
+		"start": "npx webpack-dev-server",
+		"build": "rm dist/*.js & npx webpack --env.production"
 	},
 	"keywords": [
 		"noa-engine",
@@ -27,9 +27,11 @@
 		"@types/readable-stream": "^2.3.9",
 		"canvas-screenshot": "^3.0.0",
 		"dexie": "^3.0.3",
+		"fakereadline": "file:fake_modules/readline",
 		"jszip": "^3.5.0",
 		"lodash": "^4.17.20",
 		"mathjs": "^8.1.0",
+		"memfs": "^3.2.0",
 		"mesh-particle-system": "^0.9.0",
 		"mobile-device-detect": "^0.4.3",
 		"murmur-numbers": "0.0.1",
@@ -44,6 +46,7 @@
 		"threads": "^1.6.3",
 		"uuid": "^8.3.2",
 		"voxelsrv-protocol": "github:VoxelSrv/protocol#v3",
+		"voxelsrv-server": "github:VoxelSrv/voxelsrv-server",
 		"ws": "^7.4.1"
 	},
 	"devDependencies": {

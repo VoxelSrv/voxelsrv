@@ -1,7 +1,7 @@
-import { scale, event, getUI, getScreen } from '../main';
+import { scale, event, getScreen } from '../main';
 import * as GUI from '@babylonjs/gui/';
-import { createItem } from '../../gui-uni/menu';
-import { disconnect } from '../../lib/connect';
+import { createItem } from '../parts/menu';
+import { disconnect } from '../../lib/gameplay/connect';
 
 export default function buildConnect() {
 	document.title = 'VoxelSrv - Connecting...';
@@ -28,7 +28,7 @@ export default function buildConnect() {
 	const motd = new GUI.TextBlock();
 	motd.fontFamily = 'Lato';
 	motd.fontSize = 9 * scale;
-	motd.top = `${14 * scale}px`
+	motd.top = `${14 * scale}px`;
 	motd.textVerticalAlignment = 0;
 	motd.color = 'white';
 
@@ -39,7 +39,7 @@ export default function buildConnect() {
 	status.fontSize = 9 * scale;
 	status.textVerticalAlignment = 2;
 	status.color = 'white';
-	status.text = 'Logging in...'
+	status.text = 'Logging in...';
 	status.textWrapping = GUI.TextWrapping.WordWrap;
 
 	menu.addControl(status);
@@ -60,7 +60,7 @@ export default function buildConnect() {
 
 		name.fontSize = 11 * scale;
 		motd.fontSize = 11 * scale;
-		motd.top = `${14 * scale}px`
+		motd.top = `${14 * scale}px`;
 
 		status.fontSize = 9 * scale;
 
@@ -75,5 +75,5 @@ export default function buildConnect() {
 		event.off('scale-change', rescale);
 	});
 
-	return { menu, name, motd, status};
+	return { menu, name, motd, status };
 }

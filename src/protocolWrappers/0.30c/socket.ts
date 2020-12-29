@@ -22,8 +22,8 @@ import {
 	ILoginResponse,
 	ActionInventoryClick,
 } from 'voxelsrv-protocol/js/client';
-import { IPlayerTeleport, IWorldChunkLoad } from 'voxelsrv-protocol/js/server';
-import { socket } from '../../lib/connect';
+import { IPlayerTeleport, IWorldChunkLoad, UpdateTextBoard } from 'voxelsrv-protocol/js/server';
+import { socket } from '../../lib/gameplay/connect';
 
 const colormap = {
 	'1': 'blue',
@@ -225,7 +225,7 @@ export default function (proxyIp: string, server: string): BaseSocket {
 
 			message.push({ text: data.username, color: 'white' });
 
-			toClient.emit('TabUpdate', { message: message, time: Date.now() });
+			toClient.emit('UpdateTextBoard', { message: message, time: Date.now(), type: UpdateTextBoard.Type.TAB });
 		}
 
 		toServer.on('ActionInventoryClick', (data: IActionInventoryClick) => {

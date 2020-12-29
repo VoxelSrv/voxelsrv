@@ -88,7 +88,7 @@ export class VirtualSocket extends BaseSocket {
 
 	closed: boolean = false;
 
-	constructor(toClient: EventEmitter, toServer: EventEmitter, server: string) {
+	constructor(toClient: EventEmitter, toServer: EventEmitter, server?: string) {
 		super();
 		this.server = server;
 		this.toClient = toClient;
@@ -113,6 +113,7 @@ export class VirtualSocket extends BaseSocket {
 
 	async send(type: string, data: Object) {
 		this.toServer.emit(type, data);
+		this.toServer.emit('packet', type, data);
 	}
 
 	close(x?: number) {

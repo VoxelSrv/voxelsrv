@@ -1,6 +1,6 @@
 import * as BABYLON from '@babylonjs/core/Legacy/legacy';
 
-import { items, blocks } from '../lib/registry';
+import { items, blocks } from '../lib/gameplay/registry';
 import { gameSettings } from '../values';
 import { getLayer } from './main';
 

@@ -95,8 +95,8 @@ export function constructScreen(noa) {
 	layer0.autoClear = false;
 	layer1.autoClear = false;
 
-	const camera1 = new BABYLON.ArcRotateCamera('Camera', -Math.PI / 2, (7 * Math.PI) / 16, 10, BABYLON.Vector3.Zero(), layer0);
-	const camera2 = new BABYLON.ArcRotateCamera('Camera', -Math.PI / 2, (7 * Math.PI) / 16, 10, BABYLON.Vector3.Zero(), layer1);
+	new BABYLON.ArcRotateCamera('Camera', -Math.PI / 2, (7 * Math.PI) / 16, 10, BABYLON.Vector3.Zero(), layer0);
+	new BABYLON.ArcRotateCamera('Camera', -Math.PI / 2, (7 * Math.PI) / 16, 10, BABYLON.Vector3.Zero(), layer1);
 
 	available = true;
 

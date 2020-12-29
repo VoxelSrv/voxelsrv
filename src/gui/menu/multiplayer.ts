@@ -1,9 +1,9 @@
 import { scale, event } from '../main';
 import * as GUI from '@babylonjs/gui/';
-import { FormTextBlock } from '../../gui-uni/formtextblock';
-import { connect } from '../../lib/connect';
+import { FormTextBlock } from '../parts/formtextblock';
+import { connect } from '../../lib/gameplay/connect';
 import { Vector2 } from '@babylonjs/core';
-import { createItem } from '../../gui-uni/menu';
+import { createItem } from '../parts/menu';
 import { heartbeatServer } from '../../values';
 
 export let servers = {};

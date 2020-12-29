@@ -1,10 +1,8 @@
 import { scale, event, getUI, getScreen } from '../main';
 import * as GUI from '@babylonjs/gui/';
-import { FormTextBlock } from '../../gui-uni/formtextblock';
 import { buildMainMenu } from './main';
-import { MPSocket } from '../../socket';
-import { createItem } from '../../gui-uni/menu';
-import { connect } from '../../lib/connect';
+import { createItem } from '../parts/menu';;
+import { connect } from '../../lib/gameplay/connect';
 
 export default function buildDisconnect(reasontext, server, noa) {
 	document.title = 'VoxelSrv - Disconnected!';

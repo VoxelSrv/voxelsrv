@@ -1,5 +1,5 @@
 import { scale, event, getScreen } from './main';
-import { FormTextBlock, IFormatedText } from '../gui-uni/formtextblock';
+import { FormTextBlock, IFormatedText } from './parts/formtextblock';
 
 import * as GUI from '@babylonjs/gui';
 

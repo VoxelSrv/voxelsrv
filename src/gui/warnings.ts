@@ -1,7 +1,7 @@
 import * as GUI from '@babylonjs/gui';
 
-import { createItem } from '../gui-uni/menu';
-import { createWindow } from '../gui-uni/window';
+import { createItem } from './parts/menu';
+import { createWindow } from './parts/window';
 import { getScreen } from './main';
 
 export function warningFirefox() {

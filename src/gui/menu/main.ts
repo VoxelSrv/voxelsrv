@@ -4,8 +4,9 @@ import * as GUI from '@babylonjs/gui/';
 import buildMultiplayer from './multiplayer';
 import buildSettings from './settings';
 import { gameVersion, getSplash, hostedOn } from '../../values';
-import { createItem } from '../../gui-uni/menu';
-import { FormTextBlock } from '../../gui-uni/formtextblock';
+import { createItem } from '../parts/menu';
+import { FormTextBlock } from '../parts/formtextblock';
+import buildSingleplayer from './singleplayer';
 
 export let holder: GUI.Rectangle;
 
@@ -44,7 +45,7 @@ export function buildMainMenu(noa) {
 		if (!!activeMenu) activeMenu.dispose();
 		switch (type) {
 			case 'singleplayer':
-				//activeMenu = buildSingleplayer(noa, openMenu);
+				activeMenu = buildSingleplayer(noa, openMenu);
 				active = 'singleplayer';
 				document.title = 'VoxelSrv - Singleplayer Menu';
 				break;
@@ -124,14 +125,12 @@ export function buildMainMenu(noa) {
 		items.zIndex = 20;
 		menu.addControl(items);
 
-		if (window['electron'] != undefined) {
-			const singleplayer = createItem();
-			singleplayer.text.text = [{ text: 'Singleplayer', color: 'white', font: 'Lato' }];
-			singleplayer.item.onPointerClickObservable.add((e) => {
-				openMenu('singleplayer');
-			});
-			items.addControl(singleplayer.item);
-		}
+		/*const singleplayer = createItem();
+		singleplayer.text.text = [{ text: 'Singleplayer', color: 'white', font: 'Lato' }];
+		singleplayer.item.onPointerClickObservable.add((e) => {
+			openMenu('singleplayer');
+		});
+		items.addControl(singleplayer.item);*/
 
 		const multiplayer = createItem();
 		multiplayer.text.text = [{ text: 'Multiplayer', color: 'white', font: 'Lato' }];
