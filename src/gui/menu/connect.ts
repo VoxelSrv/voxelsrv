@@ -2,6 +2,7 @@ import { scale, event, getScreen } from '../main';
 import * as GUI from '@babylonjs/gui/';
 import { createItem } from '../parts/menu';
 import { disconnect } from '../../lib/gameplay/connect';
+import { defaultValues } from '../../values';
 
 export default function buildConnect() {
 	document.title = 'VoxelSrv - Connecting...';
@@ -12,7 +13,7 @@ export default function buildConnect() {
 	menu.zIndex = 10;
 	menu.height = `${120 * scale}px`;
 	menu.width = `${180 * scale}px`;
-	menu.background = '#11111166';
+	menu.background = defaultValues.menuColor;
 
 	getScreen(2).addControl(menu);
 

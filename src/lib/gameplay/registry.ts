@@ -40,7 +40,12 @@ export function registerBlocks(noa: Engine, blockList) {
 
 	// Create blocks from registry
 	entries.forEach(function (item: any) {
-		createBlock(item.rawid, item.id, item.type, item.texture, item.options, item.hardness, item.miningtime, item.tool);
+		try {
+			createBlock(item.rawid, item.id, item.type, item.texture, item.options, item.hardness, item.miningtime, item.tool);
+		} catch(e) {
+			console.log(e);
+			
+		}
 	});
 
 	function createBlock(id, name, type, texture, options, hardness, miningtime, tool) {

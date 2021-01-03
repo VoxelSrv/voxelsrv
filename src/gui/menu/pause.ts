@@ -3,6 +3,7 @@ import * as GUI from '@babylonjs/gui/';
 import { disconnect } from '../../lib/gameplay/connect';
 import { createItem } from '../parts/menu';
 import buildSettings from './settings';
+import { defaultValues } from '../../values';
 
 export let pauseScreen: GUI.Rectangle;
 
@@ -15,7 +16,7 @@ export default function buildPause(noa) {
 	pauseScreen = new GUI.Rectangle();
 	pauseScreen.zIndex = 20;
 	pauseScreen.verticalAlignment = 2;
-	pauseScreen.background = '#00000077';
+	pauseScreen.background = defaultValues.backgroundColor;
 	pauseScreen.thickness = 0;
 	pauseScreen.isVisible = false;
 	ui.addControl(pauseScreen);
@@ -26,7 +27,7 @@ export default function buildPause(noa) {
 	menu.zIndex = 10;
 	menu.height = `${200 * scale}px`;
 	menu.width = `${160 * scale}px`;
-	menu.background = '#11111166';
+	menu.background = defaultValues.menuColor;
 
 	pauseScreen.addControl(menu);
 

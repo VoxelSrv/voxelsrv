@@ -1,34 +1,19 @@
-import { getScreen, scale, event } from '../main';
-import { items } from '../../lib/gameplay/registry';
+import { getScreen, scale, event } from '../../main';
 import * as GUI from '@babylonjs/gui/';
 import { ActionInventoryClick } from 'voxelsrv-protocol/js/client';
 
-import { ItemSlot, createSlot, updateSlot } from '../parts/itemSlot';
+import { ItemSlot, createSlot, updateSlot } from '../../parts/itemSlot';
+import { BaseSocket } from '../../../socket';
+import { Engine } from 'noa-engine';
 
-export let inventory: GUI.Rectangle;
 let page = 0;
 
-export function buildInventory(noa, socket) {
+export function getBaseInventory(noa: Engine, socket: BaseSocket) {
 	function getInv() {
 		return noa.ents.getState(noa.playerEntity, 'inventory');
 	}
 
 	const ui = getScreen(2);
-
-	inventory = new GUI.Rectangle();
-	inventory.zIndex = 15;
-	inventory.verticalAlignment = 2;
-	inventory.background = '#00000077';
-	inventory.thickness = 0;
-	inventory.isVisible = false;
-	ui.addControl(inventory);
-
-	const inventoryTexture = new GUI.Image('inventory', './textures/gui/container/inventory.png');
-	inventoryTexture.width = `${180 * scale}px`;
-	inventoryTexture.height = `${176 * scale}px`;
-	inventoryTexture.zIndex = 18;
-
-	inventory.addControl(inventoryTexture);
 
 	const hotbar = new GUI.Rectangle();
 	hotbar.zIndex = 20;
@@ -38,12 +23,13 @@ export function buildInventory(noa, socket) {
 	hotbar.width = `${164 * scale}px`;
 	hotbar.thickness = 0;
 
+	const inventory = new GUI.Rectangle();
+
 	inventory.addControl(hotbar);
 
 	const hotbarSlots: Array<ItemSlot> = new Array(9);
 	const inventorySlots: Array<ItemSlot> = new Array(36);
 	const inventoryRow: Array<GUI.Rectangle> = [];
-	const craftingSlots: Array<ItemSlot> = new Array(5);
 
 	for (let x = 1; x < 4; x++) {
 		const row = new GUI.Rectangle();
@@ -98,7 +84,12 @@ export function buildInventory(noa, socket) {
 	tempslot.count.isPointerBlocker = false;
 	tempslot.item.isPointerBlocker = false;
 
-	inventory.addControl(tempslot.container);
+	const tempSlotUpdate = (data) => {
+		tempslot.container.left = data.x + 10;
+		tempslot.container.top = data.y + 10;
+	};
+
+	ui.onPointerMoveObservable.add(tempSlotUpdate);
 
 	for (let x = 0; x < 9; x++) {
 		hotbarSlots[x] = createSlot(scale);
@@ -131,111 +122,6 @@ export function buildInventory(noa, socket) {
 		container.isPointerBlocker = true;
 		hotbar.addControl(container);
 	}
-
-	const armor = new GUI.Rectangle();
-	armor.zIndex = 40;
-	armor.verticalAlignment = 2;
-	armor.top = `${-39 * scale}px`;
-	armor.left = `${-72 * scale}px`;
-	armor.height = `${72 * scale}px`;
-	armor.width = `${18 * scale}px`;
-	armor.thickness = 0;
-
-	inventory.addControl(armor);
-
-	const armorSlots = new Array(4);
-
-	for (let x = 0; x < 4; x++) {
-		armorSlots[x] = createSlot(scale);
-		const container = armorSlots[x].container;
-		container.zIndex = 50;
-		container.verticalAlignment = 0;
-		container.top = `${18 * scale * x}px`;
-		container.onPointerClickObservable.add((e) => {
-			let click = ActionInventoryClick.Type.LEFT;
-			switch (e.buttonIndex) {
-				case 0:
-					click = ActionInventoryClick.Type.LEFT;
-					break;
-				case 1:
-					click = ActionInventoryClick.Type.MIDDLE;
-					break;
-				case 2:
-					click = ActionInventoryClick.Type.RIGHT;
-					break;
-			}
-			socket.send('ActionInventoryClick', { slot: x, type: click, inventory: ActionInventoryClick.TypeInv.ARMOR });
-		});
-
-		container.onPointerEnterObservable.add((e) => {
-			container.background = '#ffffff22';
-		});
-
-		container.onPointerOutObservable.add((e) => {
-			container.background = '#00000000';
-		});
-
-		container.isPointerBlocker = true;
-		armor.addControl(container);
-	}
-
-	const crafting = new GUI.Rectangle();
-	crafting.zIndex = 40;
-	crafting.verticalAlignment = 2;
-	crafting.horizontalAlignment = 2;
-	crafting.top = `${-47 * scale}px`;
-	crafting.left = `${43 * scale}px`;
-	crafting.height = `${35 * scale}px`;
-	crafting.width = `${66 * scale}px`;
-	crafting.thickness = 0;
-
-	inventory.addControl(crafting);
-
-	for (let x = 0; x < 5; x++) {
-		craftingSlots[x] = createSlot(scale);
-		const container = craftingSlots[x].container;
-		container.zIndex = 50;
-		container.verticalAlignment = 0;
-		container.horizontalAlignment = 0;
-		if (x == 4) {
-			container.left = `${48 * scale}px`;
-			container.top = `${10 * scale}px`;
-		} else {
-			if (x % 2 == 1) container.left = `${18 * scale}px`;
-			if (x > 1) container.top = `${18 * scale}px`;
-		}
-
-		container.onPointerClickObservable.add((e) => {
-			let click = ActionInventoryClick.Type.LEFT;
-			switch (e.buttonIndex) {
-				case 0:
-					click = ActionInventoryClick.Type.LEFT;
-					break;
-				case 1:
-					click = ActionInventoryClick.Type.MIDDLE;
-					break;
-				case 2:
-					click = ActionInventoryClick.Type.RIGHT;
-					break;
-			}
-			socket.send('ActionInventoryClick', { slot: x, type: click, inventory: ActionInventoryClick.TypeInv.CRAFTING });
-		});
-		container.onPointerEnterObservable.add((e) => {
-			container.background = '#ffffff22';
-		});
-
-		container.onPointerOutObservable.add((e) => {
-			container.background = '#00000000';
-		});
-
-		container.isPointerBlocker = true;
-		crafting.addControl(container);
-	}
-
-	ui.onPointerMoveObservable.add((data) => {
-		tempslot.container.left = data.x + 10;
-		tempslot.container.top = data.y + 10;
-	});
 
 	const button: { [index: string]: any } = {};
 
@@ -283,28 +169,7 @@ export function buildInventory(noa, socket) {
 
 		const inv = getInv();
 
-		if (inv.tempslot != null && inv.tempslot.id != undefined) {
-			tempslot.item.alpha = 1;
-			tempslot.count.alpha = 1;
-			const item = items[inv.tempslot.id];
-
-			let txt: string;
-			if (item == undefined) txt = './textures/error.png';
-			else if (!item.texture.startsWith('https://') || !item.texture.startsWith('http://')) txt = './textures/' + item.texture + '.png';
-			else txt = item.texture;
-
-			tempslot.item.source = txt;
-
-			if (inv.tempslot.count == 1) tempslot.count.text = '';
-			else if (inv.tempslot.count <= 10) tempslot.count.text = ' ' + inv.tempslot.count.toString();
-			else tempslot.count.text = inv.tempslot.count.toString();
-		} else {
-			tempslot.item.alpha = 0;
-			tempslot.count.alpha = 0;
-
-			tempslot.item.source = '';
-			tempslot.count.text = '';
-		}
+		updateSlot(tempslot, inv.tempslot);
 
 		for (let x = 0; x < 9; x++) {
 			updateSlot(hotbarSlots[x], inv.items[x]);
@@ -313,48 +178,14 @@ export function buildInventory(noa, socket) {
 		for (let x = 9; x < 36; x++) {
 			updateSlot(inventorySlots[x], inv.items[27 * page + x]);
 		}
-
-		for (let x = 0; x < 4; x++) {
-			const status = updateSlot(armorSlots[x], inv.armor.items[x]);
-			if (status == false) {
-				armorSlots[x].count.alpha = 0;
-				let txt: string;
-				switch (x) {
-					case 0:
-						txt = './textures/item/empty_armor_slot_helmet.png';
-						break;
-					case 1:
-						txt = './textures/item/empty_armor_slot_chestplate.png';
-						break;
-					case 2:
-						txt = './textures/item/empty_armor_slot_leggings.png';
-						break;
-					case 3:
-						txt = './textures/item/empty_armor_slot_boots.png';
-						break;
-				}
-				armorSlots[x].item.source = txt;
-				armorSlots[x].count.text = '';
-			}
-		}
-
-		for (let x = 0; x < 5; x++) {
-			updateSlot(craftingSlots[x], inv.crafting[x]);
-		}
 	};
 
 	noa.on('tick', update);
 
 	const scaleEvent = (scale2) => {
-		inventoryTexture.width = `${180 * scale2}px`;
-		inventoryTexture.height = `${176 * scale2}px`;
 		hotbar.top = `${67 * scale2}px`;
 		hotbar.height = `${20 * scale2}px`;
 		hotbar.width = `${164 * scale2}px`;
-		armor.top = `${-39 * scale2}px`;
-		armor.left = `${-72 * scale2}px`;
-		armor.height = `${72 * scale2}px`;
-		armor.width = `${18 * scale2}px`;
 
 		if (button.box != undefined) {
 			button.box.height = `${15 * scale2}px`;
@@ -391,18 +222,6 @@ export function buildInventory(noa, socket) {
 			hotbarSlots[x].count.shadowOffsetY = scale2;
 		}
 
-		for (let x = 0; x < armorSlots.length; x++) {
-			armorSlots[x].container.height = `${16 * scale2}px`;
-			armorSlots[x].container.width = `${16 * scale2}px`;
-			armorSlots[x].item.width = `${16 * scale2}px`;
-			armorSlots[x].item.height = `${16 * scale2}px`;
-			armorSlots[x].count.fontSize = `${8 * scale2}px`;
-			armorSlots[x].count.left = `${2 * scale2}px`;
-			armorSlots[x].count.top = `${4 * scale2}px`;
-			armorSlots[x].count.shadowOffsetX = scale2;
-			armorSlots[x].count.shadowOffsetY = scale2;
-		}
-
 		for (let x = 1; x < 4; x++) {
 			inventoryRow[x].height = `${20 * scale2}px`;
 			inventoryRow[x].width = `${164 * scale2}px`;
@@ -421,37 +240,16 @@ export function buildInventory(noa, socket) {
 				inventorySlots[y].count.shadowOffsetY = scale2;
 			}
 		}
-
-		crafting.top = `${-47 * scale}px`;
-		crafting.left = `${43 * scale}px`;
-		crafting.height = `${35 * scale}px`;
-		crafting.width = `${66 * scale}px`;
-
-		for (let x = 0; x < 5; x++) {
-			if (x == 4) {
-				craftingSlots[x].container.left = `${48 * scale2}px`;
-				craftingSlots[x].container.top = `${10 * scale2}px`;
-			} else {
-				if (x % 2 == 1) craftingSlots[x].container.left = `${18 * scale2}px`;
-				if (x > 1) craftingSlots[x].container.top = `${18 * scale2}px`;
-			}
-
-			craftingSlots[x].container.height = `${16 * scale2}px`;
-			craftingSlots[x].container.width = `${16 * scale2}px`;
-			craftingSlots[x].item.width = `${16 * scale2}px`;
-			craftingSlots[x].item.height = `${16 * scale2}px`;
-			craftingSlots[x].count.fontSize = `${8 * scale2}px`;
-			craftingSlots[x].count.left = `${2 * scale2}px`;
-			craftingSlots[x].count.top = `${4 * scale2}px`;
-			craftingSlots[x].count.shadowOffsetX = scale2;
-			craftingSlots[x].count.shadowOffsetY = scale2;
-		}
 	};
 
 	event.on('scale-change', scaleEvent);
 
 	inventory.onDisposeObservable.add(() => {
-		event.off('scake-change', scaleEvent);
+		event.off('scale-change', scaleEvent);
 		noa.off('tick', update);
+
+		ui.onPointerMoveObservable.removeCallback(tempSlotUpdate);
 	});
+
+	return { inventory, inventoryRow, inventorySlots, hotbarSlots, tempslot, button };
 }

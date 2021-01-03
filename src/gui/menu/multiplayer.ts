@@ -4,7 +4,7 @@ import { FormTextBlock } from '../parts/formtextblock';
 import { connect } from '../../lib/gameplay/connect';
 import { Vector2 } from '@babylonjs/core';
 import { createItem } from '../parts/menu';
-import { heartbeatServer } from '../../values';
+import { defaultValues, heartbeatServer } from '../../values';
 
 export let servers = {};
 
@@ -33,7 +33,7 @@ export default function buildMultiplayer(noa, openMenu) {
 	if (window.innerHeight > 230 * scale) menu.height = `${230 * scale}px`;
 	else menu.height = `100%`;
 	menu.width = `${310 * scale}px`;
-	menu.background = '#11111166';
+	menu.background = defaultValues.menuColor;
 
 	const name = new GUI.TextBlock();
 	name.fontFamily = 'Lato';

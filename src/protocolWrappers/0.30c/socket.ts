@@ -21,6 +21,7 @@ import {
 	IActionClickEntity,
 	ILoginResponse,
 	ActionInventoryClick,
+	IActionInventoryPick,
 } from 'voxelsrv-protocol/js/client';
 import { IPlayerTeleport, IWorldChunkLoad, UpdateTextBoard } from 'voxelsrv-protocol/js/server';
 import { socket } from '../../lib/gameplay/connect';
@@ -250,6 +251,27 @@ export default function (proxyIp: string, server: string): BaseSocket {
 					type: 'main',
 				});
 			}
+		});
+
+		toServer.on('ActionInventoryPick', (data: IActionInventoryPick) => {
+			let temp1 = inventory.items[data.slot2];
+			let temp2 = inventory.items[data.slot];
+
+			inventory.items[data.slot] = temp1;
+			inventory.items[data.slot2] = temp2;
+
+			toClient.emit('PlayerSlotUpdate', {
+				slot: data.slot2,
+				data: JSON.stringify(inventory.items[data.slot2]),
+				type: 'main',
+			});
+
+			toClient.emit('PlayerSlotUpdate', {
+				slot: data.slot,
+				data: JSON.stringify(inventory.items[data.slot]),
+				type: 'main',
+			});
+			
 		});
 
 		toServer.on('ActionMove', async (data: IActionMove) => {

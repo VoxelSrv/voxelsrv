@@ -2,15 +2,17 @@ import * as BABYLON from '@babylonjs/core/Legacy/legacy';
 
 import { gameSettings, serverSettings } from '../../values';
 import { blockIDmap, blocks } from '../gameplay/registry';
-import { inventory } from '../../gui/ingame/inventory';
+import { inventory, openInventory, closeInventory } from '../../gui/ingame/inventory/main';
 import { hotbar } from '../../gui/ingame/hotbar';
 import { input as chatInput, changeState as chanceChatState, chatContainer } from '../../gui/ingame/chat';
-import { socketSend } from '../gameplay/connect';
+import { socket, socketSend } from '../gameplay/connect';
 import { getUI } from '../../gui/main';
 import { pauseScreen } from '../../gui/menu/pause';
 import { tabContainer } from '../../gui/tab';
 import { debug, dot } from '../../gui/ingame/debug';
 import { ActionInventoryClick, ActionInventoryClose } from 'voxelsrv-protocol/js/client';
+import { Engine } from 'noa-engine';
+import { closeCrafting, craftingInventory } from '../../gui/ingame/inventory/crafting';
 
 const screenshot = require('canvas-screenshot');
 
@@ -25,7 +27,7 @@ export function setupControls(noa: any) {
 
 	noa.container.canvas.addEventListener('click', () => {
 		if (!serverSettings.ingame) return;
-		if (inventory.isVisible || chatInput.isVisible || pauseScreen.isVisible) return;
+		if (!!inventory || !!craftingInventory || chatInput.isVisible || pauseScreen.isVisible) return;
 
 		noa.container.canvas.requestPointerLock();
 
@@ -154,13 +156,17 @@ export function setupControls(noa: any) {
 	noa.inputs.down.on('inventory', function () {
 		if (!serverSettings.ingame) return;
 		if (chatInput.isVisible || pauseScreen.isVisible) return;
-		if (inventory.isVisible) {
-			inventory.isVisible = false;
+		if (!!inventory) {
+			closeInventory();
 			noa.container.canvas.requestPointerLock();
 			socketSend('ActionInventoryClose', { inventory: ActionInventoryClose.Type.MAIN });
+		} else if (!!craftingInventory) {
+			closeCrafting();
+			noa.container.canvas.requestPointerLock();
+			socketSend('ActionInventoryClose', { inventory: ActionInventoryClose.Type.CRAFTING });
 		} else {
 			socketSend('ActionInventoryOpen', { inventory: ActionInventoryClose.Type.MAIN });
-			inventory.isVisible = true;
+			openInventory(noa, socket)
 			document.exitPointerLock();
 		}
 	});
@@ -169,7 +175,7 @@ export function setupControls(noa: any) {
 
 	noa.inputs.down.on('chat', function () {
 		if (!serverSettings.ingame) return;
-		if (inventory.isVisible || chatInput.isVisible || pauseScreen.isVisible) return;
+		if (!!inventory || chatInput.isVisible || pauseScreen.isVisible) return;
 		chatInput.isVisible = true;
 		chanceChatState(true);
 		document.exitPointerLock();
@@ -179,7 +185,7 @@ export function setupControls(noa: any) {
 
 	noa.inputs.down.on('cmd', function () {
 		if (!serverSettings.ingame) return;
-		if (inventory.isVisible || chatInput.isVisible || pauseScreen.isVisible) return;
+		if (!!inventory || chatInput.isVisible || pauseScreen.isVisible) return;
 		chatInput.isVisible = true;
 		chanceChatState(true);
 		document.exitPointerLock();
@@ -199,9 +205,13 @@ export function setupControls(noa: any) {
 			return;
 		}
 
-		if (inventory.isVisible) {
-			inventory.isVisible = false;
+		if (!!inventory) {
+			closeInventory();
 			socketSend('ActionInventoryClose', { inventory: ActionInventoryClose.Type.MAIN });
+			return;
+		} else if (!!craftingInventory) {
+			closeCrafting();
+			socketSend('ActionInventoryClose', { inventory: ActionInventoryClose.Type.CRAFTING});
 			return;
 		}
 
@@ -316,4 +326,15 @@ export function setupControls(noa: any) {
 			noa.ents.getState(eid, 'inventory').selected = pickedID;
 		}
 	});
+}
+
+export function rebindControls(noa: Engine, settings: { [i: string]: string }) {
+	console.log(settings)
+	for (const bind in settings) {
+		noa.inputs.unbind(bind);
+	}
+
+	for (const bind in settings) {
+		noa.inputs.bind(bind, settings[bind]);
+	}
 }

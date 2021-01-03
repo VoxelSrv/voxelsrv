@@ -2,7 +2,7 @@
  * This needs major cleanup as it's way too big and it will be bigger in future.
  */
 
-import { gameSettings, gameProtocol, updateServerSettings, gameVersion, noaOpts, heartbeatServer } from '../../values';
+import { gameSettings, gameProtocol, updateServerSettings, gameVersion, noaOpts, heartbeatServer, defaultValues } from '../../values';
 import { isMobile } from 'mobile-device-detect';
 import { buildMainMenu, holder } from '../../gui/menu/main';
 import { setupGuis, destroyGuis } from '../../gui/setup';
@@ -60,6 +60,7 @@ import { Engine as BabylonEngine, Scene } from '@babylonjs/core';
 import { setAssetServer } from '../helpers/assets';
 import { IServerInfo, servers } from '../../gui/menu/multiplayer';
 import buildConnect from '../../gui/menu/connect';
+import { openCrafting } from '../../gui/ingame/inventory/crafting';
 
 export let socket: BaseSocket | null = null;
 let chunkInterval: any = null;
@@ -73,7 +74,7 @@ export function socketSend(type, data) {
 let noa;
 let entityList = {};
 
-export function disconnect() {
+export function disconnect(menu: boolean = true) {
 	socket.close(0);
 	stopListening(noa);
 	noa.ents.getPhysics(noa.playerEntity).body.airDrag = 9999;
@@ -85,7 +86,7 @@ export function disconnect() {
 	updateServerSettings({ ingame: false });
 	document.exitPointerLock();
 	noa.rendering.getScene().cameras[0].fov = 0.8;
-	buildMainMenu(noa);
+	if (menu) buildMainMenu(noa);
 }
 
 export function connect(noa, server: string) {
@@ -126,18 +127,9 @@ export function setupConnection(noax, socketx, data: IServerInfo) {
 	if (holder != null) holder.dispose();
 
 	socket.on('PlayerKick', (data: IPlayerKick) => {
-		socket.close();
-		conScreen.menu.dispose();
-		noa.rendering.getScene().cameras[0].fov = 0.8;
-		noa.ents.getPhysics(noa.playerEntity).body.airDrag = 9999;
-		Object.values(entityList).forEach((x) => {
-			noa.ents.deleteEntity(x, true);
-		});
 		console.log(`You has been kicked from server \nReason: ${data.reason}`);
-		stopListening(noa);
-		destroyGuis();
+		disconnect(false);
 		buildDisconnect(data.reason, socket.server, noa);
-		updateServerSettings({ ingame: false });
 		document.exitPointerLock();
 		return;
 	});
@@ -185,16 +177,16 @@ export function setupConnection(noax, socketx, data: IServerInfo) {
 
 		const noaDef = noaOpts();
 
-		scene.fogMode = 0;
-		scene.fogStart = 20;
-		scene.fogEnd = 60;
-		scene.fogDensity = 0.1;
-		scene.fogColor = new BABYLON.Color3(0, 0, 0);
-		noa.blockTestDistance = 7;
+		scene.fogMode = defaultValues.fogMode;
+		scene.fogStart = defaultValues.fogStart;
+		scene.fogEnd = defaultValues.fogEnd;
+		scene.fogDensity = defaultValues.fogDensity;
+		scene.fogColor = new BABYLON.Color3(...defaultValues.fogColor);
+		noa.blockTestDistance = defaultValues.blockTestDistance;
 
 		scene.cameras[0].fov = (gameSettings.fov * Math.PI) / 180;
 
-		scene.clearColor = new BABYLON.Color4(noaDef.clearColor[0], noaDef.clearColor[1], noaDef.clearColor[2], 1);
+		scene.clearColor = new BABYLON.Color4(...defaultValues.clearColor, 1);
 		cloudMesh.isVisible = true;
 
 		if (!firstLogin) return;
@@ -296,6 +288,15 @@ export function setupConnection(noax, socketx, data: IServerInfo) {
 
 			socket.on('PlayerOpenInventory', (data: IPlayerOpenInventory) => {
 				if (data.type == PlayerOpenInventory.Type.MAIN) noa.inputs.down.emit('inventory');
+				else if (data.type == PlayerOpenInventory.Type.CRAFTING) {
+					const inv = JSON.parse(data.data);
+
+					noa.ents.getState(noa.playerEntity, 'inventory').hook = inv;
+
+					console.log(noa.ents.getState(noa.playerEntity, 'inventory'));
+
+					openCrafting(noa, socket);
+				}
 			});
 
 			socket.on('ChatMessage', (data: IChatMessage) => {

@@ -36,7 +36,7 @@ export function setupDebug(noa, server) {
 	let x = 0;
 
 	const update = async () => {
-		if (x != 2) {
+		if (x > 2) {
 			x = x + 1;
 			return;
 		}
@@ -52,6 +52,7 @@ export function setupDebug(noa, server) {
 
 			debug.text = `VoxelSrv ${gameVersion}\nNoa: ${noa.version}\nXYZ: ${pos}\nChunk: ${chunk}\n${serverText}`;
 		} else {
+			x = -5;
 			debug.text = `VoxelSrv ${gameVersion} (Noa ${noa.version})`;
 		}
 	};
@@ -65,14 +66,13 @@ export function setupDebug(noa, server) {
 
 	debug.onDisposeObservable.add(() => {
 		noa.off('tick', update);
-		event.on('scale-change', scaleEvent);
+		event.off('scale-change', scaleEvent);
 	});
 }
 
 export let dot: GUI.Ellipse;
 
 export function setupDot() {
-	const scene = getLayer(0);
 	const ui = getUI(0);
 
 	dot = new GUI.Ellipse();

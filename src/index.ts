@@ -1,9 +1,9 @@
 import { isMobile, isFirefox } from 'mobile-device-detect';
 import Engine from 'noa-engine';
-import { setupControls } from './lib/player/controls';
+import { rebindControls, setupControls } from './lib/player/controls';
 import { defineModelComp } from './lib/helpers/model';
 
-import { noaOpts, updateSettings, serverSettings, defaultFonts, setNoa, updateServerSettings, gameSettings, gameProtocol } from './values';
+import { noaOpts, updateSettings, serverSettings, defaultFonts, setNoa, updateServerSettings, gameSettings, gameProtocol, IGameSettings } from './values';
 import { constructScreen } from './gui/main';
 
 import { MPSocket } from './socket';
@@ -26,12 +26,12 @@ spawn(new Worker('./inflate.js')).then((x) => {
 
 defaultFonts.forEach((font) => document.fonts.load(`10pt "${font}"`));
 
-getSettings().then((data) => {
+getSettings().then((data: IGameSettings) => {
 	updateSettings(data);
-
 	// @ts-ignore
-
 	const noa: any = new Engine(noaOpts());
+
+	rebindControls(noa, data.controls);
 
 	noa.world.maxChunksPendingCreation = Infinity;
 

@@ -2,9 +2,9 @@ import { isMobile } from 'mobile-device-detect';
 import { getScreen, scale, event } from '../main';
 import * as GUI from '@babylonjs/gui/';
 
-import { ItemSlot, createSlot, updateSlot } from '../parts/itemSlot';
+import { createSlot, updateSlot } from '../parts/itemSlot';
 
-import { inventory } from './inventory';
+import { inventory, openInventory } from './inventory/main';
 
 export let hotbar: GUI.Rectangle;
 
@@ -59,7 +59,7 @@ export function buildHotbar(noa, socket) {
 		hotbarOpen.height = `${24 * scale}px`;
 		hotbarOpen.left = `${19 * scale * 6}px`;
 		hotbarOpen.onPointerClickObservable.add(() => {
-			inventory.isVisible = true;
+			if (inventory == null) openInventory(noa, socket);
 		});
 		ui.addControl(hotbarOpen);
 	}

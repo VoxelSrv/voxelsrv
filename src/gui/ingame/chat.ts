@@ -116,6 +116,7 @@ export async function addMessage(msg) {
 	message.textVerticalAlignment = 1;
 	message.textHorizontalAlignment = 0;
 	message.fontFamily = 'Lato';
+	message.color = 'white';
 	if (isMobile) message.width = `${140 * scale}px`;
 	else message.width = `${176 * scale}px`;
 	message.zIndex = 11;

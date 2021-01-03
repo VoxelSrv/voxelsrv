@@ -1,14 +1,15 @@
 import { saveSettings } from './lib/helpers/storage';
 import { isMobile, isFirefox } from 'mobile-device-detect';
 import { setScale } from './gui/main';
+import { IFormatedText } from './gui/parts/formtextblock';
 
-export const gameVersion = '0.2.0-beta.13';
+export const gameVersion = '0.2.0-beta.14';
 
 export const gameProtocol = 3;
 
-export const heartbeatServer = 'pb4.eu:9001'
+export const heartbeatServer = 'pb4.eu:9001';
 
-export const defaultSettings = {
+export const defaultSettings: IGameSettings = {
 	version: '0.0.0',
 	nickname: `Player${Math.round(Math.random() * 100000)}`,
 	autostep: isMobile,
@@ -21,10 +22,48 @@ export const defaultSettings = {
 	scale: 3,
 	fov: 70,
 	fpslimit: 0,
-	debugInfo: false
+	debugInfo: false,
+	controls: {
+		forward: 'W',
+		left: 'A',
+		backward: 'S',
+		right: 'D',
+		fire: '<mouse 1>',
+		'mid-fire': '<mouse 2>',
+		'alt-fire': '<mouse 3>',
+		jump: '<space>',
+		inventory: 'E',
+		muteMusic: 'O',
+		thirdprsn: 'M',
+		chatenter: '<enter>',
+		chat: 'T',
+		cmd: '/',
+		tab: '`',
+		menu: '<escape>',
+		screenshot: 'P',
+		hide: 'O',
+		zoom: 'Z',
+	},
 };
 
-export let gameSettings = { ...defaultSettings, version: gameVersion };
+export let gameSettings: IGameSettings = { ...defaultSettings, version: gameVersion };
+
+export interface IGameSettings {
+	version: string;
+	nickname: string;
+	autostep: boolean;
+	gamepad: boolean;
+	singleplayer: boolean;
+	allowcustom: boolean;
+	mouse: number;
+	viewDistance: number;
+	hotbarsize: number;
+	scale: number;
+	fov: number;
+	fpslimit: number;
+	debugInfo: boolean;
+	controls: { [i: string]: string };
+}
 
 export function updateSettings(data: Object) {
 	gameSettings = { ...defaultSettings, ...data };
@@ -44,6 +83,18 @@ export function updateServerSettings(data: Object) {
 	serverSettings = { ...serverSettings, ...data };
 }
 
+export const defaultValues = {
+	fogMode: 0,
+	fogStart: 20,
+	fogEnd: 60,
+	fogDensity: 0.1,
+	fogColor: [0, 0, 0],
+	blockTestDistance: 7,
+	clearColor: [0.8, 0.9, 1],
+	backgroundColor: '#00000077',
+	menuColor: '#11111177',
+};
+
 export function noaOpts() {
 	return {
 		debug: true,
@@ -53,20 +104,20 @@ export function noaOpts() {
 		sensitivityX: gameSettings.mouse,
 		sensitivityY: gameSettings.mouse,
 		chunkSize: 32, // Don't touch this
-		chunkAddDistance: gameSettings.viewDistance, // Make it changeable?
-		chunkRemoveDistance: gameSettings.viewDistance, // ^
-		blockTestDistance: 7, // Per Gamemode?
-		tickRate: isMobile ? 18 : 20, // Maybe make it lower
+		chunkAddDistance: gameSettings.viewDistance,
+		chunkRemoveDistance: gameSettings.viewDistance,
+		blockTestDistance: defaultValues.blockTestDistance,
+		tickRate: 20,
 		texturePath: '',
 		playerStart: [0, 100, 0],
 		playerHeight: 1.85,
 		playerWidth: 0.6,
 		playerAutoStep: gameSettings.autostep ? 1 : 0,
-		clearColor: [0.8, 0.9, 1],
+		clearColor: defaultValues.clearColor,
 		ambientColor: [1, 1, 1],
 		lightDiffuse: [1, 1, 1],
 		lightSpecular: [1, 1, 1],
-		groundLightColor: [0.5, 0.5, 0.5],
+		groundLightColor: [1, 1, 1],
 		useAO: true,
 		AOmultipliers: [0.93, 0.8, 0.5],
 		reverseAOmultiplier: 1.0,
@@ -74,27 +125,7 @@ export function noaOpts() {
 		stickyPointerLock: false,
 		adaptToDeviceRatio: false,
 		gravity: [0, -14, 0],
-		bindings: {
-			forward: ['W'],
-			left: ['A'],
-			backward: ['S'],
-			right: ['D'],
-			fire: '<mouse 1>',
-			'mid-fire': ['<mouse 2>'],
-			'alt-fire': ['<mouse 3>'],
-			jump: '<space>',
-			inventory: ['E'],
-			muteMusic: ['O'],
-			thirdprsn: ['M'],
-			chatenter: ['<enter>'],
-			chat: ['T'],
-			cmd: ['/'],
-			tab: ['`'],
-			menu: ['<escape>'],
-			screenshot: ['P'],
-			hide: ['O'],
-			zoom: ['Z'],
-		},
+		bindings: {}, // Bindings are now stored in settings
 		tickInUnloadedChunks: true,
 		ignorePointerLock: false,
 		manuallyControlChunkLoading: true,
@@ -148,7 +179,7 @@ else tempHost = 'Unofficial/Undefined rehost!';
 
 export let hostedOn = tempHost;
 
-const splashes = [
+const splashes: IFormatedText[][] = [
 	[{ text: `It's not Minecraft clone... or is it?` }],
 	[{ text: `Written in Typescript` }],
 	[{ text: `Powered by Noa Engine` }],
@@ -175,11 +206,27 @@ const splashes = [
 	[{ text: `Created by Patbox` }],
 	[{ text: `Classical gameplay` }],
 	[{ text: `Hello World` }],
-	[{ text: `Works on mobile`}],
+	[{ text: `Works on mobile` }],
 	[{ text: gameVersion }],
+	[{ text: `PixelPerfection!` }],
 ];
 
 export function getSplash() {
 	let x = Math.floor(Math.random() * splashes.length);
 	return splashes[x];
 }
+
+export const aboutText = [
+	{ text: 'Created by: ' },
+	{ text: 'Patbox', url: 'https://github.com/Patbox', color: 'lightblue' },
+	{ text: '\nBuild on top of ' },
+	{ text: 'Noa Engine by Andy Hall', color: 'lightblue', url: 'https://github.com/andyhall/noa' },
+	{ text: '\nUsed textures: ' },
+	{ text: 'PixelPerfection', color: 'lightblue', url: 'https://github.com/Athemis/PixelPerfectionCE' },
+	{ text: ' by XSSheep and others' },
+	{ text: '\n\n\n' },
+	{ text: 'MC Classic support is based on work by ' },
+	{ text: 'rom1504 and mhsjlw', color: 'lightblue', url: 'https://github.com/mhsjlw/minecraft-classic-protocol' },
+	{ text: '\nClassic server list is provided by ' },
+	{ text: "MineOnline", color: 'lightblue', url: 'https://mineonline.codie.gg/servers' },
+];

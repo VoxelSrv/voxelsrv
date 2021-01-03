@@ -3,7 +3,7 @@ import * as GUI from '@babylonjs/gui/';
 import { FormTextBlock } from '../parts/formtextblock';
 import { createItem, createButton, createInput } from '../parts/menu';
 
-import { gameVersion } from '../../values';
+import { defaultValues, gameVersion } from '../../values';
 import { getWorldList } from '../../lib/helpers/storage';
 
 export default function buildSingleplayer(noa, openMenu) {
@@ -14,7 +14,7 @@ export default function buildSingleplayer(noa, openMenu) {
 	if (window.innerHeight > 230 * scale) menu.height = `${230 * scale}px`;
 	else menu.height = `100%`;
 	menu.width = `${310 * scale}px`;
-	menu.background = '#11111166';
+	menu.background = defaultValues.menuColor;
 
 	const name = new GUI.TextBlock();
 	name.fontFamily = 'Lato';

@@ -3,10 +3,11 @@ import * as GUI from '@babylonjs/gui/';
 //import buildSingleplayer from './singleplayer';
 import buildMultiplayer from './multiplayer';
 import buildSettings from './settings';
-import { gameVersion, getSplash, hostedOn } from '../../values';
+import { defaultValues, gameVersion, getSplash, hostedOn } from '../../values';
 import { createItem } from '../parts/menu';
 import { FormTextBlock } from '../parts/formtextblock';
 import buildSingleplayer from './singleplayer';
+import buildAboutScreen from './about';
 
 export let holder: GUI.Rectangle;
 
@@ -59,6 +60,11 @@ export function buildMainMenu(noa) {
 				active = 'settings';
 				document.title = 'VoxelSrv - Settings';
 				break;
+			case 'about':
+				activeMenu = buildAboutScreen(openMenu);
+				active = 'about';
+				document.title = 'VoxelSrv - About';
+				break;
 			default:
 				activeMenu = buildMenu();
 				active = 'main';
@@ -77,7 +83,7 @@ export function buildMainMenu(noa) {
 		if (window.innerHeight > 230 * scale) menu.height = `${230 * scale}px`;
 		else menu.height = `100%`;
 		menu.width = `${220 * scale}px`;
-		menu.background = '#11111166';
+		menu.background = defaultValues.menuColor;
 
 		const logo = new GUI.Image('hotbar', './textures/mainlogo.png');
 		logo.width = `${210 * scale}px`;
@@ -85,41 +91,54 @@ export function buildMainMenu(noa) {
 		logo.verticalAlignment = 0;
 		logo.horizontalAlignment = 2;
 		logo.top = `5px`;
+
 		holder.zIndex = 15;
 		menu.addControl(logo);
 
 		const splash = new FormTextBlock();
+		splash.isPointerBlocker = false;
 		splash.text = getSplash();
 		splash.fontFamily = 'Lato';
 		splash.fontSize = `${9 * scale}px`;
 		splash.color = 'yellow';
 		splash.zIndex = 20;
-		splash.width = `${200 * scale}px`;
+		splash.width = `${150 * scale}px`;
 		splash.height = `${10 * scale}px`;
 		splash.textHorizontalAlignment = 2;
 		splash.textVerticalAlignment = 2;
 		splash.left = `${65 * scale}px`;
-		if (window.innerHeight > 230 * scale) splash.top = `-${60 * scale}px`;
-		else splash.top = `-${window.innerHeight / 4}px`;
+		if (window.innerHeight > 230 * scale) splash.top = `-${65 * scale}px`;
+		else splash.isVisible = false;
 		splash.rotation = -0.22;
+
+		let splashScale = 0;
 
 		splash.shadowColor = '#111111';
 		splash.shadowOffsetX = 1;
 		splash.shadowOffsetY = 1;
-		let addSplash = 0.005;
 
 		window['changeSplash'] = () => {
 			splash.text = getSplash();
 		};
 
 		const splashAnim = setInterval(() => {
-			splash.scaleX = splash.scaleX + addSplash;
-			splash.scaleY = splash.scaleY + addSplash;
-			if (splash.scaleX > 1.1) addSplash = -0.005;
-			else if (splash.scaleX < 1) addSplash = 0.005;
+			splashScale = splashScale + 1;
+			const cos = Math.cos(splashScale / 10);
+			if (cos > 0.98 && splashScale > 10) splashScale = 0;
+			splash.scaleX = splash.scaleY = Math.abs(cos / 10) + 1;
 		}, 20);
 
 		holder.addControl(splash);
+
+		const scroll = new GUI.ScrollViewer();
+		scroll.verticalAlignment = 0;
+		scroll.top = `${68 * scale}px`;
+		scroll.width = `100%`;
+		scroll.height = `100%`;
+		scroll.thickness = 0;
+		scroll.barColor = '#ffffff44';
+		scroll.barBackground = '#00000000';
+
 
 		const items = new GUI.StackPanel();
 		items.zIndex = 20;
@@ -146,6 +165,13 @@ export function buildMainMenu(noa) {
 		});
 		items.addControl(settings.item);
 
+		const about = createItem();
+		about.text.text = [{ text: 'About', color: 'white', font: 'Lato' }];
+		about.item.onPointerClickObservable.add((e) => {
+			openMenu('about');
+		});
+		items.addControl(about.item);
+
 		const discord = createItem();
 		discord.text.text = [{ text: 'Discord', color: 'white', font: 'Lato' }];
 		discord.item.onPointerClickObservable.add((e) => {
@@ -168,12 +194,16 @@ export function buildMainMenu(noa) {
 			logo.width = `${210 * scale}px`;
 			logo.height = `${64 * scale}px`;
 
-			splash.left = `${65 * scale}px`;
-			if (window.innerHeight > 230 * scale) splash.top = `-${60 * scale}px`;
-			else splash.top = `-${window.innerHeight / 4}px`;
+			scroll.top = `${68 * scale}px`;
+
 			splash.fontSize = `${9 * scale}px`;
-			splash.width = `${200 * scale}px`;
+			splash.width = `${150 * scale}px`;
 			splash.height = `${10 * scale}px`;
+			splash.left = `${65 * scale}px`;
+			if (window.innerHeight > 230 * scale) {
+				splash.top = `-${65 * scale}px`;
+				splash.isVisible = true;
+			} else splash.isVisible = false;
 
 			items._children.forEach((z) => {
 				z.width = `${100 * scale}px`;

@@ -3,6 +3,7 @@ import * as GUI from '@babylonjs/gui';
 import { EventEmitter } from 'events';
 
 export const event = new EventEmitter();
+event.setMaxListeners(100);
 
 let available = false;
 

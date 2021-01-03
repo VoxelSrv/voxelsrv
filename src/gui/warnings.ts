@@ -46,5 +46,5 @@ export function warningFirefox() {
 	warning.window.verticalAlignment = 2;
 	warning.window.horizontalAlignment = 2;
 
-	getScreen(1).addControl(warning.window);
+	getScreen(2).addControl(warning.window);
 }

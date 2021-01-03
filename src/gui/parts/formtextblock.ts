@@ -8,6 +8,8 @@ import { Measure } from '@babylonjs/gui/2D/measure';
 import { ValueAndUnit } from '@babylonjs/gui/2D/valueAndUnit';
 import { Control } from '@babylonjs/gui/2D/controls/control';
 import { Nullable } from '@babylonjs/core/types';
+import { Vector2 } from '@babylonjs/core/Maths';
+import { PointerInfoBase } from '@babylonjs/core';
 
 export interface IFormatedText {
 	text: string;
@@ -15,6 +17,22 @@ export interface IFormatedText {
 	font?: string;
 	underline?: boolean;
 	linethrough?: boolean;
+	url?: string;
+}
+
+interface IRefText {
+	text: string;
+	ref: IFormatedText;
+	width?: number;
+}
+
+export interface ITextArea {
+	x1: number;
+	x2: number;
+	y1: number;
+	y2: number;
+	ref: IFormatedText;
+	text: string;
 }
 
 /**
@@ -22,13 +40,13 @@ export interface IFormatedText {
  */
 export class FormTextBlock extends Control {
 	private _text: Array<IFormatedText> = [];
+	private _textPos: Array<ITextArea> = [];
 	private _textHorizontalAlignment = Control.HORIZONTAL_ALIGNMENT_CENTER;
 	private _textVerticalAlignment = Control.VERTICAL_ALIGNMENT_CENTER;
 
 	private _lines: any[];
 	private _resizeToFit: boolean = false;
 	private _lineSpacing: ValueAndUnit = new ValueAndUnit(0);
-	private _outlineColor: string = 'white';
 
 	public shouldhide: boolean = false;
 	/**
@@ -45,6 +63,13 @@ export class FormTextBlock extends Control {
 	 * Function used to split a string into words. By default, a string is split at each space character found
 	 */
 	public wordSplittingFunction: Nullable<(line: string) => string[]>;
+
+	/**
+	 * Returns text areas
+	 */
+	public get getTextAreas(): ITextArea[] {
+		return this._textPos;
+	}
 
 	/**
 	 * Return the line list (you may need to use the onLinesReadyObservable to make sure the list is ready)
@@ -214,7 +239,7 @@ export class FormTextBlock extends Control {
 		}
 	}
 
-	private _drawText(text: Array<IFormatedText>, textWidth: number, y: number, context: CanvasRenderingContext2D): void {
+	private _drawText(text: Array<IRefText>, textWidth: number, y: number, context: CanvasRenderingContext2D, newTextAreas: ITextArea[]): void {
 		var width = this._currentMeasure.width;
 		var x = 0;
 		switch (this._textHorizontalAlignment) {
@@ -249,17 +274,18 @@ export class FormTextBlock extends Control {
 
 		text.forEach((txt) => {
 			if (txt.text == undefined) return;
-			if (txt.font == undefined) txt.font = defaultFont;
+			if (txt.ref.font == undefined) txt.ref.font = defaultFont;
 
-			context.font = `${this.fontSize} ${txt.font}`;
-			context.fillStyle = txt.color || defaultFillStyle;
+
+			context.font = `${this.fontSize} ${txt.ref.font}`;
+			context.fillStyle = txt.ref.color || defaultFillStyle;
 			const measure = context.measureText(txt.text);
 
 			context.lineWidth = Math.round(this.fontSizeInPixels * 0.05);
 			context.lineCap = 'square';
 			context.strokeStyle = context.fillStyle;
 
-			if (txt.underline) {
+			if (txt.ref.underline) {
 				context.beginPath();
 				context.moveTo(this._currentMeasure.left + x, y + 3);
 				context.lineTo(this._currentMeasure.left + x + measure.width, y + 3);
@@ -269,7 +295,7 @@ export class FormTextBlock extends Control {
 
 			context.fillText(txt.text, this._currentMeasure.left + x, y);
 
-			if (txt.linethrough) {
+			if (txt.ref.linethrough) {
 				context.beginPath();
 				context.moveTo(this._currentMeasure.left + x, y - this.fontSizeInPixels / 3);
 				context.lineTo(this._currentMeasure.left + x + measure.width, y - this.fontSizeInPixels / 3);
@@ -280,6 +306,9 @@ export class FormTextBlock extends Control {
 			context.font = defaultFont;
 			context.strokeStyle = defaultStrokeStyle;
 			context.lineWidth = defaultLineWitdh;
+
+			const txtArea = { x1: this._currentMeasure.left + x, x2: this._currentMeasure.left + x + measure.width, y1: y, y2: y - this.fontSizeInPixels, text: txt.text, ref: txt.ref };
+			newTextAreas.push(txtArea);
 
 			x = x + measure.width;
 		});
@@ -306,19 +335,19 @@ export class FormTextBlock extends Control {
 		super._applyStates(context);
 	}
 
-	protected _breakLines(refWidth: number, context: CanvasRenderingContext2D): object[] {
+	protected _breakLines(refWidth: number, context: CanvasRenderingContext2D): IRefText[] {
 		var lines = [];
-		let textList: Array<Array<IFormatedText>> = [[]];
+		let textList: Array<Array<IRefText>> = [[]];
 
 		this.text.forEach((val) => {
 			let x = val.text.split('\n');
 
 			if (x.length > 1) {
-				textList[textList.length - 1].push({ text: x[0], color: val.color, font: val.font, underline: val.underline, linethrough: val.linethrough });
+				textList[textList.length - 1].push({ text: x[0], ref: val });
 				for (let y = 1; y < x.length; y++) {
-					textList.push([{ text: x[y], color: val.color, font: val.font, underline: val.underline, linethrough: val.linethrough }]);
+					textList.push([{ text: x[y], ref: val }]);
 				}
-			} else textList[textList.length - 1].push(val);
+			} else textList[textList.length - 1].push({text: val.text, ref: val});
 		});
 
 		for (var _line of textList) {
@@ -332,36 +361,36 @@ export class FormTextBlock extends Control {
 		return { text: line, width: context.measureText(line).width };
 	}
 
-	protected _parseLineWordWrap(line: Array<IFormatedText> = [], width: number, context: CanvasRenderingContext2D): object[] {
+	protected _parseLineWordWrap(line: Array<IRefText> = [], width: number, context: CanvasRenderingContext2D): object[] {
 		var lines = [];
 		var words = [];
 		var textOnly = '';
 		let defaultFont = this.fontFamily;
 
 		line.forEach((val) => {
-			if (val.font == undefined) val.font = defaultFont;
+			if (val.ref.font == undefined) val.ref.font = defaultFont;
 			let localWords = val.text.split(' ');
 			localWords.forEach((x) => {
 				if (x.length == 0) return;
 
-				context.font = `${this.fontSize} ${val.font}`;
+				context.font = `${this.fontSize} ${val.ref.font}`;
 				let metrics = context.measureText(x);
 				context.font = defaultFont;
 
-				if (metrics.width < width) words.push({ text: x + ' ', font: val.font, color: val.color });
+				if (metrics.width < width) words.push({ text: x + ' ', ref: val });
 				else {
 					const s1 = x.substring(0, Math.ceil(x.length / 2));
 					const s2 = x.substring(Math.floor(x.length / 2));
 
-					context.font = `${this.fontSize} ${val.font}`;
+					context.font = `${this.fontSize} ${val.ref.font}`;
 					metrics = context.measureText(s1);
 					let metrics2 = context.measureText(s2);
 					context.font = defaultFont;
 
-					if (metrics.width < width) words.push({ text: s1 + ' ', font: val.font, color: val.color });
-					else words.push({ text: ' [...] ', font: val.font, color: val.color });
-					if (metrics2.width < width) words.push({ text: s2 + ' ', font: val.font, color: val.color });
-					else words.push({ text: ' [...] ', font: val.font, color: val.color, underline: val.underline, linethrough: val.linethrough });
+					if (metrics.width < width) words.push({ text: s1 + ' ', ref: val });
+					else words.push({ text: ' [...] ', ref: val });
+					if (metrics2.width < width) words.push({ text: s2 + ' ', ref: val });
+					else words.push({ text: ' [...] ', ref: val });
 				}
 			});
 			textOnly = textOnly + val.text;
@@ -369,7 +398,7 @@ export class FormTextBlock extends Control {
 
 		var lineWidth = 0;
 
-		context.font = `${this.fontSize} ${line[0].font}`;
+		context.font = `${this.fontSize} ${line[0].ref.font}`;
 		let metrics = context.measureText(textOnly);
 		context.font = defaultFont;
 
@@ -379,7 +408,7 @@ export class FormTextBlock extends Control {
 
 		let lastText = '';
 		let lastWidth = 0;
-		let formatted: Array<IFormatedText> = [];
+		let formatted: Array<IRefText> = [];
 
 		for (var n = 0; n < words.length; n++) {
 			let tempText = n == 0 ? words[0].text : lastText + words[n].text;
@@ -424,6 +453,8 @@ export class FormTextBlock extends Control {
 
 		rootY += this._currentMeasure.top;
 
+		const newTextAreas: ITextArea[] = [];
+
 		for (let i = 0; i < this._lines.length; i++) {
 			const line = this._lines[i];
 
@@ -435,9 +466,11 @@ export class FormTextBlock extends Control {
 				}
 			}
 
-			this._drawText(line.text, line.width, rootY, context);
+			this._drawText(line.text, line.width, rootY, context, newTextAreas);
 			rootY += this._fontOffset.height;
 		}
+
+		this._textPos = newTextAreas;
 	}
 
 	/**
@@ -479,5 +512,12 @@ export class FormTextBlock extends Control {
 		super.dispose();
 
 		this.onTextChangedObservable.clear();
+	}
+
+	public _onPointerDown(target: Control, coordinates: Vector2, pointerId: number, buttonIndex: number, pi: PointerInfoBase): boolean {
+		if (!super._onPointerDown(target, coordinates, pointerId, buttonIndex, pi)) {
+			return false;
+		}
+		return true;
 	}
 }

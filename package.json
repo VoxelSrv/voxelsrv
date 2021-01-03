@@ -18,9 +18,9 @@
 	"author": "Patbox <patbox4@outlook.com> (https://pb4.eu)",
 	"license": "MIT",
 	"dependencies": {
-		"@babylonjs/core": "^4.2.0",
-		"@babylonjs/gui": "^4.2.0",
-		"@babylonjs/materials": "^4.2.0",
+		"@babylonjs/core": "^5.0.0-alpha.5",
+		"@babylonjs/gui": "^5.0.0-alpha.5",
+		"@babylonjs/materials": "^5.0.0-alpha.5",
 		"@types/css-font-loading-module": "0.0.4",
 		"@types/mathjs": "^6.0.9",
 		"@types/peerjs": "^1.1.0",
@@ -30,7 +30,7 @@
 		"fakereadline": "file:fake_modules/readline",
 		"jszip": "^3.5.0",
 		"lodash": "^4.17.20",
-		"mathjs": "^8.1.0",
+		"mathjs": "^8.1.1",
 		"memfs": "^3.2.0",
 		"mesh-particle-system": "^0.9.0",
 		"mobile-device-detect": "^0.4.3",
@@ -47,17 +47,17 @@
 		"uuid": "^8.3.2",
 		"voxelsrv-protocol": "github:VoxelSrv/protocol#v3",
 		"voxelsrv-server": "github:VoxelSrv/voxelsrv-server",
-		"ws": "^7.4.1"
+		"ws": "^7.4.2"
 	},
 	"devDependencies": {
 		"@babel/types": "^7.12.12",
 		"@types/ws": "^7.4.0",
-		"threads-plugin": "^1.3.3",
-		"ts-loader": "^8.0.12",
+		"threads-plugin": "^1.4.0",
+		"ts-loader": "^8.0.13",
 		"typescript": "^4.1.3",
 		"webpack": "^4.44.2",
 		"webpack-cli": "^3.3.12",
-		"webpack-dev-server": "^3.11.0",
+		"webpack-dev-server": "^3.11.1",
 		"worker-loader": "^2.0.0"
 	}
 }

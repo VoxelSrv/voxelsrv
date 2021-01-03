@@ -1,7 +1,7 @@
 import { scale, event, setScale } from '../main';
 import * as GUI from '@babylonjs/gui/';
 import { createItem, createInput, createSlider, createCheckbox } from '../parts/menu';
-import { gameSettings, updateSettings } from '../../values';
+import { defaultValues, gameSettings, updateSettings } from '../../values';
 
 export default function buildSettings(noa, openMenu) {
 	const menu = new GUI.Rectangle();
@@ -11,7 +11,7 @@ export default function buildSettings(noa, openMenu) {
 	if (window.innerHeight > 230 * scale) menu.height = `${230 * scale}px`;
 	else menu.height = `100%`;
 	menu.width = `${220 * scale}px`;
-	menu.background = '#11111166';
+	menu.background = defaultValues.menuColor;
 
 	const name = new GUI.TextBlock();
 	name.fontFamily = 'Lato';
@@ -31,10 +31,6 @@ export default function buildSettings(noa, openMenu) {
 	scroll.thickness = 0;
 	scroll.barColor = '#ffffff44'
 	scroll.barBackground = '#00000000'
-
-	//@ts-ignore
-	scroll.verticalBar.thickness = 0;
-
 
 	menu.addControl(scroll)
 

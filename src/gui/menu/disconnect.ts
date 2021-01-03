@@ -3,6 +3,7 @@ import * as GUI from '@babylonjs/gui/';
 import { buildMainMenu } from './main';
 import { createItem } from '../parts/menu';;
 import { connect } from '../../lib/gameplay/connect';
+import { defaultValues } from '../../values';
 
 export default function buildDisconnect(reasontext, server, noa) {
 	document.title = 'VoxelSrv - Disconnected!';
@@ -13,7 +14,7 @@ export default function buildDisconnect(reasontext, server, noa) {
 	menu.zIndex = 10;
 	menu.height = `${120 * scale}px`;
 	menu.width = `${180 * scale}px`;
-	menu.background = '#11111166';
+	menu.background = defaultValues.menuColor;
 
 	getScreen(2).addControl(menu);
 
