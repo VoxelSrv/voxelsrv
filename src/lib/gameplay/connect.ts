@@ -129,6 +129,7 @@ export function setupConnection(noax, socketx, data: IServerInfo) {
 	socket.on('PlayerKick', (data: IPlayerKick) => {
 		console.log(`You has been kicked from server \nReason: ${data.reason}`);
 		disconnect(false);
+		conScreen.menu.dispose();
 		buildDisconnect(data.reason, socket.server, noa);
 		document.exitPointerLock();
 		return;

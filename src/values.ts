@@ -3,7 +3,7 @@ import { isMobile, isFirefox } from 'mobile-device-detect';
 import { setScale } from './gui/main';
 import { IFormatedText } from './gui/parts/formtextblock';
 
-export const gameVersion = '0.2.0-beta.14';
+export const gameVersion = '0.2.0-beta.14.1';
 
 export const gameProtocol = 3;
 
