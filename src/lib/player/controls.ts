@@ -11,8 +11,9 @@ import { pauseScreen } from '../../gui/menu/pause';
 import { tabContainer } from '../../gui/tab';
 import { debug, dot } from '../../gui/ingame/debug';
 import { ActionInventoryClick, ActionInventoryClose } from 'voxelsrv-protocol/js/client';
-import { Engine } from 'noa-engine';
+import type { Engine } from 'noa-engine';
 import { closeCrafting, craftingInventory } from '../../gui/ingame/inventory/crafting';
+import { chestInventory, closeChest } from '../../gui/ingame/inventory/chest';
 
 const screenshot = require('canvas-screenshot');
 
@@ -164,6 +165,10 @@ export function setupControls(noa: any) {
 			closeCrafting();
 			noa.container.canvas.requestPointerLock();
 			socketSend('ActionInventoryClose', { inventory: ActionInventoryClose.Type.CRAFTING });
+		} else if (!!chestInventory) {
+			closeChest();
+			noa.container.canvas.requestPointerLock();
+			socketSend('ActionInventoryClose', { inventory: ActionInventoryClose.Type.CHEST });
 		} else {
 			socketSend('ActionInventoryOpen', { inventory: ActionInventoryClose.Type.MAIN });
 			openInventory(noa, socket)
@@ -213,7 +218,13 @@ export function setupControls(noa: any) {
 			closeCrafting();
 			socketSend('ActionInventoryClose', { inventory: ActionInventoryClose.Type.CRAFTING});
 			return;
+		} else if (!!chestInventory) {
+			closeChest();
+			noa.container.canvas.requestPointerLock();
+			socketSend('ActionInventoryClose', { inventory: ActionInventoryClose.Type.CHEST });
+			return;
 		}
+
 
 		if (pauseScreen.isVisible) {
 			pauseScreen.isVisible = false;

@@ -3,12 +3,22 @@ import Engine from 'noa-engine';
 import { rebindControls, setupControls } from './lib/player/controls';
 import { defineModelComp } from './lib/helpers/model';
 
-import { noaOpts, updateSettings, serverSettings, defaultFonts, setNoa, updateServerSettings, gameSettings, gameProtocol, IGameSettings } from './values';
+import {
+	noaOpts,
+	updateSettings,
+	serverSettings,
+	defaultFonts,
+	setNoa,
+	updateServerSettings,
+	gameSettings,
+	gameProtocol,
+	IGameSettings,
+	gameVersion,
+} from './values';
 import { constructScreen } from './gui/main';
 
-import { MPSocket } from './socket';
 import { getSettings } from './lib/helpers/storage';
-import { setupClouds } from './lib/gameplay/sky';
+import { setupClouds, setupSky } from './lib/gameplay/sky';
 import { buildMainMenu } from './gui/menu/main';
 import { connect, setupConnection } from './lib/gameplay/connect';
 import { setupMobile } from './gui/mobile';
@@ -45,11 +55,11 @@ getSettings().then((data: IGameSettings) => {
 	noa.ents.getPhysics(noa.playerEntity).body.airDrag = 9999;
 	constructScreen(noa);
 	setupClouds(noa);
+	setupSky(noa);
 	defineModelComp(noa);
 
 	setupControls(noa);
 	setupGamepad(noa);
-	//setupSkybox(noa)
 
 	setupWorld(noa);
 
@@ -76,31 +86,12 @@ getSettings().then((data: IGameSettings) => {
 		false
 	);
 
-	window.onerror = function (msg, url, lineNo, columnNo, error) {
+	/*window.onerror = function (msg, url, lineNo, columnNo, error) {
 		alert(`${msg}\nPlease report this error at: https://github.com/VoxelSrv/voxelsrv/issues`);
-	};
+	};*/
 
 	window['connect'] = (x) => {
 		connect(noa, x);
-	};
-
-	window['singleplayerTest'] = () => {
-		const info: IServerInfo = {
-			name: 'Singleplayer World',
-			ip: 'Internal',
-			motd: '',
-			protocol: gameProtocol,
-			software: 'VoxelSrv',
-			featured: true,
-			icon: 'voxelsrv',
-			type: 0,
-			players: {
-				max: 1,
-				online: 0,
-			},
-			useProxy: false,
-		};
-		setupConnection(noa, createSingleplayerServer(), info);
 	};
 
 	window['forceplay'] = () => {

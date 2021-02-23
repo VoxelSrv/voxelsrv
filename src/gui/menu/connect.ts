@@ -3,8 +3,10 @@ import * as GUI from '@babylonjs/gui/';
 import { createItem } from '../parts/menu';
 import { disconnect } from '../../lib/gameplay/connect';
 import { defaultValues } from '../../values';
+import { BaseSocket } from '../../socket';
+import { IServerInfo } from './multiplayer';
 
-export default function buildConnect() {
+export default function buildConnect(socket: BaseSocket, data: IServerInfo) {
 	document.title = 'VoxelSrv - Connecting...';
 
 	const menu = new GUI.Rectangle();
@@ -35,12 +37,19 @@ export default function buildConnect() {
 
 	menu.addControl(motd);
 
+	if (data != undefined) {
+		motd.text = !!data.motd ? data.motd : socket.singleplayer ? '' : 'Unknown server';
+		name.text = !!data.name ? data.name : socket.server;
+	} else {
+		motd.text = !!data.motd ? data.motd : 'Unknown server';
+	}
+
 	const status = new GUI.TextBlock();
 	status.fontFamily = 'Lato';
 	status.fontSize = 9 * scale;
 	status.textVerticalAlignment = 2;
 	status.color = 'white';
-	status.text = 'Logging in...';
+	status.text = socket.singleplayer ? 'Loading world...' : 'Logging in...';
 	status.textWrapping = GUI.TextWrapping.WordWrap;
 
 	menu.addControl(status);
@@ -53,7 +62,10 @@ export default function buildConnect() {
 		menu.dispose();
 		disconnect();
 	});
-	menu.addControl(back.item);
+
+	if (!socket.singleplayer) {
+		menu.addControl(back.item);
+	}
 
 	const rescale = (x) => {
 		menu.height = `${120 * scale}px`;

@@ -1,5 +1,6 @@
 import * as BABYLON from '@babylonjs/core/Legacy/legacy';
-import type { Engine } from 'noa-engine'
+import type { Engine } from 'noa-engine';
+
 
 /*
  *
@@ -42,4 +43,11 @@ export function setupPlayerEntity(noa: Engine, invData: object, arrData: object,
 		mesh: new BABYLON.Mesh('main', scene),
 		offset: offset,
 	});
+}
+
+
+
+export interface IInventory {
+	items: {[x: number]: {id: string, count: number} | {} | null}
+	size: number
 }

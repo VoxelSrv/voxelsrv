@@ -2,8 +2,9 @@ import { saveSettings } from './lib/helpers/storage';
 import { isMobile, isFirefox } from 'mobile-device-detect';
 import { setScale } from './gui/main';
 import { IFormatedText } from './gui/parts/formtextblock';
+import { IServerInfo } from './gui/menu/multiplayer';
 
-export const gameVersion = '0.2.0-beta.14.1';
+export const gameVersion = '0.2.0-beta.15';
 
 export const gameProtocol = 3;
 
@@ -63,6 +64,16 @@ export interface IGameSettings {
 	fpslimit: number;
 	debugInfo: boolean;
 	controls: { [i: string]: string };
+}
+
+export interface IWorldSettings {
+	gamemode: 'creative';
+	worldsize: number;
+	generator: 'normal';
+	version: number;
+	seed: number;
+	gameVersion: string;
+	serverVersion: string;
 }
 
 export function updateSettings(data: Object) {
@@ -209,7 +220,14 @@ const splashes: IFormatedText[][] = [
 	[{ text: `Works on mobile` }],
 	[{ text: gameVersion }],
 	[{ text: `PixelPerfection!` }],
+	[{ text: `Singleplayer supported!` }],
+	[{ text: `Since 2020` }],
 ];
+
+if (new Date().getDay() == 3) {
+	splashes.push([{ text: 'It Is Wednesday My Dudes'}])
+}
+
 
 export function getSplash() {
 	let x = Math.floor(Math.random() * splashes.length);
@@ -230,3 +248,19 @@ export const aboutText = [
 	{ text: '\nClassic server list is provided by ' },
 	{ text: "MineOnline", color: 'lightblue', url: 'https://mineonline.codie.gg/servers' },
 ];
+
+export const singleplayerServerInfo: IServerInfo = {
+	name: 'Singleplayer World',
+	ip: 'Internal',
+	motd: '',
+	protocol: gameProtocol,
+	software: 'VoxelSrv',
+	featured: true,
+	icon: 'voxelsrv',
+	type: 0,
+	players: {
+		max: 1,
+		online: 0,
+	},
+	useProxy: false,
+}

@@ -1,6 +1,10 @@
 import * as BABYLON from '@babylonjs/core/Legacy/legacy';
 
+import type { Engine } from 'noa-engine';
+
 export let cloudMesh: BABYLON.Mesh;
+export let skyMesh: BABYLON.Mesh;
+
 
 /*
  * Setups clouds in a hacky way
@@ -16,6 +20,7 @@ export function setupClouds(noa) {
 		},
 		scene
 	);
+
 	const cloudMat = new BABYLON.StandardMaterial('cloud', scene);
 
 	const cloudTexture = new BABYLON.Texture('./textures/environment/clouds.png', scene, true, true, BABYLON.Texture.NEAREST_SAMPLINGMODE);
@@ -53,6 +58,55 @@ export function setupClouds(noa) {
 	noa.on('beforeRender', update);
 
 	cloudMesh.onDisposeObservable.add(() => {
+		noa.off('beforeRender', update);
+	});
+
+}
+
+
+/*
+ * Setups sky color
+ */
+
+
+export function setupSky(noa: Engine) {
+	return
+	const scene: BABYLON.Scene = noa.rendering.getScene();
+	if (skyMesh != null && !skyMesh.isDisposed) {
+		skyMesh.dispose();
+	}
+	skyMesh = BABYLON.MeshBuilder.CreatePlane(
+		'skyMesh',
+		{
+			height: 1.0e4,
+			width: 1.0e4,
+		},
+		scene
+	);
+
+	const skyMat = new BABYLON.StandardMaterial('sky', scene);
+	skyMat.backFaceCulling = false;
+	//skyMat.emissiveColor = new BABYLON.Color3(0.1, 0.1, 1);
+	//skyMat.diffuseColor = skyMat.emissiveColor;
+
+	skyMesh.material = skyMat;
+
+	skyMesh.rotation.x = -Math.PI / 2;
+
+	noa.rendering.addMeshToScene(skyMesh, false);
+
+	const update = () => {
+		const x = noa.ents.getState(noa.playerEntity, 'mesh');
+		if (x != undefined) {
+			skyMesh.setParent(noa.ents.getState(noa.playerEntity, 'mesh').mesh);
+		}
+
+		skyMesh.setPositionWithLocalVector(new BABYLON.Vector3(0, 0, 700 - noa.camera.getPosition()[1]));
+	};
+
+	noa.on('beforeRender', update);
+
+	skyMesh.onDisposeObservable.add(() => {
 		noa.off('beforeRender', update);
 	});
 }

@@ -31,7 +31,7 @@ module.exports = (env) => ({
 		protocol: './src/lib/helpers/protocol.ts',
 		inflate: './src/lib/helpers/worldInflate.ts',
 		server: './src/lib/singleplayer/server.ts',
-
+		normalWorker: './node_modules/voxelsrv-server/dist/default/worldgen/normalWorker.js'
 	},
 	output: {
 		filename: '[name].js',

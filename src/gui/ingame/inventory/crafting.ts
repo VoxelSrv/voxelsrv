@@ -27,6 +27,8 @@ export function openCrafting(noa: Engine, socket: BaseSocket) {
 
 	const base = getBaseInventory(noa, socket);
 
+	base.inventory.top = `${27 * scale}px`;
+
 	const inventoryTexture = new GUI.Image('inventory', './textures/gui/container/crafting_table.png');
 	inventoryTexture.width = `${180 * scale}px`;
 	inventoryTexture.height = `${176 * scale}px`;
@@ -108,6 +110,8 @@ export function openCrafting(noa: Engine, socket: BaseSocket) {
 	noa.on('tick', update);
 
 	const scaleEvent = (scale2) => {
+		base.inventory.top = `${27 * scale}px`;
+
 		inventoryTexture.width = `${180 * scale2}px`;
 		inventoryTexture.height = `${176 * scale2}px`;
 

@@ -18,12 +18,13 @@ export function getBaseInventory(noa: Engine, socket: BaseSocket) {
 	const hotbar = new GUI.Rectangle();
 	hotbar.zIndex = 20;
 	hotbar.verticalAlignment = 2;
-	hotbar.top = `${67 * scale}px`;
+	hotbar.top = `${40 * scale}px`;
 	hotbar.height = `${20 * scale}px`;
 	hotbar.width = `${164 * scale}px`;
 	hotbar.thickness = 0;
 
 	const inventory = new GUI.Rectangle();
+	inventory.thickness = 0;
 
 	inventory.addControl(hotbar);
 
@@ -37,7 +38,7 @@ export function getBaseInventory(noa: Engine, socket: BaseSocket) {
 		row.verticalAlignment = 2;
 		row.height = `${20 * scale}px`;
 		row.width = `${164 * scale}px`;
-		row.top = `${9 * scale + (x - 1) * 18 * scale}px`;
+		row.top = `${(x - 2) * 18 * scale}px`;
 		row.thickness = 0;
 		inventory.addControl(row);
 
@@ -132,7 +133,7 @@ export function getBaseInventory(noa: Engine, socket: BaseSocket) {
 		box.width = `${22 * scale}px`;
 		box.zIndex = 25;
 		box.thickness = 0;
-		box.top = `${-6 * scale}px`;
+		box.top = `-${33 * scale}px`;
 		box.left = `${71 * scale}px`;
 		inventory.addControl(box);
 
@@ -183,14 +184,14 @@ export function getBaseInventory(noa: Engine, socket: BaseSocket) {
 	noa.on('tick', update);
 
 	const scaleEvent = (scale2) => {
-		hotbar.top = `${67 * scale2}px`;
+		hotbar.top = `${40 * scale}px`;
 		hotbar.height = `${20 * scale2}px`;
 		hotbar.width = `${164 * scale2}px`;
 
 		if (button.box != undefined) {
 			button.box.height = `${15 * scale2}px`;
 			button.box.width = `${22 * scale2}px`;
-			button.box.top = `${-6 * scale2}px`;
+			button.box.top = `-${33 * scale}px`;
 			button.box.left = `${71 * scale2}px`;
 
 			button.button1.height = `${15 * scale2}px`;
@@ -225,7 +226,8 @@ export function getBaseInventory(noa: Engine, socket: BaseSocket) {
 		for (let x = 1; x < 4; x++) {
 			inventoryRow[x].height = `${20 * scale2}px`;
 			inventoryRow[x].width = `${164 * scale2}px`;
-			inventoryRow[x].top = `${9 * scale2 + (x - 1) * 18 * scale2}px`;
+			inventoryRow[x].top = `${(x - 2) * 18 * scale}px`;
+
 
 			for (let y = 9 * x; y < 9 * x + 9; y++) {
 				inventorySlots[y].container.left = `${-18 * scale2 * 4 + 18 * scale2 * (y % 9)}px`;

@@ -1,6 +1,6 @@
 import { getScreen, scale, event } from '../main';
 import * as GUI from '@babylonjs/gui/';
-import { disconnect } from '../../lib/gameplay/connect';
+import { disconnect, isSingleplayer, socketSend } from '../../lib/gameplay/connect';
 import { createItem } from '../parts/menu';
 import buildSettings from './settings';
 import { defaultValues } from '../../values';
@@ -91,7 +91,7 @@ export default function buildPause(noa) {
 
 	const disconnectItem = createItem();
 	disconnectItem.item.verticalAlignment = 1;
-	disconnectItem.text.text = [{ text: 'Disconnect', color: 'white', font: 'Lato' }];
+	disconnectItem.text.text = [{ text: isSingleplayer() ? 'Save and leave' : 'Disconnect', color: 'white', font: 'Lato' }];
 
 	disconnectItem.item.onPointerClickObservable.add(() => {
 		pauseScreen.dispose();

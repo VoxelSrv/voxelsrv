@@ -141,15 +141,16 @@ export function buildMainMenu(noa) {
 
 
 		const items = new GUI.StackPanel();
+		items.top = `${10 * scale}px`;
 		items.zIndex = 20;
 		menu.addControl(items);
 
-		/*const singleplayer = createItem();
+		const singleplayer = createItem();
 		singleplayer.text.text = [{ text: 'Singleplayer', color: 'white', font: 'Lato' }];
 		singleplayer.item.onPointerClickObservable.add((e) => {
 			openMenu('singleplayer');
 		});
-		items.addControl(singleplayer.item);*/
+		items.addControl(singleplayer.item);
 
 		const multiplayer = createItem();
 		multiplayer.text.text = [{ text: 'Multiplayer', color: 'white', font: 'Lato' }];

@@ -2,6 +2,7 @@ import { scale, event, setScale } from '../main';
 import * as GUI from '@babylonjs/gui/';
 import { createItem, createInput, createSlider, createCheckbox } from '../parts/menu';
 import { defaultValues, gameSettings, updateSettings } from '../../values';
+import { isSingleplayer, socket, socketSend } from '../../lib/gameplay/connect';
 
 export default function buildSettings(noa, openMenu) {
 	const menu = new GUI.Rectangle();
@@ -29,10 +30,10 @@ export default function buildSettings(noa, openMenu) {
 	scroll.width = `${210 * scale}px`;
 	scroll.height = `80%`;
 	scroll.thickness = 0;
-	scroll.barColor = '#ffffff44'
-	scroll.barBackground = '#00000000'
+	scroll.barColor = '#ffffff44';
+	scroll.barBackground = '#00000000';
 
-	menu.addControl(scroll)
+	menu.addControl(scroll);
 
 	const settings = new GUI.StackPanel();
 	scroll.addControl(settings);
@@ -133,6 +134,10 @@ export default function buildSettings(noa, openMenu) {
 
 		noa.world.chunkAddDistance = view.slider.value;
 		noa.world.chunkRemoveDistance = view.slider.value + 0.5;
+
+		if (isSingleplayer()) {
+			socketSend('SingleplayerViewDistance', { value: view.slider.value });
+		}
 
 		noa.rendering.getScene().cameras[0].fov = (fov.slider.value * Math.PI) / 180;
 

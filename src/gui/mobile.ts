@@ -80,6 +80,7 @@ export function setupMobile(noa) {
 
 	const controls = document.createElement('div');
 	controls.id = 'game_mobile_controls';
+	controls.classList.add('game_mobile');
 
 	document.body.appendChild(controls);
 
@@ -168,6 +169,7 @@ export function setupMobile(noa) {
 
 	var jump = document.createElement('div');
 	jump.id = 'game_mobile_jump';
+	jump.classList.add('game_mobile');
 
 	jump.ontouchstart = function () {
 		noa.inputs.state.jump = true;
@@ -184,6 +186,7 @@ export function setupMobile(noa) {
 
 	var topButtons = document.createElement('div');
 	topButtons.id = 'game_mobile_topbuttons';
+	topButtons.classList.add('game_mobile');
 	document.body.appendChild(topButtons);
 
 	var chat = document.createElement('div');
@@ -206,4 +209,32 @@ export function setupMobile(noa) {
 	};
 
 	topButtons.appendChild(menu);
+
+	hideMobileControls(false);
 }
+
+
+export function hideMobileControls(ignoreTop: boolean) {
+	const elements = document.getElementsByClassName('game_mobile');
+
+	for (let x = 0; x < elements.length; x++) {
+		if (ignoreTop && elements.item(x).id == 'game_mobile_topbuttons') {
+			continue;
+		}
+
+		// @ts-ignore
+		elements.item(x).style.display = 'none';
+	}
+}
+
+export function showMobileControls(ignoreTop: boolean) {
+	const elements = document.getElementsByClassName('game_mobile');
+
+	for (let x = 0; x < elements.length; x++) {
+		if (ignoreTop && elements.item(x).id == 'game_mobile_topbuttons') {
+			continue;
+		}
+
+		// @ts-ignore
+		elements.item(x).style.display = 'block';
+	}}

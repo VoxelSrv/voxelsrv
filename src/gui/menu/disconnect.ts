@@ -1,11 +1,13 @@
 import { scale, event, getUI, getScreen } from '../main';
 import * as GUI from '@babylonjs/gui/';
 import { buildMainMenu } from './main';
-import { createItem } from '../parts/menu';;
+import { createItem } from '../parts/menu';
 import { connect } from '../../lib/gameplay/connect';
 import { defaultValues } from '../../values';
+import { BaseSocket } from '../../socket';
+import { Engine } from 'noa-engine';
 
-export default function buildDisconnect(reasontext, server, noa) {
+export default function buildDisconnect(reasontext: string, socket: BaseSocket, noa: Engine) {
 	document.title = 'VoxelSrv - Disconnected!';
 
 	const menu = new GUI.Rectangle();
@@ -23,7 +25,7 @@ export default function buildDisconnect(reasontext, server, noa) {
 	name.fontSize = 11 * scale;
 	name.textVerticalAlignment = 0;
 	name.color = 'white';
-	name.text = 'Disconnected!';
+	name.text = socket.singleplayer ? '' : 'Disconnected!';
 	name.top = scale;
 
 	menu.addControl(name);
@@ -45,9 +47,12 @@ export default function buildDisconnect(reasontext, server, noa) {
 
 	reconnect.item.onPointerClickObservable.add(() => {
 		menu.dispose();
-		connect(noa, server);
+		connect(noa, socket.server);
 	});
-	menu.addControl(reconnect.item);
+
+	if (!socket.singleplayer) {
+		menu.addControl(reconnect.item);
+	}
 
 	const back = createItem();
 	back.item.verticalAlignment = 1;

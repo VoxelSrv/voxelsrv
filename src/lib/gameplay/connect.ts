@@ -13,7 +13,7 @@ import { addNametag, applyModel } from '../helpers/model';
 import { registerBlocks, registerItems } from './registry';
 import { setChunk, clearStorage, removeChunk, chunkSetBlock, chunkExist } from './world';
 import { playSound } from './sound';
-import { cloudMesh, setupClouds } from './sky';
+import { cloudMesh, setupClouds, setupSky } from './sky';
 
 import * as BABYLON from '@babylonjs/core/Legacy/legacy';
 
@@ -61,6 +61,8 @@ import { setAssetServer } from '../helpers/assets';
 import { IServerInfo, servers } from '../../gui/menu/multiplayer';
 import buildConnect from '../../gui/menu/connect';
 import { openCrafting } from '../../gui/ingame/inventory/crafting';
+import { openChest } from '../../gui/ingame/inventory/chest';
+import { showMobileControls } from '../../gui/mobile';
 
 export let socket: BaseSocket | null = null;
 let chunkInterval: any = null;
@@ -71,10 +73,14 @@ export function socketSend(type, data) {
 	if (socket != undefined) socket.send(type, data);
 }
 
+export function isSingleplayer() {
+	return socket != undefined && socket.singleplayer;
+}
+
 let noa;
 let entityList = {};
 
-export function disconnect(menu: boolean = true) {
+export function disconnect(menu: boolean = true): boolean {
 	socket.close(0);
 	stopListening(noa);
 	noa.ents.getPhysics(noa.playerEntity).body.airDrag = 9999;
@@ -83,10 +89,24 @@ export function disconnect(menu: boolean = true) {
 	});
 	entityList = {};
 	destroyGuis();
+	if (isMobile) {
+		showMobileControls(false);
+	}
 	updateServerSettings({ ingame: false });
 	document.exitPointerLock();
-	noa.rendering.getScene().cameras[0].fov = 0.8;
-	if (menu) buildMainMenu(noa);
+
+	if (socket.singleplayer) {
+		socket.send('SingleplayerLeave', {})
+		socket.on('ServerStoppingDone', () => {
+			console.log('World Saved!')
+			socket.close();
+			buildMainMenu(noa);
+		});
+		return false;
+	} else {
+		if (menu) buildMainMenu(noa);
+		return !menu;
+	}
 }
 
 export function connect(noa, server: string) {
@@ -111,11 +131,7 @@ export function connect(noa, server: string) {
 
 export function setupConnection(noax, socketx, data: IServerInfo) {
 	document.title = 'VoxelSrv - Connecting to server...';
-	const conScreen = buildConnect();
-	if (data != undefined) {
-		conScreen.motd.text = !!data.motd ? data.motd : 'Unknown server';
-		conScreen.name.text = !!data.name ? data.name : socketx.server;
-	}
+	const conScreen = buildConnect(socketx, data);
 	noa = noax;
 	const engine: BabylonEngine = noa.rendering.getScene().getEngine();
 	noa.worldName = 'World' + Math.round(Math.random() * 1000);
@@ -128,10 +144,12 @@ export function setupConnection(noax, socketx, data: IServerInfo) {
 
 	socket.on('PlayerKick', (data: IPlayerKick) => {
 		console.log(`You has been kicked from server \nReason: ${data.reason}`);
-		disconnect(false);
+		const x = disconnect(false);
 		conScreen.menu.dispose();
-		buildDisconnect(data.reason, socket.server, noa);
-		document.exitPointerLock();
+		if (x) {
+			buildDisconnect(data.reason, socket, noa);
+			document.exitPointerLock();
+		}
 		return;
 	});
 
@@ -176,8 +194,6 @@ export function setupConnection(noax, socketx, data: IServerInfo) {
 			delete entityList[data.uuid];
 		});
 
-		const noaDef = noaOpts();
-
 		scene.fogMode = defaultValues.fogMode;
 		scene.fogStart = defaultValues.fogStart;
 		scene.fogEnd = defaultValues.fogEnd;
@@ -208,8 +224,13 @@ export function setupConnection(noax, socketx, data: IServerInfo) {
 
 			cloudMesh.dispose();
 			setupClouds(noa);
+			setupSky(noa);
 
 			setupGuis(noa, socket, dataPlayer, dataLogin);
+
+			if (isMobile) {
+				showMobileControls(false);
+			}
 
 			noa.ents.setPosition(noa.playerEntity, dataPlayer.xPos, dataPlayer.yPos, dataPlayer.zPos);
 
@@ -235,14 +256,14 @@ export function setupConnection(noax, socketx, data: IServerInfo) {
 
 			socket.on('WorldMultiBlockUpdate', (data: IWorldMultiBlockUpdate) => {
 				Object.values(data.blocks).forEach((block) => {
-					noa.setBlock(block.id, block.x, block.y, block.z);
-					chunkSetBlock(block.id, block.x, block.y, block.z);
+					noa.setBlock(block.id, block.x, block.y, block.z, 100);
+					chunkSetBlock(block.id, block.x, block.y, block.z, 100);
 				});
 			});
 
 			socket.on('WorldBlockUpdate', (data: IWorldBlockUpdate) => {
-				noa.setBlock(data.id, data.x, data.y, data.z);
-				chunkSetBlock(data.id, data.x, data.y, data.z);
+				noa.setBlock(data.id, data.x, data.y, data.z, 100);
+				chunkSetBlock(data.id, data.x, data.y, data.z, 100);
 			});
 
 			socket.on('EnvironmentFogUpdate', (data: IEnvironmentFogUpdate) => {

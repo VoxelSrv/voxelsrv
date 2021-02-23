@@ -3,7 +3,10 @@ import { EventEmitter } from 'events';
 import { IWorldChunkLoad } from 'voxelsrv-protocol/js/server';
 export const event = new EventEmitter();
 
-let chunkStorage: { [index: string]: any } = {};
+export type StoredChunk = {chunk: ndarray, light: ndarray};
+
+
+let chunkStorage: { [index: string]: StoredChunk } = {};
 
 declare function inflate(x: Uint8Array, y: number): Promise<Uint8Array>;
 
@@ -38,8 +41,12 @@ export async function setChunk(data: IWorldChunkLoad) {
 				}
 			}
 		}
-		event.emit(`load`, [data.x, data.y + yoff, data.z], noaChunk);
-		chunkStorage[localID] = noaChunk;
+		const a = new Uint8Array(32 * 32 * 32);
+		const lightChunk = new ndarray(a.fill(100, 0, a.length), [32, 32, 32]);
+		const sc: StoredChunk = { chunk: noaChunk, light:  lightChunk };
+
+		event.emit(`load`, [data.x, data.y + yoff, data.z], sc);
+		chunkStorage[localID] = sc;
 	}
 }
 
@@ -54,9 +61,12 @@ export function removeChunk(id: string) {
  * Returns chunk (if exist) or null
  */
 
-export function getChunkSync(id: string): ndarray | null {
-	if (chunkStorage[id] != undefined && chunkStorage[id].data != null) {
-		return new ndarray(chunkStorage[id].data.subarray(0), [...chunkStorage[id].shape]);
+export function getChunkSync(id: string): StoredChunk | null {
+	if (chunkStorage[id] != undefined && chunkStorage[id].chunk != null && chunkStorage[id].light != null) {
+		return { 
+			chunk: new ndarray(chunkStorage[id].chunk.data.subarray(0), [...chunkStorage[id].chunk.shape]),
+			light: new ndarray(chunkStorage[id].light.data.subarray(0), [...chunkStorage[id].light.shape])
+		};
 	} else return null;
 }
 
@@ -72,7 +82,7 @@ export function chunkExist(id) {
  * Sets blocks in chunks
  */
 
-export function chunkSetBlock(id: number, x: number, y: number, z: number) {
+export function chunkSetBlock(id: number, x: number, y: number, z: number, light: number) {
 	const cid = [Math.floor(x / 32), Math.floor(y / 32), Math.floor(z / 32)].join('|');
 
 	if (chunkStorage[cid] == undefined) return;
@@ -85,7 +95,8 @@ export function chunkSetBlock(id: number, x: number, y: number, z: number) {
 	if (yl < 0) yl = yl + 32;
 	if (zl < 0) zl = zl + 32;
 
-	chunkStorage[cid].set(xl, yl, zl, id);
+	chunkStorage[cid].chunk.set(xl, yl, zl, id);
+	chunkStorage[cid].light.set(xl, yl, zl, light);
 }
 
 /*
@@ -106,7 +117,7 @@ export function setupWorld(noa) {
 
 		const chunk = getChunkSync(`${ida[0]}|${ida[1]}|${ida[2]}`);
 		if (chunk != null) {
-			noa.world.setChunkData(id, chunk);
+			noa.world.setChunkData(id, chunk.chunk, {}, chunk.light);
 		}
 	});
 

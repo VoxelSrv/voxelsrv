@@ -16,6 +16,7 @@ export class BaseSocket {
 	socket: any;
 	listeners: Object = {};
 	server: string;
+	singleplayer: boolean = false;
 
 	constructor() {}
 

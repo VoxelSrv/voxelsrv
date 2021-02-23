@@ -3,10 +3,14 @@ import * as GUI from '@babylonjs/gui/';
 import { FormTextBlock } from '../parts/formtextblock';
 import { createItem, createButton, createInput } from '../parts/menu';
 
-import { defaultValues, gameVersion } from '../../values';
-import { getWorldList } from '../../lib/helpers/storage';
+import { defaultValues, gameProtocol, gameVersion, IWorldSettings, singleplayerServerInfo } from '../../values';
+import { deleteWorld, getWorldList } from '../../lib/helpers/storage';
+import { createSingleplayerServer } from '../../lib/singleplayer/setup';
+import { setupConnection } from '../../lib/gameplay/connect';
+import { Engine } from 'noa-engine';
+import { buildWorldCreationGui } from './spWorldCreation';
 
-export default function buildSingleplayer(noa, openMenu) {
+export default function buildSingleplayer(noa: Engine, openMenu) {
 	const menu = new GUI.Rectangle();
 	menu.thickness = 0;
 	menu.horizontalAlignment = 2;
@@ -26,7 +30,9 @@ export default function buildSingleplayer(noa, openMenu) {
 
 	menu.addControl(name);
 
-	let selected = null;
+	let selected: { name: string; settings: IWorldSettings };
+	let takenNames = [];
+	let lock = false;
 
 	const create = createButton();
 	create.button.top = `${18 * scale}px`;
@@ -34,17 +40,40 @@ export default function buildSingleplayer(noa, openMenu) {
 	create.buttonText.text = [{ text: 'Create World', color: 'white', font: 'Lato' }];
 
 	create.button.onPointerClickObservable.add(() => {
-		openWorldCreation();
+		buildWorldCreationGui(noa, takenNames, openMenu);
+		menu.dispose();
 	});
 	menu.addControl(create.button);
 
+	const play = createButton();
+	play.button.top = `${18 * scale}px`;
+	play.button.left = `${74 * scale}px`;
+	play.buttonText.text = [{ text: 'Select', color: 'white', font: 'Lato' }];
+
+	play.button.onPointerClickObservable.add(() => {
+		if (selected != undefined) {
+			lock = true;
+			setupConnection(noa, createSingleplayerServer(selected.name, selected.settings), singleplayerServerInfo);
+			selected = undefined;
+		}
+	});
+	menu.addControl(play.button);
+
 	const remove = createButton();
 	remove.button.top = `${18 * scale}px`;
-	remove.button.left = `${74 * scale}px`;
+	remove.button.left = `${143 * scale}px`;
 	remove.buttonText.text = [{ text: 'Remove', color: 'white', font: 'Lato' }];
 
-	remove.button.onPointerClickObservable.add(() => {});
-	//menu.addControl(remove.button)
+	remove.button.onPointerClickObservable.add(async () => {
+		if (selected != undefined) {
+			lock = true;
+			await deleteWorld(selected.name);
+			selected = undefined;
+			updateWorldList();
+			lock = false;
+		}
+	});
+	menu.addControl(remove.button);
 
 	const worldListContainer = new GUI.Rectangle();
 	worldListContainer.width = `${290 * scale}px`;
@@ -81,7 +110,7 @@ export default function buildSingleplayer(noa, openMenu) {
 
 	const worldListScroll = new GUI.ScrollViewer();
 	worldListScroll.height = `${150 * scale}px`;
-	worldListScroll.top = `${13 * scale}px`;
+	worldListScroll.top = `${16 * scale}px`;
 	worldListScroll.thickness = 0;
 	worldListScroll.verticalAlignment = 0;
 	worldListScroll.barSize = 0;
@@ -97,55 +126,67 @@ export default function buildSingleplayer(noa, openMenu) {
 
 	let worldArray = [];
 
-	getWorldList().then((data) => {
-		data.forEach((world: any) => {
-			const row = createRow();
+	function updateWorldList() {
+		worldList.children.forEach( x => x.dispose())
+		worldList.clearControls();
 
-			const sname = new GUI.TextBlock();
-			sname.text = world.name;
-			sname.color = '#222222';
-			row.name.addControl(sname);
+		getWorldList().then((data) => {
+			data.forEach((world) => {
+				const row = createRow();
 
-			const sdate = new GUI.TextBlock();
-			sdate.text = world.date.toString();
-			sdate.color = '#222222';
-			row.date.addControl(sdate);
+				const sname = new GUI.TextBlock();
+				sname.text = world.name;
+				sname.color = '#222222';
+				row.name.addControl(sname);
 
-			const stype = new GUI.TextBlock();
-			stype.text = world.type;
-			stype.color = '#222222';
-			row.type.addControl(stype);
+				const sdate = new GUI.TextBlock();
+				sdate.text = new Date(world.lastplay).toLocaleString();
+				sdate.color = '#222222';
+				row.date.addControl(sdate);
 
-			let click = 0;
+				const stype = new GUI.TextBlock();
+				stype.text = world.settings.gamemode;
+				stype.color = '#222222';
+				row.type.addControl(stype);
 
-			row.main.onPointerClickObservable.add((e) => {
-				worldArray.forEach((x) => {
-					x.row.main.background = '#ffffff00';
+				let click = 0;
+
+				row.main.onPointerClickObservable.add((e) => {
+					worldArray.forEach((x) => {
+						x.row.main.background = '#ffffff00';
+					});
+					row.main.background = '#ffffffaa';
+
+					selected = world;
+
+					click = click + 1;
+					if (click > 1 && !lock) {
+						setupConnection(noa, createSingleplayerServer(world.name, world.settings), singleplayerServerInfo);
+					}
+
+					setTimeout(() => {
+						click = click - 1;
+					}, 500)
 				});
-				row.main.background = '#ffffffaa';
 
-				click = click + 1;
-				if (click > 1) 
-				setTimeout(() => {
-					click = 0;
-				}, 500);
+				row.main.onPointerEnterObservable.add((e) => {
+					if (row.main.background == '#ffffffaa') return;
+					row.main.background = '#ffffff67';
+				});
+
+				row.main.onPointerOutObservable.add((e) => {
+					if (row.main.background == '#ffffffaa') return;
+					row.main.background = '#ffffff00';
+				});
+
+				worldList.addControl(row.main);
+
+				worldArray.push({ data: world, row: row });
+				takenNames.push(world.name);
 			});
-
-			row.main.onPointerEnterObservable.add((e) => {
-				if (row.main.background == '#ffffffaa') return;
-				row.main.background = '#ffffff67';
-			});
-
-			row.main.onPointerOutObservable.add((e) => {
-				if (row.main.background == '#ffffffaa') return;
-				row.main.background = '#ffffff00';
-			});
-
-			worldList.addControl(row.main);
-
-			worldArray.push({ data: world, row: row });
 		});
-	});
+	}
+	updateWorldList();
 
 	const back = createItem();
 	back.item.verticalAlignment = 1;
@@ -173,8 +214,12 @@ export default function buildSingleplayer(noa, openMenu) {
 
 		create.button.top = `${18 * scale}px`;
 		create.button.left = `${5 * scale}px`;
+
+		play.button.top = `${18 * scale}px`;
+		play.button.left = `${74 * scale}px`;
+
 		remove.button.top = `${18 * scale}px`;
-		remove.button.left = `${74 * scale}px`;
+		remove.button.left = `${143 * scale}px`;
 
 		back.item.width = `${100 * scale}px`;
 		back.item.height = `${18 * scale}px`;
@@ -192,11 +237,11 @@ export default function buildSingleplayer(noa, openMenu) {
 
 function createRow() {
 	const main = new GUI.Rectangle();
-	main.height = `${13 * scale}px`;
+	main.height = `${16 * scale}px`;
 	main.thickness = 0;
 
 	const rescale = () => {
-		main.height = `${13 * scale}px`;
+		main.height = `${16 * scale}px`;
 	};
 
 	event.on('scale-change', rescale);
@@ -226,66 +271,4 @@ function createRow() {
 	main.addControl(type);
 
 	return { main, name, date, type };
-}
-
-function openWorldCreation() {
-	const ui = getScreen(2);
-	const menu = new GUI.Rectangle();
-	menu.background = '#11111188';
-	if (window.innerHeight > 230 * scale) menu.height = `${230 * scale}px`;
-	else menu.height = `100%`;
-	menu.width = `${220 * scale}px`;
-	menu.thickness = 0;
-	menu.zIndex = 200;
-
-	const settings = new GUI.StackPanel();
-	settings.verticalAlignment = 0;
-	settings.top = `${18 * scale}px`;
-	settings.width = `${210 * scale}px`;
-	settings.height = `80%`;
-	settings.verticalAlignment = 0;
-	settings.top = `${18 * scale}px`;
-	settings.width = `${210 * scale}px`;
-	settings.height = `80%`;
-
-	const nickname = createInput();
-	nickname.name.text = 'Worldname';
-	nickname.input.placeholderText = `World`;
-	nickname.input.text = 'World';
-
-	settings.addControl(nickname.main);
-
-	const create = createItem();
-	create.item.verticalAlignment = 1;
-	create.text.text = [{ text: 'Create', color: 'white', font: 'Lato' }];
-	create.item.top = `-${16 * scale}px`;
-	create.item.onPointerClickObservable.add(() => {
-		menu.dispose();
-		
-
-		/*window.electron.send('world-create', {
-			data: {
-				name: nickname.input.text,
-				date: Date.now(),
-				type: 'Infinite',
-				voxelsrv: gameVersion,
-			},
-			config: {},
-			world: nickname.input.text,
-		});*/
-	});
-
-	menu.addControl(create.item);
-
-	const back = createItem();
-	back.item.verticalAlignment = 1;
-	back.text.text = [{ text: 'Back', color: 'white', font: 'Lato' }];
-
-	back.item.onPointerClickObservable.add(() => {
-		menu.dispose();
-	});
-	menu.addControl(back.item);
-
-	menu.addControl(settings);
-	ui.addControl(menu);
 }
