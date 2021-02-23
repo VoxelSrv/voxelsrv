@@ -29,15 +29,20 @@ interface IWorldData {
 class Database extends Dexie {
 	main: Dexie.Table<IMain, string>;
 	resources: Dexie.Table<IResources, string>;
-	worlds: Dexie.Table<IWorld, string>;
+	world: Dexie.Table<IWorld, string>;
 	worlddata: Dexie.Table<IWorldData, string>;
 
 	constructor() {
 		super('voxelsrv-storage');
 		this.version(1).stores({
 			main: `name, data`,
+			resources: `name, data, active`
+		})
+
+		this.version(2).stores({
+			main: `name, data`,
 			resources: `name, data, active`,
-			worlds: `name, settings, lastplay`,
+			world: `name, settings, lastplay`,
 			worlddata: `name, data`
 		});
 	}
@@ -46,23 +51,23 @@ class Database extends Dexie {
 export const db = new Database();
 
 export async function getWorldList() {
-	return await db.worlds.orderBy('lastplay').reverse().toArray();
+	return await db.world.orderBy('lastplay').reverse().toArray();
 }
 
 export async function saveWorld(name: string, data: object, settings: IWorldSettings) {
-	await db.worlds.delete(name);
+	await db.world.delete(name);
 	await db.worlddata.delete(name);
-	await db.worlds.add({name, settings, lastplay: Date.now()}, name)
+	await db.world.add({name, settings, lastplay: Date.now()}, name)
 	await db.worlddata.add({name, data}, name)
 }
 
 export async function deleteWorld(name: string) {
-	await db.worlds.delete(name);
+	await db.world.delete(name);
 	db.worlddata.delete(name);
 }
 
 export async function getWorld(name: string): Promise<IWorld> {
-	const world = db.worlds.where('name').equals(name).first();
+	const world = db.world.where('name').equals(name).first();
 	return world;
 }
 

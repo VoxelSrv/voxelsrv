@@ -21,7 +21,7 @@
 		"@babylonjs/core": "^5.0.0-alpha.11",
 		"@babylonjs/gui": "^5.0.0-alpha.11",
 		"@babylonjs/materials": "^5.0.0-alpha.11",
-		"@types/css-font-loading-module": "0.0.4",
+		"@types/css-font-loading-module": "^0.0.4",
 		"@types/mathjs": "^6.0.11",
 		"@types/peerjs": "^1.1.0",
 		"@types/readable-stream": "^2.3.9",
