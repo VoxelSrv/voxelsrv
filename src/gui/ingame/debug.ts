@@ -36,7 +36,7 @@ export function setupDebug(noa, server) {
 	let x = 0;
 
 	const update = async () => {
-		if (x > 2) {
+		if (x < 2) {
 			x = x + 1;
 			return;
 		}

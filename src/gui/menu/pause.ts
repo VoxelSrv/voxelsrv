@@ -4,6 +4,7 @@ import { disconnect, isSingleplayer, socketSend } from '../../lib/gameplay/conne
 import { createItem } from '../parts/menu';
 import buildSettings from './settings';
 import { defaultValues } from '../../values';
+import buildAboutScreen from './about';
 
 export let pauseScreen: GUI.Rectangle;
 
@@ -48,6 +49,11 @@ export default function buildPause(noa) {
 				active = 'settings';
 				pauseScreen.addControl(activeMenu);
 				break;
+			case 'about':
+				activeMenu = buildAboutScreen(openMenu);
+				active = 'about';
+				pauseScreen.addControl(activeMenu);
+				break;
 			default:
 				activeMenu.dispose();
 				activeMenu = null;
@@ -81,6 +87,17 @@ export default function buildPause(noa) {
 	});
 
 	items.addControl(settings.item);
+
+	const about = createItem();
+	about.item.verticalAlignment = 1;
+	about.text.text = [{ text: 'About', color: 'white', font: 'Lato' }];
+
+	about.item.onPointerClickObservable.add(() => {
+		menu.isVisible = false;
+		openMenu('about');
+	});
+
+	items.addControl(about.item);
 
 	const discord = createItem();
 	discord.text.text = [{ text: 'Discord', color: 'white', font: 'Lato' }];

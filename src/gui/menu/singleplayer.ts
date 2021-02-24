@@ -129,6 +129,7 @@ export default function buildSingleplayer(noa: Engine, openMenu) {
 	function updateWorldList() {
 		worldList.children.forEach( x => x.dispose())
 		worldList.clearControls();
+		takenNames = [];
 
 		getWorldList().then((data) => {
 			data.forEach((world) => {
@@ -145,7 +146,7 @@ export default function buildSingleplayer(noa: Engine, openMenu) {
 				row.date.addControl(sdate);
 
 				const stype = new GUI.TextBlock();
-				stype.text = world.settings.gamemode;
+				stype.text = world.settings.gamemode.charAt(0).toUpperCase() + world.settings.gamemode.slice(1) ;
 				stype.color = '#222222';
 				row.type.addControl(stype);
 

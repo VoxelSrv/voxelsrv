@@ -4,11 +4,12 @@ import { setScale } from './gui/main';
 import { IFormatedText } from './gui/parts/formtextblock';
 import { IServerInfo } from './gui/menu/multiplayer';
 
-export const gameVersion = '0.2.0-beta.15';
+export const gameVersion = '0.2.0-beta.16';
 
 export const gameProtocol = 3;
 
-export const heartbeatServer = 'pb4.eu:9001';
+export const heartbeatServer = 'https://voxelsrv.pb4.eu';
+export const proxyServer = 'ws://pb4.eu:9001';
 
 export const defaultSettings: IGameSettings = {
 	version: '0.0.0',
@@ -69,7 +70,7 @@ export interface IGameSettings {
 export interface IWorldSettings {
 	gamemode: 'creative';
 	worldsize: number;
-	generator: 'normal';
+	generator: string;
 	version: number;
 	seed: number;
 	gameVersion: string;
@@ -95,13 +96,14 @@ export function updateServerSettings(data: Object) {
 }
 
 export const defaultValues = {
-	fogMode: 0,
-	fogStart: 20,
-	fogEnd: 60,
-	fogDensity: 0.1,
-	fogColor: [0, 0, 0],
+	fogMode: 3,
+	fogStart: 500,
+	fogEnd: 4000,
+	fogDensity: 0.000001,
+	fogColor: [0.8, 0.9, 1],
 	blockTestDistance: 7,
 	clearColor: [0.8, 0.9, 1],
+	skyColor:[0.2, 0.3, 0.7],
 	backgroundColor: '#00000077',
 	menuColor: '#11111177',
 };
@@ -264,3 +266,5 @@ export const singleplayerServerInfo: IServerInfo = {
 	},
 	useProxy: false,
 }
+
+export const singleplayerWorldTypes = ['normal', 'flat']

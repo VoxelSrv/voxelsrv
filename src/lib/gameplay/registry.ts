@@ -5,6 +5,7 @@
  */
 
 import * as BABYLON from '@babylonjs/core/Legacy/legacy';
+import * as MATERIALS from '@babylonjs/materials'
 import type { Engine } from 'noa-engine';
 import { getAsset } from '../helpers/assets';
 

@@ -158,7 +158,7 @@ export default function buildMultiplayer(noa, openMenu) {
 		});
 		serverList.clearControls();
 
-		fetch('http://' + heartbeatServer + '/api/servers')
+		fetch(heartbeatServer + '/api/servers')
 			.then((response) => response.json())
 			.then((data: any) => {
 				servers = data;
@@ -203,7 +203,6 @@ export default function buildMultiplayer(noa, openMenu) {
 					let click = 0;
 
 					row.main.onPointerClickObservable.add((e) => {
-						console.log(server.compabilityLayer);
 						input.text = server.compabilityLayer == '0.30c' ? 'c0.30|' + (server.useProxy ? '*' : '') + server.ip : server.ip;
 						click = click + 1;
 						if (click > 1) button.onPointerClickObservable.notifyObservers(new GUI.Vector2WithInfo(new Vector2(0, 0), 0));

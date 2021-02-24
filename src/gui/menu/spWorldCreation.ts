@@ -2,10 +2,11 @@ import { getScreen, scale, event } from '../main';
 import * as GUI from '@babylonjs/gui/';
 import { createItem, createButton, createInput, createSlider } from '../parts/menu';
 
-import { gameProtocol, gameVersion, IWorldSettings, singleplayerServerInfo } from '../../values';
+import { gameProtocol, gameVersion, IWorldSettings, singleplayerServerInfo, singleplayerWorldTypes } from '../../values';
 import { createSingleplayerServer } from '../../lib/singleplayer/setup';
 import { setupConnection } from '../../lib/gameplay/connect';
 import { Engine } from 'noa-engine';
+import { flatten, re } from 'mathjs';
 
 export function buildWorldCreationGui(noa: Engine, takenNames: string[], openMenu) {
 	const ui = getScreen(2);
@@ -70,6 +71,22 @@ export function buildWorldCreationGui(noa: Engine, takenNames: string[], openMen
 
 	settings.addControl(worldSize.main);
 
+	let selWorldType = 0;
+
+	const worldType = createItem();
+	worldType.text.text = [{ text: `World type: ${toName(singleplayerWorldTypes[selWorldType])}`, color: 'white', font: 'Lato' }]
+	worldType.item.onPointerClickObservable.add(() => {
+		selWorldType = selWorldType + 1;
+		if (selWorldType >= singleplayerWorldTypes.length) {
+			selWorldType = 0;
+		}
+
+		worldType.text.text[0].text = `World type: ${toName(singleplayerWorldTypes[selWorldType])}`;
+		worldType.text._markAsDirty();
+	})
+
+	settings.addControl(worldType.item)
+
 
 	const create = createItem();
 	create.item.verticalAlignment = 1;
@@ -98,7 +115,7 @@ export function buildWorldCreationGui(noa: Engine, takenNames: string[], openMen
 			worldsize: worldSize.slider.value * 16,
 			version: 0,
 			seed: seedNum,
-			generator: 'normal',
+			generator: singleplayerWorldTypes[selWorldType],
 		});
 
 		setupConnection(noa, socket, singleplayerServerInfo);
@@ -139,4 +156,9 @@ export function buildWorldCreationGui(noa: Engine, takenNames: string[], openMen
 	menu.onDisposeObservable.add(() => {
 		event.off('scale-change', rescale);
 	});
+}
+
+
+function toName(text: string): string {
+	return text.charAt(0).toUpperCase() + text.slice(1)
 }

@@ -1,5 +1,6 @@
 import { isMobile, isFirefox } from 'mobile-device-detect';
-import Engine from 'noa-engine';
+import Engine2, { Engine } from 'noa-engine';
+import * as BABYLON from '@babylonjs/core/Legacy/legacy';
 import { rebindControls, setupControls } from './lib/player/controls';
 import { defineModelComp } from './lib/helpers/model';
 
@@ -10,25 +11,21 @@ import {
 	defaultFonts,
 	setNoa,
 	updateServerSettings,
-	gameSettings,
-	gameProtocol,
 	IGameSettings,
-	gameVersion,
+	defaultValues,
 } from './values';
 import { constructScreen } from './gui/main';
 
 import { getSettings } from './lib/helpers/storage';
 import { setupClouds, setupSky } from './lib/gameplay/sky';
 import { buildMainMenu } from './gui/menu/main';
-import { connect, setupConnection } from './lib/gameplay/connect';
+import { connect } from './lib/gameplay/connect';
 import { setupMobile } from './gui/mobile';
 import { setupGamepad } from './lib/player/gamepad';
 import { warningFirefox } from './gui/warnings';
 import { setupWorld } from './lib/gameplay/world';
 
 import { spawn, Worker } from 'threads';
-import { createSingleplayerServer } from './lib/singleplayer/setup';
-import { IServerInfo } from './gui/menu/multiplayer';
 
 spawn(new Worker('./inflate.js')).then((x) => {
 	window['inflate'] = x;
@@ -39,7 +36,9 @@ defaultFonts.forEach((font) => document.fonts.load(`10pt "${font}"`));
 getSettings().then((data: IGameSettings) => {
 	updateSettings(data);
 	// @ts-ignore
-	const noa: any = new Engine(noaOpts());
+	const tempNoa = new Engine2(noaOpts())
+
+	const noa: Engine = tempNoa;
 
 	rebindControls(noa, data.controls);
 
@@ -57,6 +56,14 @@ getSettings().then((data: IGameSettings) => {
 	setupClouds(noa);
 	setupSky(noa);
 	defineModelComp(noa);
+
+	const scene = noa.rendering.getScene();
+
+	scene.fogMode = defaultValues.fogMode;
+	scene.fogStart = defaultValues.fogStart;
+	scene.fogEnd = defaultValues.fogEnd;
+	scene.fogDensity = defaultValues.fogDensity;
+	scene.fogColor = new BABYLON.Color3(...defaultValues.fogColor);
 
 	setupControls(noa);
 	setupGamepad(noa);
@@ -120,7 +127,7 @@ getSettings().then((data: IGameSettings) => {
 		const options = new URLSearchParams(window.location.search);
 
 		if (!!options.get('server')) {
-			connect(noa, options.get('server'));
+			setTimeout(() => connect(noa, options.get('server')), 4000)
 		} else {
 			setTimeout(() => {
 				buildMainMenu(noa);

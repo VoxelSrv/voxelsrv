@@ -5,23 +5,23 @@
 import Dexie from 'dexie';
 import { IWorldSettings, noa } from '../../values';
 
-interface IMain {
+export interface IMain {
 	name: string;
 	data: any;
 }
 
-interface IResources {
+export interface IResources {
 	name: string;
 	data: any;
 }
 
-interface IWorld {
+export interface IWorld {
 	name: string;
 	settings: IWorldSettings;
 	lastplay: number;
 }
 
-interface IWorldData {
+export interface IWorldData {
 	name: string;
 	data: object;
 }

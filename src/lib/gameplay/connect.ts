@@ -2,7 +2,7 @@
  * This needs major cleanup as it's way too big and it will be bigger in future.
  */
 
-import { gameSettings, gameProtocol, updateServerSettings, gameVersion, noaOpts, heartbeatServer, defaultValues } from '../../values';
+import { gameSettings, gameProtocol, updateServerSettings, gameVersion, noaOpts, heartbeatServer, defaultValues, proxyServer } from '../../values';
 import { isMobile } from 'mobile-device-detect';
 import { buildMainMenu, holder } from '../../gui/menu/main';
 import { setupGuis, destroyGuis } from '../../gui/setup';
@@ -13,7 +13,7 @@ import { addNametag, applyModel } from '../helpers/model';
 import { registerBlocks, registerItems } from './registry';
 import { setChunk, clearStorage, removeChunk, chunkSetBlock, chunkExist } from './world';
 import { playSound } from './sound';
-import { cloudMesh, setupClouds, setupSky } from './sky';
+import { cloudMesh, setupClouds, setupSky, skyMesh } from './sky';
 
 import * as BABYLON from '@babylonjs/core/Legacy/legacy';
 
@@ -61,8 +61,8 @@ import { setAssetServer } from '../helpers/assets';
 import { IServerInfo, servers } from '../../gui/menu/multiplayer';
 import buildConnect from '../../gui/menu/connect';
 import { openCrafting } from '../../gui/ingame/inventory/crafting';
-import { openChest } from '../../gui/ingame/inventory/chest';
 import { showMobileControls } from '../../gui/mobile';
+import buildSavingWorld from '../../gui/menu/savingWorld';
 
 export let socket: BaseSocket | null = null;
 let chunkInterval: any = null;
@@ -96,10 +96,12 @@ export function disconnect(menu: boolean = true): boolean {
 	document.exitPointerLock();
 
 	if (socket.singleplayer) {
-		socket.send('SingleplayerLeave', {})
+		socket.send('SingleplayerLeave', {});
+		const x = buildSavingWorld();
 		socket.on('ServerStoppingDone', () => {
-			console.log('World Saved!')
+			console.log('World Saved!');
 			socket.close();
+			x.screen.dispose();
 			buildMainMenu(noa);
 		});
 		return false;
@@ -118,19 +120,39 @@ export function connect(noa, server: string) {
 
 	if (tempAdress.length == 2) {
 		data = servers[tempAdress[1]];
-		const proxy = server.charAt(6) == '*' ? heartbeatServer : tempAdress[1];
+		const proxy = server.charAt(6) == '*' ? proxyServer : 'ws://' + tempAdress[1];
 		if (server.startsWith('c0.30|')) socket = createTranslationC030(proxy, server);
 		else return;
 	} else if (!(server.startsWith('wss://') || server.startsWith('ws://'))) socket = new MPSocket('ws://' + server);
 	else socket = new MPSocket(server);
 
-	console.log(data);
+	if (data == undefined) {
+		data = {
+			name: 'Multiplayer server',
+			ip: server,
+			motd: '',
+			protocol: gameProtocol,
+			software: 'VoxelSrv',
+			featured: false,
+			icon: 'voxelsrv',
+			type: 0,
+			players: {
+				max: 0,
+				online: 0,
+			},
+			useProxy: false,
+		};
+	}
 
 	setupConnection(noa, socket, data);
 }
 
-export function setupConnection(noax, socketx, data: IServerInfo) {
-	document.title = 'VoxelSrv - Connecting to server...';
+export function setupConnection(noax, socketx: BaseSocket, data: IServerInfo) {
+	if (socketx.singleplayer) {
+		document.title = 'VoxelSrv - Loading world...';
+	} else {
+		document.title = 'VoxelSrv - Connecting to server...';
+	}
 	const conScreen = buildConnect(socketx, data);
 	noa = noax;
 	const engine: BabylonEngine = noa.rendering.getScene().getEngine();
@@ -215,8 +237,11 @@ export function setupConnection(noax, socketx, data: IServerInfo) {
 			destroyGuis();
 			clearStorage();
 
-			document.title = `VoxelSrv - Playing on ${socket.server}`;
-
+			if (socket.singleplayer) {
+				document.title = `VoxelSrv - Playing on singleplayer world`;
+			} else {
+				document.title = `VoxelSrv - Playing on ${socket.server}`;
+			}
 			registerBlocks(noa, JSON.parse(dataPlayer.blocksDef));
 			registerItems(noa, JSON.parse(dataPlayer.itemsDef));
 
@@ -224,6 +249,7 @@ export function setupConnection(noax, socketx, data: IServerInfo) {
 
 			cloudMesh.dispose();
 			setupClouds(noa);
+			skyMesh.dispose();
 			setupSky(noa);
 
 			setupGuis(noa, socket, dataPlayer, dataLogin);
@@ -278,6 +304,11 @@ export function setupConnection(noax, socketx, data: IServerInfo) {
 			socket.on('EnvironmentSkyUpdate', (data: IEnvironmentSkyUpdate) => {
 				if ((data.colorRed != undefined, data.colorGreen != undefined, data.colorBlue != undefined))
 					scene.clearColor = new BABYLON.Color4(data.colorRed, data.colorGreen, data.colorBlue, 1);
+				if ((data.colorRedTop != undefined, data.colorGreenTop != undefined, data.colorBlueTop != undefined))
+					// @ts-ignore
+					skyMesh.material.emissiveColor = new BABYLON.Color3(data.colorRedTop, data.colorGreenTop, data.colorBlueTop);
+				// @ts-ignore
+				skyMesh.material.diffuseColor = skyMesh.material.emissiveColor;
 				if (data.clouds != undefined) cloudMesh.isVisible = data.clouds;
 			});
 
@@ -390,23 +421,29 @@ export function setupConnection(noax, socketx, data: IServerInfo) {
 			let lastPitch = 0;
 
 			let ping = 0;
+			let h5rge = 0;
 
 			moveEvent = () => {
-				const rot = noa.camera.heading;
-				const pitch = noa.camera.pitch;
-				if (vec3.dist(lastPos, pos.position) > 0.15 || lastRot != rot || lastPitch != pitch) {
-					lastPos = [...pos.position];
-					lastPitch = pitch;
-					lastRot = rot;
-					socket.send('ActionMoveLook', { x: pos.position[0], y: pos.position[1], z: pos.position[2], rotation: rot, pitch: pitch });
-				} else if (vec3.dist(lastPos, pos.position) > 0.15) {
-					lastPos = [...pos.position];
-					socket.send('ActionMove', { x: pos.position[0], y: pos.position[1], z: pos.position[2] });
-				} else if (lastRot != rot || lastPitch != pitch) {
-					lastPitch = pitch;
-					lastRot = rot;
-					socket.send('ActionLook', { rotation: rot, pitch: pitch });
+				if (h5rge == 0) {
+					const rot = noa.camera.heading;
+					const pitch = noa.camera.pitch;
+					if (vec3.dist(lastPos, pos.position) > 0.15 || lastRot != rot || lastPitch != pitch) {
+						lastPos = [...pos.position];
+						lastPitch = pitch;
+						lastRot = rot;
+						socket.send('ActionMoveLook', { x: pos.position[0], y: pos.position[1], z: pos.position[2], rotation: rot, pitch: pitch });
+					} else if (vec3.dist(lastPos, pos.position) > 0.15) {
+						lastPos = [...pos.position];
+						socket.send('ActionMove', { x: pos.position[0], y: pos.position[1], z: pos.position[2] });
+					} else if (lastRot != rot || lastPitch != pitch) {
+						lastPitch = pitch;
+						lastRot = rot;
+						socket.send('ActionLook', { rotation: rot, pitch: pitch });
+					}
+					h5rge = 2;
 				}
+
+				h5rge = h5rge - 1;
 
 				ping = ping + 1;
 

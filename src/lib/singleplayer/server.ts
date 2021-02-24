@@ -1,9 +1,11 @@
 import { fs, vol } from 'memfs';
 import { ILoginResponse } from 'voxelsrv-protocol/js/client';
+import { Player } from 'voxelsrv-server/dist/lib/player/player';
 import { Server } from 'voxelsrv-server/dist/server';
 import { BaseSocket } from 'voxelsrv-server/dist/socket';
 import { IServerConfig, serverVersion } from 'voxelsrv-server/dist/values';
 import { IWorldSettings } from '../../values';
+import { OperatorPermissionHolder } from './operatorPermissionHolder';
 import patchWorldClass from './worldPatches'
 
 patchWorldClass();
@@ -48,19 +50,12 @@ server.on('server-started', () => {
 server.on('server-config-update', (config: IServerConfig) => {
 	config.world.border = worldSettings.worldsize ;	
 	config.world.seed = worldSettings.seed;
+	config.world.generator = worldSettings.generator;
 	config.viewDistance = viewDistance;
 })
 
 server.on('server-stopped', () => {
 	socket.send('ServerStopped', {save: vol.toJSON(), settings: worldSettings});
-});
-
-server.on('player-created', function (player) {
-	let x = 0;
-	Object.keys(server.registry.items).forEach((item) => {
-		player.inventory.set(x, item, server.registry.items[item].stack, {});
-		x = x + 1;
-	});
 });
 
 self.onmessage = (e) => {
@@ -85,6 +80,7 @@ self.onmessage = (e) => {
 		case 'SingleplayerSettings':
 			worldSettings = data;
 			worldSettings.serverVersion = serverVersion;
+			setupGamemode(server, data.gamemode)
 			startServer()
 			break;
 		case 'SingleplayerViewDistance':
@@ -98,11 +94,35 @@ self.onmessage = (e) => {
 			break;
 		case 'LoginResponse':
 			const data2: ILoginResponse = data;
-			data2.uuid = '*localplayer';
 			data2.secret = '*localplayer';
+			data2.username = 'Player';
+			emit(type, data2);
+			break;
 		default:
 			emit(type, data);
 	}
 };
 
+
 console.log(server)
+
+function setupGamemode(server: Server, gamemode: string) {
+	switch(gamemode) {
+		case 'creative':
+			server.on('player-created', function (player: Player) {
+				let x = 0;
+				Object.keys(server.registry.items).forEach((item) => {
+					player.inventory.set(x, item, server.registry.items[item].stack, {});
+					x = x + 1;
+				});
+				console.log(player)
+			
+				if (player.ipAddress == '127.0.0.1') {
+					player.permissions = new OperatorPermissionHolder(player._server.permissions, {}, []);
+				}
+			});
+			break;
+		case 'survival':
+			break;
+	}
+}

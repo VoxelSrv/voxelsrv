@@ -43,7 +43,7 @@ export default function buildAboutScreen(openMenu) {
 
 	const back = createItem();
 	back.item.verticalAlignment = 1;
-	back.text.text = [{ text: 'Go back to menu', color: 'white', font: 'Lato' }];
+	back.text.text = [{ text: 'Back', color: 'white', font: 'Lato' }];
 
 	back.item.onPointerClickObservable.add(() => {
 		menu.dispose();

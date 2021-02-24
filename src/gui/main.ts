@@ -33,7 +33,8 @@ function updateScale() {
 	if (width >= 2000) pScale = 5;
 	else if (width >= 1500) pScale = 4;
 	else if (width >= 900) pScale = 3;
-	else pScale = 2;
+	else if (width >= 450) pScale = 2;
+	else pScale = 1;
 
 	if (pScale > maxScale) scale = maxScale;
 	else scale = pScale;

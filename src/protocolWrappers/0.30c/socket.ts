@@ -1,6 +1,5 @@
 import { EventEmitter } from 'events';
 import { BaseSocket, VirtualSocket } from '../../socket';
-import { heartbeatServer } from '../../values';
 
 import * as protocol from 'voxelsrv-protocol';
 import { Client } from './client';
@@ -114,12 +113,11 @@ export default function (proxyIp: string, server: string): BaseSocket {
 
 	server = server.replace('*', '');
 
-	const proxy = new WebSocket('ws://' + proxyIp);
+	const proxy = new WebSocket(proxyIp);
 	proxy.binaryType = 'arraybuffer';
 
 	const classic = new Client();
 
-	console.log(proxyIp, server)
 
 	const vSocket = new VirtualSocket(toClient, toServer, server);
 

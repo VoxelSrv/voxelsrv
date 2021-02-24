@@ -17,6 +17,8 @@ declare function inflate(x: Uint8Array, y: number): Promise<Uint8Array>;
 export async function setChunk(data: IWorldChunkLoad) {
 	const height = data.height > 0 ? data.height : 1;
 
+	
+
 	if (data.compressed) {
 		// Decompress
 		let x = 32 * 32 * 32 * height;
