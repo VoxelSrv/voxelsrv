@@ -3,8 +3,9 @@
 - Added basic animation to player
 - Moved from HTML guis to BabylonJS ones
 - Chunk compression support
-- Electron version with singleplayer mode
+- Singleplayer mode
 - And many other small changes
+- Really, there is so many changes!
 
 # 0.1.8
 - New main menu screen
