@@ -11,9 +11,7 @@ import { buildWorldCreationGui } from './spWorldCreation';
 import { buildWorldEditorGui } from './spWorldEditor';
 
 import { exportWorldAsZip, importWorldFromZip } from '../../lib/singleplayer/spHelpers';
-import { saveAs } from 'file-saver';
 import { PopupGUI } from '../parts/miniPopupHelper';
-import { number } from 'mathjs';
 import { downloadBlob } from '../../lib/helpers/general';
 import { addToast, toastColors } from '../parts/toastMessage';
 

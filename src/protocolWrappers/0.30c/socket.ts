@@ -2,12 +2,12 @@ import { EventEmitter } from 'events';
 import { BaseSocket, VirtualSocket } from '../../socket';
 
 import * as protocol from 'voxelsrv-protocol';
-import { Client } from './client';
+import { Client } from './lib/client';
 import * as ndarray from 'ndarray';
 
 import * as pako from 'pako';
 
-import { items as itemRegistry, blocks as blockRegistry } from './registry.json';
+import { items as itemRegistry, blocks as blockRegistry } from './lib/registry.json';
 import {
 	IActionMessage,
 	IActionBlockBreak,
@@ -107,7 +107,7 @@ const movement = {
 	standingFriction: 2,
 };
 
-export default function (proxyIp: string, server: string): BaseSocket {
+export default function connectToClassic30Server(proxyIp: string, server: string): BaseSocket {
 	const toClient = new EventEmitter();
 	const toServer = new EventEmitter();
 
@@ -544,8 +544,6 @@ export default function (proxyIp: string, server: string): BaseSocket {
 
 		});
 	});
-
-
 
 	return vSocket;
 }

@@ -18,7 +18,7 @@ import * as BABYLON from '@babylonjs/core/Legacy/legacy';
 
 import * as vec3 from 'gl-vec3';
 import { BaseSocket, MPSocket } from '../../socket';
-import createTranslationC030 from '../../protocolWrappers/0.30c/socket';
+import connectToClassic30Server from '../../protocolWrappers/0.30c/socket';
 
 import { setTab } from '../../gui/tab';
 import {
@@ -127,7 +127,7 @@ export function connect(noa, server: string) {
 		if (tempAdress.length == 2) {
 			data = servers[tempAdress[1]];
 			const proxy = server.charAt(6) == '*' ? proxyServer : 'ws://' + tempAdress[1];
-			if (server.startsWith('c0.30|')) socket = createTranslationC030(proxy, server);
+			if (server.startsWith('c0.30|')) socket = connectToClassic30Server(proxy, server);
 			else return;
 		} else if (!(server.startsWith('wss://') || server.startsWith('ws://'))) socket = new MPSocket('ws://' + server);
 		else socket = new MPSocket(server);

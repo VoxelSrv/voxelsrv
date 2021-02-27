@@ -166,6 +166,10 @@ export default function buildMultiplayer(noa, openMenu) {
 				array.sort(sortServerList);
 
 				array.forEach((server: IServerInfo) => {
+					if (location.protocol == 'https:' && !server.useProxy && !server.ip.startsWith('wss://') ) {
+						return;
+					}
+
 					const row = createRow();
 
 					row.icon.source = './servericons/' + server.icon + '.png';

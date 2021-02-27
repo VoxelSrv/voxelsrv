@@ -1,5 +1,3 @@
-import * as pako from 'pako';
-
 const PartialReadError = require('protodef').utils.PartialReadError;
 
 function readString(buffer, offset) {

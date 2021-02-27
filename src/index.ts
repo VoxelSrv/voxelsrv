@@ -31,6 +31,23 @@ getSettings().then((data: IGameSettings) => {
 
 	const noa: Engine = tempNoa;
 
+	const canvas: HTMLCanvasElement = noa.container.canvas;
+
+	canvas.onwheel = function (event) {
+		event.preventDefault();
+	};
+
+	window.addEventListener('beforeunload', function (e) {
+		e.preventDefault();
+		e.returnValue = '';
+	});
+
+	canvas.addEventListener('keydown', (e) => {
+		if (e.key == ' ') {
+			e.preventDefault();
+		}
+	});
+
 	rebindControls(noa, data.controls);
 
 	noa.world.maxChunksPendingCreation = Infinity;
@@ -83,7 +100,6 @@ getSettings().then((data: IGameSettings) => {
 					noa.ents.getState(noa.playerEntity, 'receivesInputs').ignore = true;
 				}
 			} else {
-				
 			}
 		},
 		false

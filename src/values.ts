@@ -4,12 +4,12 @@ import { setScale } from './gui/main';
 import { IFormatedText } from './gui/parts/formtextblock';
 import { IServerInfo } from './gui/menu/multiplayer';
 
-export const gameVersion = '0.2.0-beta.17';
+export const gameVersion = '0.2.0-beta.17.1';
 
 export const gameProtocol = 3;
 
 export const heartbeatServer = 'https://voxelsrv.pb4.eu';
-export const proxyServer = 'ws://pb4.eu:9001';
+export const proxyServer = 'wss://pb4.eu:9001';
 
 export const defaultSettings: IGameSettings = {
 	version: '0.0.0',
@@ -26,6 +26,7 @@ export const defaultSettings: IGameSettings = {
 	fpslimit: 0,
 	debugInfo: false,
 	showFPS: false,
+	autoSaveInterval: 300,
 	controls: {
 		forward: 'W',
 		left: 'A',
@@ -65,6 +66,7 @@ export interface IGameSettings {
 	fpslimit: number;
 	debugInfo: boolean;
 	showFPS: boolean;
+	autoSaveInterval: number
 	controls: { [i: string]: string };
 }
 
