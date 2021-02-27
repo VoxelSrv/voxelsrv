@@ -1,19 +1,10 @@
-import { isMobile, isFirefox } from 'mobile-device-detect';
+import { isMobile } from 'mobile-device-detect';
 import Engine2, { Engine } from 'noa-engine';
 import * as BABYLON from '@babylonjs/core/Legacy/legacy';
 import { rebindControls, setupControls } from './lib/player/controls';
 import { defineModelComp } from './lib/helpers/model';
 
-import {
-	noaOpts,
-	updateSettings,
-	serverSettings,
-	defaultFonts,
-	setNoa,
-	updateServerSettings,
-	IGameSettings,
-	defaultValues,
-} from './values';
+import { noaOpts, updateSettings, serverSettings, defaultFonts, setNoa, updateServerSettings, IGameSettings, defaultValues } from './values';
 import { constructScreen } from './gui/main';
 
 import { getSettings } from './lib/helpers/storage';
@@ -22,10 +13,10 @@ import { buildMainMenu } from './gui/menu/main';
 import { connect } from './lib/gameplay/connect';
 import { setupMobile } from './gui/mobile';
 import { setupGamepad } from './lib/player/gamepad';
-import { warningFirefox } from './gui/warnings';
 import { setupWorld } from './lib/gameplay/world';
 
 import { spawn, Worker } from 'threads';
+import { setupToasts } from './gui/parts/toastMessage';
 
 spawn(new Worker('./inflate.js')).then((x) => {
 	window['inflate'] = x;
@@ -36,7 +27,7 @@ defaultFonts.forEach((font) => document.fonts.load(`10pt "${font}"`));
 getSettings().then((data: IGameSettings) => {
 	updateSettings(data);
 	// @ts-ignore
-	const tempNoa = new Engine2(noaOpts())
+	const tempNoa = new Engine2(noaOpts());
 
 	const noa: Engine = tempNoa;
 
@@ -53,6 +44,7 @@ getSettings().then((data: IGameSettings) => {
 
 	noa.ents.getPhysics(noa.playerEntity).body.airDrag = 9999;
 	constructScreen(noa);
+	setupToasts();
 	setupClouds(noa);
 	setupSky(noa);
 	defineModelComp(noa);
@@ -82,12 +74,16 @@ getSettings().then((data: IGameSettings) => {
 	document.addEventListener(
 		'pointerlockchange',
 		() => {
-			if (document.pointerLockElement == noa.container.canvas || isMobile) {
-				noa.ignorePointerLock = true;
-				noa.ents.getState(noa.playerEntity, 'receivesInputs').ignore = false;
+			if (!isMobile) {
+				if (document.pointerLockElement == noa.container.canvas) {
+					noa.ignorePointerLock = true;
+					noa.ents.getState(noa.playerEntity, 'receivesInputs').ignore = false;
+				} else {
+					noa.ignorePointerLock = false;
+					noa.ents.getState(noa.playerEntity, 'receivesInputs').ignore = true;
+				}
 			} else {
-				noa.ignorePointerLock = false;
-				noa.ents.getState(noa.playerEntity, 'receivesInputs').ignore = true;
+				
 			}
 		},
 		false
@@ -119,15 +115,12 @@ getSettings().then((data: IGameSettings) => {
 				}
 			});
 		}
-		if (isFirefox) {
-			warningFirefox();
-		}
 
 		// Default actions
 		const options = new URLSearchParams(window.location.search);
 
 		if (!!options.get('server')) {
-			setTimeout(() => connect(noa, options.get('server')), 4000)
+			setTimeout(() => connect(noa, options.get('server')), 4000);
 		} else {
 			setTimeout(() => {
 				buildMainMenu(noa);

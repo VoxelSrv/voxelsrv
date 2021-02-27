@@ -5,7 +5,7 @@
  */
 
 import * as BABYLON from '@babylonjs/core/Legacy/legacy';
-import * as MATERIALS from '@babylonjs/materials'
+import * as MATERIALS from '@babylonjs/materials';
 import type { Engine } from 'noa-engine';
 import { getAsset } from '../helpers/assets';
 
@@ -43,9 +43,8 @@ export function registerBlocks(noa: Engine, blockList) {
 	entries.forEach(function (item: any) {
 		try {
 			createBlock(item.rawid, item.id, item.type, item.texture, item.options, item.hardness, item.miningtime, item.tool);
-		} catch(e) {
+		} catch (e) {
 			console.log(e);
-			
 		}
 	});
 

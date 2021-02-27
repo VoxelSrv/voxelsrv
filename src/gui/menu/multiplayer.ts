@@ -37,7 +37,7 @@ export default function buildMultiplayer(noa, openMenu) {
 
 	const name = new GUI.TextBlock();
 	name.fontFamily = 'Lato';
-	name.fontSize = 11 * scale;
+	name.fontSize = 13 * scale;
 	name.textVerticalAlignment = 0;
 	name.color = 'white';
 	name.text = 'Multiplayer';
@@ -265,7 +265,7 @@ export default function buildMultiplayer(noa, openMenu) {
 		else menu.height = `100%`;
 		menu.width = `${310 * scale}px`;
 
-		name.fontSize = 11 * scale;
+		name.fontSize = 13 * scale;
 
 		input.height = `${17 * scale}px`;
 		input.width = `${266 * scale}px`;
@@ -285,6 +285,8 @@ export default function buildMultiplayer(noa, openMenu) {
 		serverListHeader.main.fontSize = 7 * scale;
 		serverList.fontSize = 6 * scale;
 		serverListScroll.height = `${150 * scale}px`;
+
+		reloadButtonText.fontSize = 11 * scale;
 
 		back.item.width = `${100 * scale}px`;
 		back.item.height = `${18 * scale}px`;

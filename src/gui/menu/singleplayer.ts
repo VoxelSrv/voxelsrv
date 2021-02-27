@@ -1,16 +1,23 @@
-import { getScreen, scale, event } from '../main';
+import { scale, event } from '../main';
 import * as GUI from '@babylonjs/gui/';
-import { FormTextBlock } from '../parts/formtextblock';
-import { createItem, createButton, createInput } from '../parts/menu';
+import { createItem, createButton } from '../parts/menu';
 
-import { defaultValues, gameProtocol, gameVersion, IWorldSettings, singleplayerServerInfo } from '../../values';
-import { deleteWorld, getWorldList } from '../../lib/helpers/storage';
+import { defaultValues, IWorldSettings, singleplayerServerInfo } from '../../values';
+import { getWorldList, IWorld } from '../../lib/helpers/storage';
 import { createSingleplayerServer } from '../../lib/singleplayer/setup';
 import { setupConnection } from '../../lib/gameplay/connect';
 import { Engine } from 'noa-engine';
 import { buildWorldCreationGui } from './spWorldCreation';
+import { buildWorldEditorGui } from './spWorldEditor';
 
-export default function buildSingleplayer(noa: Engine, openMenu) {
+import { exportWorldAsZip, importWorldFromZip } from '../../lib/singleplayer/spHelpers';
+import { saveAs } from 'file-saver';
+import { PopupGUI } from '../parts/miniPopupHelper';
+import { number } from 'mathjs';
+import { downloadBlob } from '../../lib/helpers/general';
+import { addToast, toastColors } from '../parts/toastMessage';
+
+export default function buildSingleplayer(noa: Engine, openMenu, holder) {
 	const menu = new GUI.Rectangle();
 	menu.thickness = 0;
 	menu.horizontalAlignment = 2;
@@ -22,7 +29,7 @@ export default function buildSingleplayer(noa: Engine, openMenu) {
 
 	const name = new GUI.TextBlock();
 	name.fontFamily = 'Lato';
-	name.fontSize = 11 * scale;
+	name.fontSize = 13 * scale;
 	name.textVerticalAlignment = 0;
 	name.color = 'white';
 	name.text = 'Singleplayer';
@@ -30,50 +37,124 @@ export default function buildSingleplayer(noa: Engine, openMenu) {
 
 	menu.addControl(name);
 
-	let selected: { name: string; settings: IWorldSettings };
+	let selected: IWorld;
 	let takenNames = [];
 	let lock = false;
 
-	const create = createButton();
+	const create = createButton(56);
 	create.button.top = `${18 * scale}px`;
 	create.button.left = `${5 * scale}px`;
 	create.buttonText.text = [{ text: 'Create World', color: 'white', font: 'Lato' }];
 
 	create.button.onPointerClickObservable.add(() => {
-		buildWorldCreationGui(noa, takenNames, openMenu);
+		buildWorldCreationGui(noa, takenNames, openMenu, holder);
 		menu.dispose();
 	});
 	menu.addControl(create.button);
 
-	const play = createButton();
+	const play = createButton(56);
 	play.button.top = `${18 * scale}px`;
-	play.button.left = `${74 * scale}px`;
+	play.button.left = `${66 * scale}px`;
 	play.buttonText.text = [{ text: 'Select', color: 'white', font: 'Lato' }];
 
 	play.button.onPointerClickObservable.add(() => {
-		if (selected != undefined) {
+		if (selected != undefined && !lock) {
 			lock = true;
-			setupConnection(noa, createSingleplayerServer(selected.name, selected.settings), singleplayerServerInfo);
+			setupConnection(noa, createSingleplayerServer(selected.name, selected.settings), {
+				...singleplayerServerInfo,
+				motd: selected.settings.displayName || selected.name,
+			});
 			selected = undefined;
 		}
 	});
 	menu.addControl(play.button);
 
-	const remove = createButton();
-	remove.button.top = `${18 * scale}px`;
-	remove.button.left = `${143 * scale}px`;
-	remove.buttonText.text = [{ text: 'Remove', color: 'white', font: 'Lato' }];
+	const edit = createButton(56);
+	edit.button.top = `${18 * scale}px`;
+	edit.button.left = `${127 * scale}px`;
+	edit.buttonText.text = [{ text: 'Edit world', color: 'white', font: 'Lato' }];
 
-	remove.button.onPointerClickObservable.add(async () => {
-		if (selected != undefined) {
+	edit.button.onPointerClickObservable.add(async () => {
+		if (selected != undefined && !lock) {
 			lock = true;
-			await deleteWorld(selected.name);
+			menu.dispose();
+
+			buildWorldEditorGui(noa, selected, openMenu, holder);
+		}
+	});
+	menu.addControl(edit.button);
+
+	const exportButton = createButton(56);
+	exportButton.button.top = `${18 * scale}px`;
+	exportButton.button.left = `${188 * scale}px`;
+	exportButton.buttonText.text = [{ text: 'Export', color: 'white', font: 'Lato' }];
+
+	exportButton.button.onPointerClickObservable.add(async () => {
+		if (selected != undefined && !lock) {
+			lock = true;
+			menu.isVisible = false;
+			const exportScreen = new PopupGUI([{ text: 'Exporting world...' }]);
+			exportScreen.setSubtitle([{ text: selected.settings.displayName || selected.name }]);
+			exportScreen.setCenterText([{ text: 'Starting...' }]);
+			holder.addControl(exportScreen.main);
+			const blob = await exportWorldAsZip(selected.name, (text) => {
+				exportScreen.setCenterText([{ text: text }]);
+			});
+			downloadBlob(blob, selected.name + '.zip');
+
+			exportScreen.dispose();
 			selected = undefined;
 			updateWorldList();
+			menu.isVisible = true;
 			lock = false;
 		}
 	});
-	menu.addControl(remove.button);
+
+	menu.addControl(exportButton.button);
+
+	const importButton = createButton(56);
+	importButton.button.top = `${18 * scale}px`;
+	importButton.button.left = `${249 * scale}px`;
+	importButton.buttonText.text = [{ text: 'Import', color: 'white', font: 'Lato' }];
+
+	importButton.button.onPointerClickObservable.add(async () => {
+		if (!lock) {
+			lock = true;
+			selected = undefined;
+			const input = document.createElement('input');
+			input.type = 'file';
+			input.accept = 'application/zip';
+			input.click();
+			const event = async () => {
+				document.body.removeEventListener('focusin', event);
+				if (input.files.length != 0) {
+					menu.isVisible = false;
+					const importScreen = new PopupGUI([{ text: 'Exporting world...' }]);
+					importScreen.setCenterText([{ text: 'Starting...' }]);
+					holder.addControl(importScreen.main);
+					try {
+						await importWorldFromZip(input.files[0], (text, displayName: string = null) => {
+							importScreen.setCenterText([{ text: text }]);
+							if (displayName != null) {
+								importScreen.setSubtitle([{ text: displayName }]);
+							}
+						});
+					} catch (e) {
+						console.error(e)
+						addToast([{ text: 'Invalid world!' }], [{ text: 'You tried to import invalid world file!' }], toastColors.error, 5);
+					}
+					importScreen.dispose();
+					menu.isVisible = true;
+				}
+				updateWorldList();
+				lock = false;
+			};
+
+			document.body.addEventListener('focusin', event);
+		}
+	});
+
+	menu.addControl(importButton.button);
 
 	const worldListContainer = new GUI.Rectangle();
 	worldListContainer.width = `${290 * scale}px`;
@@ -127,7 +208,7 @@ export default function buildSingleplayer(noa: Engine, openMenu) {
 	let worldArray = [];
 
 	function updateWorldList() {
-		worldList.children.forEach( x => x.dispose())
+		worldList.children.forEach((x) => x.dispose());
 		worldList.clearControls();
 		takenNames = [];
 
@@ -135,8 +216,10 @@ export default function buildSingleplayer(noa: Engine, openMenu) {
 			data.forEach((world) => {
 				const row = createRow();
 
+				row.icon.source = './servericons/' + world.settings.icon + '.png';
+
 				const sname = new GUI.TextBlock();
-				sname.text = world.name;
+				sname.text = world.settings.displayName || world.name;
 				sname.color = '#222222';
 				row.name.addControl(sname);
 
@@ -146,7 +229,7 @@ export default function buildSingleplayer(noa: Engine, openMenu) {
 				row.date.addControl(sdate);
 
 				const stype = new GUI.TextBlock();
-				stype.text = world.settings.gamemode.charAt(0).toUpperCase() + world.settings.gamemode.slice(1) ;
+				stype.text = world.settings.gamemode.charAt(0).toUpperCase() + world.settings.gamemode.slice(1);
 				stype.color = '#222222';
 				row.type.addControl(stype);
 
@@ -167,7 +250,7 @@ export default function buildSingleplayer(noa: Engine, openMenu) {
 
 					setTimeout(() => {
 						click = click - 1;
-					}, 500)
+					}, 500);
 				});
 
 				row.main.onPointerEnterObservable.add((e) => {
@@ -204,11 +287,11 @@ export default function buildSingleplayer(noa: Engine, openMenu) {
 		else menu.height = `100%`;
 		menu.width = `${310 * scale}px`;
 
-		name.fontSize = 11 * scale;
+		name.fontSize = 13 * scale;
 
 		worldListContainer.width = `${290 * scale}px`;
 		worldListContainer.top = `${40 * scale}px`;
-		worldListScroll.top = `${13 * scale}px`;
+		worldListScroll.top = `${16 * scale}px`;
 		worldListHeader.main.fontSize = 7 * scale;
 		worldList.fontSize = 6 * scale;
 		worldListScroll.height = `${150 * scale}px`;
@@ -217,10 +300,16 @@ export default function buildSingleplayer(noa: Engine, openMenu) {
 		create.button.left = `${5 * scale}px`;
 
 		play.button.top = `${18 * scale}px`;
-		play.button.left = `${74 * scale}px`;
+		play.button.left = `${66 * scale}px`;
 
-		remove.button.top = `${18 * scale}px`;
-		remove.button.left = `${143 * scale}px`;
+		edit.button.top = `${18 * scale}px`;
+		edit.button.left = `${127 * scale}px`;
+
+		exportButton.button.top = `${18 * scale}px`;
+		exportButton.button.left = `${188 * scale}px`;
+
+		importButton.button.top = `${18 * scale}px`;
+		importButton.button.left = `${249 * scale}px`;
 
 		back.item.width = `${100 * scale}px`;
 		back.item.height = `${18 * scale}px`;
@@ -241,18 +330,14 @@ function createRow() {
 	main.height = `${16 * scale}px`;
 	main.thickness = 0;
 
-	const rescale = () => {
-		main.height = `${16 * scale}px`;
-	};
-
-	event.on('scale-change', rescale);
-
-	main.onDisposeObservable.add(() => {
-		event.off('scale-change', rescale);
-	});
+	const icon = new GUI.Image();
+	icon.width = `${16 * scale}px`;
+	icon.horizontalAlignment = 0;
+	main.addControl(icon);
 
 	const name = new GUI.Rectangle();
-	name.width = '50%';
+	name.width = '45%';
+	name.left = '5%';
 	name.horizontalAlignment = 0;
 	name.thickness = 0;
 	main.addControl(name);
@@ -271,5 +356,16 @@ function createRow() {
 	type.thickness = 0;
 	main.addControl(type);
 
-	return { main, name, date, type };
+	const rescale = () => {
+		main.height = `${16 * scale}px`;
+		icon.width = `${16 * scale}px`;
+	};
+
+	event.on('scale-change', rescale);
+
+	main.onDisposeObservable.add(() => {
+		event.off('scale-change', rescale);
+	});
+
+	return { icon, main, name, date, type };
 }

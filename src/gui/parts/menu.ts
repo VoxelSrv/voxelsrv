@@ -7,9 +7,9 @@ import { scale, event } from '../main';
 import { FormTextBlock } from './formtextblock';
 import * as GUI from '@babylonjs/gui';
 
-export function createItem() {
+export function createItem(width: number = 100, fontsize: number = 10) {
 	const item = new GUI.Rectangle();
-	item.width = `${100 * scale}px`;
+	item.width = `${width * scale}px`;
 	item.height = `${18 * scale}px`;
 	item.isPointerBlocker = true;
 	item.horizontalAlignment = 2;
@@ -19,7 +19,7 @@ export function createItem() {
 
 	const text = new FormTextBlock();
 	text.text = [{ text: 'MenuItemText', color: 'white', font: 'Lato' }];
-	text.fontSize = 10 * scale;
+	text.fontSize = fontsize * scale;
 	text.textHorizontalAlignment = 2;
 	item.addControl(text);
 
@@ -32,6 +32,20 @@ export function createItem() {
 		text.text.forEach((x) => (x.underline = false));
 		text._markAsDirty();
 	});
+
+	const rescale = (x) => {
+		item.width = `${width * scale}px`;
+		item.height = `${18 * scale}px`;
+
+		text.fontSize = fontsize * scale;
+	};
+
+	event.on('scale-change', rescale);
+
+	item.onDisposeObservable.add(() => {
+		event.off('scale-change', rescale);
+	});
+
 
 	return { item: item, text: text };
 }
@@ -119,7 +133,7 @@ export function createSlider() {
 	const rescale = (x) => {
 		main.height = `${28 * scale}px`;
 		name.fontSize = 9 * scale;
-		slider.height = `${10 * scale}px`;
+		slider.height = `${13 * scale}px`;
 		slider.width = `${100 * scale}px`;
 		slider.top = `${14 * scale}px`;
 	};
@@ -170,10 +184,10 @@ export function createCheckbox() {
 }
 
 
-export function createButton() {
+export function createButton(width: number = 64) {
 	const button = new GUI.Rectangle();
 	button.height = `${17 * scale}px`;
-	button.width = `${64 * scale}px`;
+	button.width = `${width * scale}px`;
 	button.verticalAlignment = 0;
 	button.horizontalAlignment = 0;
 	button.thickness = 0;
@@ -198,7 +212,7 @@ export function createButton() {
 
 	const rescale = (x) => {
 		button.height = `${17 * scale}px`;
-		button.width = `${64 * scale}px`;
+		button.width = `${width * scale}px`;
 		buttonText.fontSize = 6 * scale;
 	};
 

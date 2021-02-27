@@ -8,6 +8,7 @@ import { createItem } from '../parts/menu';
 import { FormTextBlock } from '../parts/formtextblock';
 import buildSingleplayer from './singleplayer';
 import buildAboutScreen from './about';
+import { getWarning } from '../warnings';
 
 export let holder: GUI.Rectangle;
 
@@ -46,7 +47,7 @@ export function buildMainMenu(noa) {
 		if (!!activeMenu) activeMenu.dispose();
 		switch (type) {
 			case 'singleplayer':
-				activeMenu = buildSingleplayer(noa, openMenu);
+				activeMenu = buildSingleplayer(noa, openMenu, holder);
 				active = 'singleplayer';
 				document.title = 'VoxelSrv - Singleplayer Menu';
 				break;
@@ -56,7 +57,7 @@ export function buildMainMenu(noa) {
 				document.title = 'VoxelSrv - Multiplayer Menu';
 				break;
 			case 'settings':
-				activeMenu = buildSettings(noa, openMenu);
+				activeMenu = buildSettings(noa, openMenu, holder);
 				active = 'settings';
 				document.title = 'VoxelSrv - Settings';
 				break;
@@ -129,6 +130,25 @@ export function buildMainMenu(noa) {
 		}, 20);
 
 		holder.addControl(splash);
+
+		let warning: FormTextBlock = null;
+
+		let x = getWarning()
+		if (x.length > 0) {
+			warning = new FormTextBlock();
+			warning.isPointerBlocker = false;
+			warning.text = getWarning();
+			warning.fontFamily = 'Lato';
+			warning.fontSize = `${7 * scale}px`;
+			warning.shadowColor = '#111111';
+			warning.shadowOffsetX = 1;
+			warning.shadowOffsetY = 1;
+			warning.textHorizontalAlignment = 2;
+			warning.textVerticalAlignment = 0;
+			warning.color = 'red';
+	
+			holder.addControl(warning);
+		}
 
 		const scroll = new GUI.ScrollViewer();
 		scroll.verticalAlignment = 0;
@@ -206,6 +226,10 @@ export function buildMainMenu(noa) {
 				splash.isVisible = true;
 			} else splash.isVisible = false;
 
+			if (warning != null) {
+				warning.fontSize = `${7 * scale}px`;
+			}
+
 			items._children.forEach((z) => {
 				z.width = `${100 * scale}px`;
 				z.height = `${18 * scale}px`;
@@ -219,6 +243,9 @@ export function buildMainMenu(noa) {
 		menu.onDisposeObservable.add(() => {
 			clearInterval(splashAnim);
 			splash.dispose();
+			if (warning != null) {
+				warning.dispose();
+			}
 			event.off('scale-change', rescale);
 		});
 

@@ -2,7 +2,7 @@ import * as GUI from '@babylonjs/gui/';
 import { IFormatedText, FormTextBlock } from './formtextblock';
 import { scale, event, getScreen } from '../main';
 
-export function createWindow(x: number, y: number, title: string | Array<IFormatedText>, movable: boolean) {
+export function createWindow(x: number, y: number, title: string | Array<IFormatedText>, movable: boolean): WindowObject {
 	const ui = getScreen(1);
 
 	const window = new GUI.Rectangle();
@@ -31,15 +31,16 @@ export function createWindow(x: number, y: number, title: string | Array<IFormat
 			clicked = true;
 			startingPoint = [data.x, data.y];
 			windowStart = [window.leftInPixels, window.topInPixels];
+			console.log(1)
 		});
 
 		bar.onPointerUpObservable.add(() => {
+			console.log(0)
 			clicked = false;
 		});
 
 		const obs = ui.onPointerMoveObservable.add((data) => {
 			if (!clicked) return;
-			console.log();
 			window.left = -(startingPoint[0] - data.x) + windowStart[0];
 			window.top = -(startingPoint[1] - data.y) + windowStart[1];
 		});
@@ -99,3 +100,7 @@ export function createWindow(x: number, y: number, title: string | Array<IFormat
 
 	return { main: main, bar: bar, text: text, window: window };
 }
+
+
+
+export type WindowObject = { main: GUI.Rectangle, bar: GUI.Rectangle, text: FormTextBlock, window: GUI.Rectangle }

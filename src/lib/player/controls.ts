@@ -14,6 +14,7 @@ import { ActionInventoryClick, ActionInventoryClose } from 'voxelsrv-protocol/js
 import type { Engine } from 'noa-engine';
 import { closeCrafting, craftingInventory } from '../../gui/ingame/inventory/crafting';
 import { chestInventory, closeChest } from '../../gui/ingame/inventory/chest';
+import { isMobile } from 'mobile-device-detect';
 
 const screenshot = require('canvas-screenshot');
 
@@ -85,7 +86,7 @@ export function setupControls(noa: any) {
 	// on left mouse, set targeted block to be air
 
 	noa.inputs.down.on('fire', async function () {
-		if (!serverSettings.ingame) return;
+		if (!serverSettings.ingame || !testIsIn(noa)) return;
 
 		const entClick = castRay();
 		if (!!entClick) {
@@ -103,14 +104,14 @@ export function setupControls(noa: any) {
 	});
 
 	noa.inputs.up.on('fire', function () {
-		if (!serverSettings.ingame) return;
+		if (!serverSettings.ingame || !testIsIn(noa)) return;
 		//stopBreakingBlock()
 	});
 
 	// place block on alt-fire (RMB/E)
 
 	noa.inputs.down.on('alt-fire', function () {
-		if (!serverSettings.ingame) return;
+		if (!serverSettings.ingame || !testIsIn(noa)) return;
 		const entClick = castRay();
 		if (!!entClick) {
 			socketSend('ActionClickEntity', { type: 'right', uuid: entClick[0], distance: entClick[1] });
@@ -132,7 +133,7 @@ export function setupControls(noa: any) {
 	// pick block on middle fire (MMB/Q)
 
 	noa.inputs.down.on('mid-fire', function () {
-		if (!serverSettings.ingame) return;
+		if (!serverSettings.ingame || !testIsIn(noa)) return;
 		if (noa.targetedBlock && noa.targetedBlock.blockID != 0) {
 			const item = blocks[blockIDmap[noa.targetedBlock.blockID]].id;
 			const slot = inventoryHasItem(item, 1);
@@ -265,7 +266,7 @@ export function setupControls(noa: any) {
 	// Zooms
 
 	noa.inputs.down.on('zoom', function () {
-		if (chatInput == undefined || chatInput.isVisible) return;
+		if (chatInput == undefined || chatInput.isVisible || !testIsIn(noa)) return;
 
 		scene.cameras[0].fov = 0.4;
 	});
@@ -273,7 +274,7 @@ export function setupControls(noa: any) {
 	// Restores normal fov
 
 	noa.inputs.up.on('zoom', function () {
-		if (chatInput == undefined || chatInput.isVisible) return;
+		if (chatInput == undefined || chatInput.isVisible || !testIsIn(noa)) return;
 
 		scene.cameras[0].fov = (gameSettings.fov * Math.PI) / 180;
 	});
@@ -292,7 +293,7 @@ export function setupControls(noa: any) {
 	let hidden = false;
 
 	noa.inputs.up.on('hide', function () {
-		if (chatInput == undefined || chatInput.isVisible) return;
+		if ((chatInput != undefined && chatInput.isVisible) || !testIsIn(noa)) return;
 		hidden = !hidden;
 
 		hotbar.isVisible = !hidden;
@@ -303,7 +304,7 @@ export function setupControls(noa: any) {
 	// Scroll throgh hotbar. Also allows swimming
 
 	noa.on('tick', async function () {
-		if (!serverSettings.ingame) return;
+		if (!serverSettings.ingame || !testIsIn(noa)) return;
 		const scroll = noa.inputs.state.scrolly;
 		if (scroll !== 0) {
 			let pickedID = noa.ents.getState(eid, 'inventory').selected;
@@ -340,7 +341,6 @@ export function setupControls(noa: any) {
 }
 
 export function rebindControls(noa: Engine, settings: { [i: string]: string }) {
-	console.log(settings)
 	for (const bind in settings) {
 		noa.inputs.unbind(bind);
 	}
@@ -349,3 +349,9 @@ export function rebindControls(noa: Engine, settings: { [i: string]: string }) {
 		noa.inputs.bind(bind, settings[bind]);
 	}
 }
+
+function testIsIn(noa: Engine): boolean {
+	return (noa.ignorePointerLock || noa.container.hasPointerLock ||
+        !noa.container.supportsPointerLock ||
+        (noa._dragOutsideLock && isMobile))
+	}

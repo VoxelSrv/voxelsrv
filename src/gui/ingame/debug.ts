@@ -3,11 +3,16 @@ import { getLayer, getUI, scale, event } from '../main';
 import * as GUI from '@babylonjs/gui';
 import { gameSettings, gameVersion } from '../../values';
 import { chunkExist } from '../../lib/gameplay/world';
+import { Engine } from 'noa-engine';
+import { Scene } from '@babylonjs/core';
 
 export let debug: GUI.TextBlock;
 
-export function setupDebug(noa, server) {
+export function setupDebug(noa: Engine, server: string) {
 	const ui = getUI(1);
+
+	const scene: Scene = noa.rendering.getScene();
+	const engine = scene.getEngine();
 
 	const eid = noa.playerEntity;
 	const dat = noa.entities.getPositionData(eid);
@@ -33,14 +38,17 @@ export function setupDebug(noa, server) {
 	if (server != undefined) serverText = `Server: ${server}\n`;
 	else serverText = `Singleplayer world\n`;
 
+	let fps = gameSettings.showFPS ? `[FPS: ${engine.getFps().toFixed(0)}]` : '';
+
 	let x = 0;
 
 	const update = async () => {
-		if (x < 2) {
+		if (x < 3) {
 			x = x + 1;
 			return;
 		}
 		x = 0;
+		fps = gameSettings.showFPS ? `[FPS: ${engine.getFps().toFixed(0)}]` : '';
 
 		if (gameSettings.debugInfo) {
 			const cx = Math.floor(dat.position[0] / 32);
@@ -50,10 +58,10 @@ export function setupDebug(noa, server) {
 			const pos = `${dat.position[0].toFixed(1)}, ${dat.position[1].toFixed(1)}, ${dat.position[2].toFixed(1)}`;
 			const chunk = `${cx}, ${cy}, ${cz} [${chunkExist([cx, cy, cz].join('|'))}]`;
 
-			debug.text = `VoxelSrv ${gameVersion}\nNoa: ${noa.version}\nXYZ: ${pos}\nChunk: ${chunk}\n${serverText}`;
+			debug.text = `VoxelSrv ${gameVersion} ${fps}\nNoa: ${noa.version}\nXYZ: ${pos}\nChunk: ${chunk}\n${serverText}`;
 		} else {
 			x = -5;
-			debug.text = `VoxelSrv ${gameVersion} (Noa ${noa.version})`;
+			debug.text = `VoxelSrv ${gameVersion} (Noa ${noa.version}) ${fps}`;
 		}
 	};
 

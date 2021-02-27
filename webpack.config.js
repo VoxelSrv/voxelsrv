@@ -35,6 +35,7 @@ module.exports = (env) => ({
 	},
 	output: {
 		filename: '[name].js',
+		globalObject: 'globalThis'
 	},
 	devServer: {
 		contentBase: buildPath,

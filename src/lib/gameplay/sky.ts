@@ -16,8 +16,8 @@ export function setupClouds(noa) {
 	cloudMesh = BABYLON.MeshBuilder.CreatePlane(
 		'cloudMesh',
 		{
-			height: 1.0e3,
-			width: 1.0e3,
+			height: 1.5e3,
+			width: 1.5e3,
 		},
 		scene
 	);
@@ -53,7 +53,7 @@ export function setupClouds(noa) {
 		cloudTexture.uOffset -= (pos[0] - noa.camera.getPosition()[0]) / 10000;
 		pos = [...noa.camera.getPosition()];
 
-		cloudMesh.setPositionWithLocalVector(new BABYLON.Vector3(0, 0, 200 - noa.camera.getPosition()[1]));
+		cloudMesh.setPositionWithLocalVector(new BABYLON.Vector3(0, 0, 250 - noa.camera.getPosition()[1]));
 	};
 
 	noa.on('beforeRender', update);
@@ -97,10 +97,10 @@ export function setupSky(noa: Engine) {
 
 	noa.rendering.addMeshToScene(skyMesh, false);
 
-	skyMesh.setPositionWithLocalVector(new BABYLON.Vector3(0, 0, 400));
+	skyMesh.setPositionWithLocalVector(new BABYLON.Vector3(0, 0, 500));
 
 	const update = () => {
-		skyMesh.setPositionWithLocalVector(new BABYLON.Vector3(0, 0, 400));
+		skyMesh.setPositionWithLocalVector(new BABYLON.Vector3(0, 0, 500));
 	};
 
 	noa.on('beforeRender', update);

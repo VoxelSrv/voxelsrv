@@ -1,50 +1,23 @@
 import { getScreen, scale, event } from '../main';
 import * as GUI from '@babylonjs/gui/';
-import { createItem, createButton, createInput, createSlider } from '../parts/menu';
+import { createItem } from '../parts/menu';
 
-import { gameProtocol, gameVersion, IWorldSettings, singleplayerServerInfo, singleplayerWorldTypes } from '../../values';
+import { gameVersion, singleplayerServerInfo, singleplayerWorldTypes } from '../../values';
 import { createSingleplayerServer } from '../../lib/singleplayer/setup';
 import { setupConnection } from '../../lib/gameplay/connect';
 import { Engine } from 'noa-engine';
-import { flatten, re } from 'mathjs';
+import { SettingsGUI } from '../parts/settingsHelper';
 
-export function buildWorldCreationGui(noa: Engine, takenNames: string[], openMenu) {
-	const ui = getScreen(2);
-	const menu = new GUI.Rectangle();
+export function buildWorldCreationGui(noa: Engine, takenNames: string[], openMenu, holder: GUI.Rectangle) {
+	const menu = new SettingsGUI('worldCreation', [{ text: 'Create a new world' }], () => {
+		openMenu('singleplayer')
+	});
 
-	menu.background = '#11111188';
-	if (window.innerHeight > 230 * scale) menu.height = `${230 * scale}px`;
-	else menu.height = `100%`;
-	menu.width = `${260 * scale}px`;
-	menu.thickness = 0;
-	menu.zIndex = 200;
+	menu.scroll.height = '70%'
 
-	const name = new GUI.TextBlock();
-	name.fontFamily = 'Lato';
-	name.fontSize = 11 * scale;
-	name.textVerticalAlignment = 0;
-	name.color = 'white';
-	name.text = 'Create a new world';
-	name.top = scale;
-	menu.addControl(name)
+	menu.createInput('name', 'World name', 'New world', 'World', 'Name your world!')
 
-	const settings = new GUI.StackPanel();
-	settings.verticalAlignment = 0;
-	settings.top = `${18 * scale}px`;
-	settings.width = `${250 * scale}px`;
-	settings.height = `80%`;
-
-	const nickname = createInput();
-	nickname.name.text = 'Worldname';
-	nickname.input.placeholderText = `World`;
-	nickname.input.text = 'World';
-
-	settings.addControl(nickname.main);
-
-	const seed = createInput();
-	seed.name.text = 'Seed';
-	seed.input.placeholderText = `Random seed`;
-	seed.input.text = '';
+	const seed = menu.createInput('seed', 'Seed', '', 'Random seed', '');
 	seed.input.onBeforeKeyAddObservable.add((input) => {
 		let key = input.currentKey;
 		if (key < '0' || key > '9') {
@@ -52,55 +25,33 @@ export function buildWorldCreationGui(noa: Engine, takenNames: string[], openMen
 		} else {
 			seed.input.addKey = true;
 		}
-	})
+	});
 
-	settings.addControl(seed.main);
+	menu.createSlider(
+		'worldSize',
+		(v) => {
+			const size = v * 64 * 16;
+			return `World size: ${size}x${size}`;
+		}, 2, 1, 8, 1
+	);
 
-	const worldSize = createSlider();
-	worldSize.slider.maximum = 8;
-	worldSize.slider.minimum = 1;
-	worldSize.slider.value = 2
-	worldSize.slider.step = 1;
-	worldSize.slider.onValueChangedObservable.add((value) => {
-		const size = value * 64 * 16;
-		worldSize.name.text = `World size: ${size}x${size}`;
-	})
-
-	const size = 2 * 64 * 16;
-	worldSize.name.text = `World size: ${size}x${size}`;
-
-	settings.addControl(worldSize.main);
-
-	let selWorldType = 0;
-
-	const worldType = createItem();
-	worldType.text.text = [{ text: `World type: ${toName(singleplayerWorldTypes[selWorldType])}`, color: 'white', font: 'Lato' }]
-	worldType.item.onPointerClickObservable.add(() => {
-		selWorldType = selWorldType + 1;
-		if (selWorldType >= singleplayerWorldTypes.length) {
-			selWorldType = 0;
-		}
-
-		worldType.text.text[0].text = `World type: ${toName(singleplayerWorldTypes[selWorldType])}`;
-		worldType.text._markAsDirty();
-	})
-
-	settings.addControl(worldType.item)
-
+	menu.createSelectable('worldType', (v) => `World type: ${toName(singleplayerWorldTypes[v])}`, 0, singleplayerWorldTypes)
 
 	const create = createItem();
 	create.item.verticalAlignment = 1;
 	create.text.text = [{ text: 'Create', color: 'white', font: 'Lato' }];
 	create.item.top = `-${16 * scale}px`;
 	create.item.onPointerClickObservable.add(() => {
-		menu.dispose();
+		menu.main.dispose();
+		
 
-		let name = nickname.input.text;
+		const baseName = menu.settings['name'] || 'World';
+		let name = baseName;
 		let num = 0;
 
 		while (takenNames.includes(name)) {
 			num++;
-			name = nickname.input.text + '(' + num + ')';
+			name = baseName + ' (' + num + ')';
 		}
 
 		let seedNum = 0;
@@ -112,53 +63,35 @@ export function buildWorldCreationGui(noa: Engine, takenNames: string[], openMen
 			gamemode: 'creative',
 			gameVersion: gameVersion,
 			serverVersion: '',
-			worldsize: worldSize.slider.value * 16,
+			worldsize: menu.settings['worldSize'] * 16,
 			version: 0,
 			seed: seedNum,
-			generator: singleplayerWorldTypes[selWorldType],
+			generator: singleplayerWorldTypes[menu.settings['worldType']],
+			icon: 'voxelsrv',
+			displayName: baseName
 		});
 
-		setupConnection(noa, socket, singleplayerServerInfo);
+		setupConnection(noa, socket, {...singleplayerServerInfo, motd: baseName });
 	});
 
-	menu.addControl(create.item);
+	menu.main.addControl(create.item);
 
-	const back = createItem();
-	back.item.verticalAlignment = 1;
-	back.text.text = [{ text: 'Back', color: 'white', font: 'Lato' }];
 
-	back.item.onPointerClickObservable.add(() => {
-		menu.dispose();
-		openMenu('singleplayer');
-	});
-	menu.addControl(back.item);
-
-	menu.addControl(settings);
-	ui.addControl(menu);
+	holder.addControl(menu.main);
 
 	const rescale = (x) => {
-		if (window.innerHeight > 230 * scale) menu.height = `${230 * scale}px`;
-		else menu.height = `100%`;
-		menu.width = `${260 * scale}px`;
-
-		name.fontSize = 11 * scale;
-
-		settings.top = `${18 * scale}px`;
-		settings.width = `${250 * scale}px`;
-
-		back.item.width = `${100 * scale}px`;
-		back.item.height = `${18 * scale}px`;
-		back.text.fontSize = 10 * scale;
+		create.item.width = `${100 * scale}px`;
+		create.item.height = `${18 * scale}px`;
+		create.text.fontSize = 10 * scale;
 	};
 
 	event.on('scale-change', rescale);
 
-	menu.onDisposeObservable.add(() => {
+	menu.main.onDisposeObservable.add(() => {
 		event.off('scale-change', rescale);
 	});
 }
 
-
 function toName(text: string): string {
-	return text.charAt(0).toUpperCase() + text.slice(1)
+	return text.charAt(0).toUpperCase() + text.slice(1);
 }

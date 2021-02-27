@@ -17,7 +17,13 @@ export function changeState(state: boolean) {
 }
 
 export function setupChat() {
+	height = 0;
 	input = new GUI.InputText();
+	
+	while (messages.length != 0) {
+		messages[0].dispose();
+		messages.shift();
+	}
 
 	input.width = 100;
 	input.horizontalAlignment = 0;
@@ -96,8 +102,12 @@ export function setupChat() {
 
 	chatContainer.onDisposeObservable.add(() => {
 		clearInterval(z);
-		messages.forEach((m) => m.dispose());
-		messages = [];
+
+		while (messages.length != 0) {
+			messages[0].dispose();
+			messages.shift();
+		}
+
 		height = 0;
 		event.off('scale-change', scaleEvent);
 	});

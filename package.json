@@ -31,7 +31,6 @@
 		"ent-comp": "^0.9.1",
 		"fakereadline": "file:fake_modules/readline",
 		"fast-voxel-raycast": "^0.1.1",
-		"file-saver": "^2.0.5",
 		"game-inputs": "^0.4.0",
 		"gl-vec3": "^1.1.3",
 		"jszip": "^3.6.0",

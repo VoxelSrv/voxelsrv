@@ -34,7 +34,7 @@ export default function buildPause(noa) {
 
 	const name = new GUI.TextBlock();
 	name.fontFamily = 'Lato';
-	name.fontSize = 11 * scale;
+	name.fontSize = 13 * scale;
 	name.textVerticalAlignment = 0;
 	name.color = 'white';
 	name.text = 'Pause';
@@ -45,7 +45,7 @@ export default function buildPause(noa) {
 	function openMenu(type: string) {
 		switch (type) {
 			case 'settings':
-				activeMenu = buildSettings(noa, openMenu);
+				activeMenu = buildSettings(noa, openMenu, pauseScreen);
 				active = 'settings';
 				pauseScreen.addControl(activeMenu);
 				break;
@@ -120,7 +120,7 @@ export default function buildPause(noa) {
 		menu.height = `${200 * scale}px`;
 		menu.width = `${160 * scale}px`;
 
-		name.fontSize = 11 * scale;
+		name.fontSize = 13 * scale;
 
 		items._children.forEach((z) => {
 			z.width = `${100 * scale}px`;

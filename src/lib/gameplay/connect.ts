@@ -2,11 +2,10 @@
  * This needs major cleanup as it's way too big and it will be bigger in future.
  */
 
-import { gameSettings, gameProtocol, updateServerSettings, gameVersion, noaOpts, heartbeatServer, defaultValues, proxyServer } from '../../values';
+import { gameSettings, gameProtocol, updateServerSettings, gameVersion, defaultValues, proxyServer } from '../../values';
 import { isMobile } from 'mobile-device-detect';
 import { buildMainMenu, holder } from '../../gui/menu/main';
 import { setupGuis, destroyGuis } from '../../gui/setup';
-import buildDisconnect from '../../gui/menu/disconnect';
 import { addMessage } from '../../gui/ingame/chat';
 import { setupPlayerEntity } from '../player/entity';
 import { addNametag, applyModel } from '../helpers/model';
@@ -55,14 +54,16 @@ import {
 	IWorldChunkIsLoaded,
 	IPlayerOpenInventory,
 	PlayerOpenInventory,
+	IRegistryUpdate,
 } from 'voxelsrv-protocol/js/server';
 import { Engine as BabylonEngine, Scene } from '@babylonjs/core';
 import { setAssetServer } from '../helpers/assets';
 import { IServerInfo, servers } from '../../gui/menu/multiplayer';
-import buildConnect from '../../gui/menu/connect';
 import { openCrafting } from '../../gui/ingame/inventory/crafting';
 import { showMobileControls } from '../../gui/mobile';
-import buildSavingWorld from '../../gui/menu/savingWorld';
+import { PopupGUI } from '../../gui/parts/miniPopupHelper';
+import { getScreen } from '../../gui/main';
+import { addToast, toastColors } from '../../gui/parts/toastMessage';
 
 export let socket: BaseSocket | null = null;
 let chunkInterval: any = null;
@@ -97,11 +98,15 @@ export function disconnect(menu: boolean = true): boolean {
 
 	if (socket.singleplayer) {
 		socket.send('SingleplayerLeave', {});
-		const x = buildSavingWorld();
+		const savingWorld = new PopupGUI([{ text: '' }]);
+		savingWorld.setCenterText([{ text: 'Saving world...' }]);
+
+		getScreen(2).addControl(savingWorld.main);
+
 		socket.on('ServerStoppingDone', () => {
 			console.log('World Saved!');
 			socket.close();
-			x.screen.dispose();
+			savingWorld.dispose();
 			buildMainMenu(noa);
 		});
 		return false;
@@ -112,39 +117,43 @@ export function disconnect(menu: boolean = true): boolean {
 }
 
 export function connect(noa, server: string) {
-	let socket;
-	let tempAdress = server.split('|');
-	let data: IServerInfo;
+	try {
+		let socket;
+		let tempAdress = server.split('|');
+		let data: IServerInfo;
 
-	data = servers[server];
+		data = servers[server];
 
-	if (tempAdress.length == 2) {
-		data = servers[tempAdress[1]];
-		const proxy = server.charAt(6) == '*' ? proxyServer : 'ws://' + tempAdress[1];
-		if (server.startsWith('c0.30|')) socket = createTranslationC030(proxy, server);
-		else return;
-	} else if (!(server.startsWith('wss://') || server.startsWith('ws://'))) socket = new MPSocket('ws://' + server);
-	else socket = new MPSocket(server);
+		if (tempAdress.length == 2) {
+			data = servers[tempAdress[1]];
+			const proxy = server.charAt(6) == '*' ? proxyServer : 'ws://' + tempAdress[1];
+			if (server.startsWith('c0.30|')) socket = createTranslationC030(proxy, server);
+			else return;
+		} else if (!(server.startsWith('wss://') || server.startsWith('ws://'))) socket = new MPSocket('ws://' + server);
+		else socket = new MPSocket(server);
 
-	if (data == undefined) {
-		data = {
-			name: 'Multiplayer server',
-			ip: server,
-			motd: '',
-			protocol: gameProtocol,
-			software: 'VoxelSrv',
-			featured: false,
-			icon: 'voxelsrv',
-			type: 0,
-			players: {
-				max: 0,
-				online: 0,
-			},
-			useProxy: false,
-		};
+		if (data == undefined) {
+			data = {
+				name: 'Multiplayer server',
+				ip: server,
+				motd: '',
+				protocol: gameProtocol,
+				software: 'VoxelSrv',
+				featured: false,
+				icon: 'voxelsrv',
+				type: 0,
+				players: {
+					max: 0,
+					online: 0,
+				},
+				useProxy: false,
+			};
+		}
+
+		setupConnection(noa, socket, data);
+	} catch (e) {
+		addToast([{text: e.name }], [{text: e.message }], toastColors.error, 5);
 	}
-
-	setupConnection(noa, socket, data);
 }
 
 export function setupConnection(noax, socketx: BaseSocket, data: IServerInfo) {
@@ -153,30 +162,63 @@ export function setupConnection(noax, socketx: BaseSocket, data: IServerInfo) {
 	} else {
 		document.title = 'VoxelSrv - Connecting to server...';
 	}
-	const conScreen = buildConnect(socketx, data);
+
 	noa = noax;
 	const engine: BabylonEngine = noa.rendering.getScene().getEngine();
 	noa.worldName = 'World' + Math.round(Math.random() * 1000);
 	socket = socketx;
-	console.log('Username: ' + gameSettings.nickname, 'Server: ' + socket.server);
+	console.log('Username: ' + gameSettings.nickname, 'Server/World: ' + socket.server || socket.world);
 	let firstLogin = true;
 	entityList = {};
 
 	if (holder != null) holder.dispose();
 
+	const connScreen = new PopupGUI([{ text: !!data.name ? data.name : socket.server }]);
+	if (!socket.singleplayer) {
+		connScreen.setSubtitle([{ text: !!data.motd ? data.motd : 'Unknown server' }]);
+		connScreen.setCenterText([{ text: 'Logging in...' }]);
+
+		connScreen.createItem('Disconnect', () => {
+			connScreen.dispose();
+			disconnect();
+		});
+	} else {
+		connScreen.setSubtitle([{ text: socket.world }]);
+		connScreen.setCenterText([{ text: 'Loading world...' }]);
+	}
+
+	getScreen(2).addControl(connScreen.main);
+
 	socket.on('PlayerKick', (data: IPlayerKick) => {
 		console.log(`You has been kicked from server \nReason: ${data.reason}`);
 		const x = disconnect(false);
-		conScreen.menu.dispose();
+		connScreen.dispose();
 		if (x) {
-			buildDisconnect(data.reason, socket, noa);
+			document.title = 'VoxelSrv - Disconnected!';
+
+			const disc = new PopupGUI([{ text: socket.singleplayer ? '' : 'Disconnected!' }]);
+
+			disc.setCenterText([{ text: data.reason }]);
+			if (!socket.singleplayer) {
+				disc.createItem('Reconnect', () => {
+					disc.dispose();
+					connect(noa, socket.server);
+				});
+			}
+			disc.createItem('Main menu', () => {
+				disc.dispose();
+				buildMainMenu(noa);
+			});
+
+			getScreen(2).addControl(disc.main);
+
 			document.exitPointerLock();
 		}
 		return;
 	});
 
 	socket.on('LoginStatus', (status: ILoginStatus) => {
-		conScreen.status.text = status.message;
+		connScreen.setCenterText([{ text: status.message }]);
 	});
 
 	socket.on('LoginRequest', (dataLogin: ILoginRequest) => {
@@ -231,7 +273,7 @@ export function setupConnection(noax, socketx: BaseSocket, data: IServerInfo) {
 		if (!firstLogin) return;
 
 		socket.on('LoginSuccess', (dataPlayer: ILoginSuccess) => {
-			conScreen.menu.dispose();
+			connScreen.dispose();
 
 			updateServerSettings({ ingame: true });
 			destroyGuis();
@@ -262,6 +304,11 @@ export function setupConnection(noax, socketx: BaseSocket, data: IServerInfo) {
 
 			if (!firstLogin) return;
 			firstLogin = false;
+
+			socket.on('RegistryUpdate', (data: IRegistryUpdate) => {
+				registerBlocks(noa, JSON.parse(data.blocksDef));
+				registerItems(noa, JSON.parse(data.itemsDef));
+			});
 
 			socket.on('WorldChunkLoad', (data: IWorldChunkLoad) => {
 				setChunk(data);

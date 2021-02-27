@@ -61,6 +61,11 @@ export async function saveWorld(name: string, data: object, settings: IWorldSett
 	await db.worlddata.add({name, data}, name)
 }
 
+export async function updateWorldSetting(name: string, settings: IWorldSettings, lastPlay: number) {
+	await db.world.delete(name);
+	await db.world.add({name, settings, lastplay: lastPlay}, name)
+}
+
 export async function deleteWorld(name: string) {
 	await db.world.delete(name);
 	db.worlddata.delete(name);

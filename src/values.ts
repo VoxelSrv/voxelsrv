@@ -4,7 +4,7 @@ import { setScale } from './gui/main';
 import { IFormatedText } from './gui/parts/formtextblock';
 import { IServerInfo } from './gui/menu/multiplayer';
 
-export const gameVersion = '0.2.0-beta.16';
+export const gameVersion = '0.2.0-beta.17';
 
 export const gameProtocol = 3;
 
@@ -25,6 +25,7 @@ export const defaultSettings: IGameSettings = {
 	fov: 70,
 	fpslimit: 0,
 	debugInfo: false,
+	showFPS: false,
 	controls: {
 		forward: 'W',
 		left: 'A',
@@ -35,7 +36,6 @@ export const defaultSettings: IGameSettings = {
 		'alt-fire': '<mouse 3>',
 		jump: '<space>',
 		inventory: 'E',
-		muteMusic: 'O',
 		thirdprsn: 'M',
 		chatenter: '<enter>',
 		chat: 'T',
@@ -64,6 +64,7 @@ export interface IGameSettings {
 	fov: number;
 	fpslimit: number;
 	debugInfo: boolean;
+	showFPS: boolean;
 	controls: { [i: string]: string };
 }
 
@@ -75,6 +76,8 @@ export interface IWorldSettings {
 	seed: number;
 	gameVersion: string;
 	serverVersion: string;
+	displayName?: string
+	icon?: string
 }
 
 export function updateSettings(data: Object) {
@@ -111,7 +114,7 @@ export const defaultValues = {
 export function noaOpts() {
 	return {
 		debug: true,
-		showFPS: true,
+		showFPS: false,
 		inverseY: false,
 		inverseX: false,
 		sensitivityX: gameSettings.mouse,
@@ -187,6 +190,8 @@ if (hostname == '0.0.0.0' || hostname == 'localhost') tempHost = 'Localhost/DEV'
 else if (hostname == 'voxelsrv-master.pb4.eu') tempHost = 'Development';
 else if (hostname == 'voxelsrv.pb4.eu') tempHost = '';
 else if (hostname == 'pb4.eu') tempHost = '';
+else if (hostname == 'pb4.eu') tempHost = '';
+else if (hostname == 'www.newgrounds.com' || hostname == 'uploads.ungrounded.net') tempHost = 'Newgrounds'
 else if (window['electron'] != undefined) tempHost = '';
 else tempHost = 'Unofficial/Undefined rehost!';
 

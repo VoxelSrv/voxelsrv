@@ -9,6 +9,7 @@ export function createSingleplayerServer(worldname: string, settings: IWorldSett
 
 	const socket = new VirtualSocket(toClient, toServer);
 	socket.singleplayer = true;
+	socket.world = settings.displayName || worldname;
 
 	const server = new Worker('./server.js');
 	getWorldData(worldname).then((world) => {

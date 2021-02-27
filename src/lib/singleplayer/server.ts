@@ -7,7 +7,9 @@ import { IServerConfig, serverVersion } from 'voxelsrv-server/dist/values';
 import { IWorldSettings } from '../../values';
 import { OperatorPermissionHolder } from './operatorPermissionHolder';
 import patchWorldClass from './worldPatches'
+import patchServerClass from './serverPatches'
 
+patchServerClass();
 patchWorldClass();
 
 let notLeft = true;
@@ -48,10 +50,15 @@ server.on('server-started', () => {
 })
 
 server.on('server-config-update', (config: IServerConfig) => {
-	config.world.border = worldSettings.worldsize ;	
+	config.world.border = worldSettings.worldsize;	
 	config.world.seed = worldSettings.seed;
 	config.world.generator = worldSettings.generator;
 	config.viewDistance = viewDistance;
+	config.rateLimitChatMessages = false;
+	config.public = false;
+	config.maxplayers = 1;
+	config.consoleInput = false;
+	config.chunkTransportCompression = false;
 })
 
 server.on('server-stopped', () => {
@@ -104,8 +111,6 @@ self.onmessage = (e) => {
 };
 
 
-console.log(server)
-
 function setupGamemode(server: Server, gamemode: string) {
 	switch(gamemode) {
 		case 'creative':
@@ -115,7 +120,6 @@ function setupGamemode(server: Server, gamemode: string) {
 					player.inventory.set(x, item, server.registry.items[item].stack, {});
 					x = x + 1;
 				});
-				console.log(player)
 			
 				if (player.ipAddress == '127.0.0.1') {
 					player.permissions = new OperatorPermissionHolder(player._server.permissions, {}, []);
