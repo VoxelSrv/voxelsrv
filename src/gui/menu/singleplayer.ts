@@ -58,7 +58,7 @@ export default function buildSingleplayer(noa: Engine, openMenu, holder) {
 	play.button.onPointerClickObservable.add(() => {
 		if (selected != undefined && !lock) {
 			lock = true;
-			setupConnection(noa, createSingleplayerServer(selected.name, selected.settings), {
+			setupConnection(noa, createSingleplayerServer(selected.name, selected.settings, true), {
 				...singleplayerServerInfo,
 				motd: selected.settings.displayName || selected.name,
 			});
@@ -243,7 +243,7 @@ export default function buildSingleplayer(noa: Engine, openMenu, holder) {
 
 					click = click + 1;
 					if (click > 1 && !lock) {
-						setupConnection(noa, createSingleplayerServer(world.name, world.settings), singleplayerServerInfo);
+						setupConnection(noa, createSingleplayerServer(world.name, world.settings, true), singleplayerServerInfo);
 					}
 
 					setTimeout(() => {

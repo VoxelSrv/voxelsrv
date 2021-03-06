@@ -46,7 +46,7 @@ export function setupClouds(noa) {
 	const update = () => {
 		const x = noa.ents.getState(noa.playerEntity, noa.ents.names.mesh);
 		if (x != undefined) {
-			cloudMesh.setParent(noa.ents.getState(noa.playerEntity, noa.ents.names.mesh).mesh);
+			cloudMesh.setParent(x.mesh);
 		}
 
 		cloudTexture.vOffset += 0.00001 + (pos[2] - noa.camera.getPosition()[2]) / 10000;

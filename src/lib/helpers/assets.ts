@@ -1,4 +1,4 @@
-import { gameSettings } from '../../values';
+import { gameSettings, heartbeatServer } from '../../values';
 
 let server = '';
 
@@ -30,7 +30,7 @@ export function getAsset(asset: string, type: string): string {
 				return `${server}/${asset}`;
 		}
 	} else if (asset.startsWith('skins:')) {
-		return './textures/entity/steve.png';
+		return heartbeatServer + '/playerSkins/' + asset.slice(6) + '.png';
 	} else {
 		switch (type) {
 			case 'texture':

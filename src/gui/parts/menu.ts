@@ -7,10 +7,10 @@ import { scale, event } from '../main';
 import { FormTextBlock } from './formtextblock';
 import * as GUI from '@babylonjs/gui';
 
-export function createItem(width: number = 100, fontsize: number = 10) {
+export function createItem(width: number = 100, fontsize: number = 10, height: number = 18) {
 	const item = new GUI.Rectangle();
 	item.width = `${width * scale}px`;
-	item.height = `${18 * scale}px`;
+	item.height = `${height * scale}px`;
 	item.isPointerBlocker = true;
 	item.horizontalAlignment = 2;
 	item.thickness = 0;
@@ -35,7 +35,7 @@ export function createItem(width: number = 100, fontsize: number = 10) {
 
 	const rescale = (x) => {
 		item.width = `${width * scale}px`;
-		item.height = `${18 * scale}px`;
+		item.height = `${height * scale}px`;
 
 		text.fontSize = fontsize * scale;
 	};
@@ -50,7 +50,7 @@ export function createItem(width: number = 100, fontsize: number = 10) {
 	return { item: item, text: text };
 }
 
-export function createInput() {
+export function createInput(isPassword: boolean = false) {
 	const main = new GUI.Rectangle();
 	main.height = `${28 * scale}px`;
 	main.adaptWidthToChildren = true;
@@ -67,7 +67,7 @@ export function createInput() {
 
 	main.addControl(name);
 
-	const input = new GUI.InputText();
+	const input = isPassword ? new GUI.InputPassword() : new GUI.InputText();
 	input.thickness = 0;
 	input.background = '#ffffffaa';
 	input.focusedBackground = '#ffffffff';
@@ -184,7 +184,7 @@ export function createCheckbox() {
 }
 
 
-export function createButton(width: number = 64) {
+export function createButton(width: number = 64, callback?: () => any) {
 	const button = new GUI.Rectangle();
 	button.height = `${17 * scale}px`;
 	button.width = `${width * scale}px`;
@@ -209,6 +209,9 @@ export function createButton(width: number = 64) {
 
 	button.addControl(buttonText)
 
+	if (callback) {
+		button.onPointerClickObservable.add(callback);
+	}
 
 	const rescale = (x) => {
 		button.height = `${17 * scale}px`;

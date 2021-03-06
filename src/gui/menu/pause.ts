@@ -5,6 +5,7 @@ import { createItem } from '../parts/menu';
 import buildSettings from './settings';
 import { defaultValues } from '../../values';
 import buildAboutScreen from './about';
+import { buildLoginOrPanel } from './login';
 
 export let pauseScreen: GUI.Rectangle;
 
@@ -43,24 +44,31 @@ export default function buildPause(noa) {
 	menu.addControl(name);
 
 	function openMenu(type: string) {
+		if (activeMenu != null) activeMenu.dispose();
+		menu.isVisible = false;
+
 		switch (type) {
 			case 'settings':
 				activeMenu = buildSettings(noa, openMenu, pauseScreen);
 				active = 'settings';
-				pauseScreen.addControl(activeMenu);
 				break;
 			case 'about':
 				activeMenu = buildAboutScreen(openMenu);
 				active = 'about';
-				pauseScreen.addControl(activeMenu);
+				break;
+			case 'login':
+				activeMenu = buildLoginOrPanel(openMenu, pauseScreen);
+				active = 'login';
 				break;
 			default:
 				activeMenu.dispose();
 				activeMenu = null;
 				menu.isVisible = true;
 				active = 'main';
-				break;
+				return
 		}
+
+		pauseScreen.addControl(activeMenu);
 	}
 
 	const items = new GUI.StackPanel();

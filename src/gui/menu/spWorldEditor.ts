@@ -7,12 +7,10 @@ import { Engine } from 'noa-engine';
 import { SettingsGUI } from '../parts/settingsHelper';
 import { deleteWorld, IWorld, updateWorldSetting } from '../../lib/helpers/storage';
 import { PopupGUI } from '../parts/miniPopupHelper';
-import { TubeBuilder } from '@babylonjs/core';
+import { createSingleplayerServer } from '../../lib/singleplayer/setup';
 
 export function buildWorldEditorGui(noa: Engine, world: IWorld, openMenu, holder: GUI.Rectangle) {
-	const menu = new SettingsGUI('worldEditor', [{ text: 'Edit world...' }], () => {
-		openMenu('singleplayer');
-	});
+	const menu = new SettingsGUI('worldEditor', [{ text: 'Edit world...' }]);
 
 	menu.scroll.height = '70%';
 
@@ -30,11 +28,7 @@ export function buildWorldEditorGui(noa: Engine, world: IWorld, openMenu, holder
 		1
 	);
 
-	const save = createItem();
-	save.item.verticalAlignment = 1;
-	save.text.text = [{ text: 'Save changes...', color: 'white', font: 'Lato' }];
-	save.item.top = `-${32 * scale}px`;
-	save.item.onPointerClickObservable.add(async () => {
+	menu.createSettingButton('Save changes...', async () => {
 		if (!menu.lock) {
 			menu.main.dispose();
 
@@ -55,12 +49,52 @@ export function buildWorldEditorGui(noa: Engine, world: IWorld, openMenu, holder
 			openMenu('singleplayer');
 		}
 	});
+	
+	menu.createSettingButton('Generate entire world', async () => {
+		if (!menu.lock) {
+			menu.lock = true;
+			menu.main.isVisible = false;
+			const screen = new PopupGUI([{ text: 'Pregenerating entire world...' }]);
+			screen.setCenterText([{ text: "Loading world..." }]);
 
-	const del = createItem();
-	del.item.verticalAlignment = 1;
-	del.text.text = [{ text: 'Delete world...', color: 'white', font: 'Lato' }];
-	del.item.top = `-${16 * scale}px`;
-	del.item.onPointerClickObservable.add(() => {
+			const socket = createSingleplayerServer(world.name, world.settings, false);
+
+			socket.on('ServerPregenerateStatus', (x) => {
+				screen.setCenterText([{ text: `Generating world... ${(x.done/x.size*100).toFixed(0)}%\n[${x.done}/${x.size} chunks]` }]);
+			})
+
+			socket.on('ServerPregenerateDone', () => {
+				screen.setCenterText([{ text: `Saving world...` }]);
+				socket.send('SingleplayerLeave', {});
+			})
+
+			socket.on('ServerStarted', () => {
+				console.log('Started!')
+				socket.send('SingleplayerPregenerateWorld', {});
+			})
+
+			socket.on('ServerStopped', () => {
+				screen.setCenterText([{ text: `Saving world...` }]);
+			})
+
+			socket.on('ServerStoppingDone', () => {
+				screen.dispose();
+				menu.lock = false;
+				menu.main.isVisible = true;
+			})
+		
+			screen.createItem('Cancel', async () => {
+				screen.dispose();
+				menu.lock = false;
+				menu.main.isVisible = true;
+				socket.attachedData.terminate();
+			});
+
+			getScreen(2).addControl(screen.main);
+		}
+	});
+
+	menu.createSettingButton('Delete world...', () => {
 		if (!menu.lock) {
 			menu.lock = true;
 			menu.main.isVisible = false;
@@ -83,25 +117,13 @@ export function buildWorldEditorGui(noa: Engine, world: IWorld, openMenu, holder
 		}
 	});
 
-	menu.main.addControl(del.item);
-
-	menu.main.addControl(save.item);
 
 	holder.addControl(menu.main);
 
-	const rescale = (x) => {
-		save.item.width = `${100 * scale}px`;
-		save.item.height = `${18 * scale}px`;
-		save.text.fontSize = 10 * scale;
-		del.item.top = `-${16 * scale}px`;
-		save.item.top = `-${16 * scale}px`;
-	};
-
-	event.on('scale-change', rescale);
-
-	menu.main.onDisposeObservable.add(() => {
-		event.off('scale-change', rescale);
-	});
+	menu.createSettingButton('Back', () => {
+		menu.main.dispose();
+		openMenu('singleplayer');
+	})
 }
 
 function toName(text: string): string {

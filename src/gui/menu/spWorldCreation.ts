@@ -9,9 +9,7 @@ import { Engine } from 'noa-engine';
 import { SettingsGUI } from '../parts/settingsHelper';
 
 export function buildWorldCreationGui(noa: Engine, takenNames: string[], openMenu, holder: GUI.Rectangle) {
-	const menu = new SettingsGUI('worldCreation', [{ text: 'Create a new world' }], () => {
-		openMenu('singleplayer')
-	});
+	const menu = new SettingsGUI('worldCreation', [{ text: 'Create a new world' }]);
 
 	menu.scroll.height = '70%'
 
@@ -37,11 +35,7 @@ export function buildWorldCreationGui(noa: Engine, takenNames: string[], openMen
 
 	menu.createSelectable('worldType', (v) => `World type: ${toName(singleplayerWorldTypes[v])}`, 0, singleplayerWorldTypes)
 
-	const create = createItem();
-	create.item.verticalAlignment = 1;
-	create.text.text = [{ text: 'Create', color: 'white', font: 'Lato' }];
-	create.item.top = `-${16 * scale}px`;
-	create.item.onPointerClickObservable.add(() => {
+	menu.createSettingButton('Create', () => {
 		menu.main.dispose();
 		
 
@@ -69,27 +63,18 @@ export function buildWorldCreationGui(noa: Engine, takenNames: string[], openMen
 			generator: singleplayerWorldTypes[menu.settings['worldType']],
 			icon: 'voxelsrv',
 			displayName: baseName
-		});
+		}, true);
 
 		setupConnection(noa, socket, {...singleplayerServerInfo, motd: baseName });
 	});
 
-	menu.main.addControl(create.item);
+	menu.createSettingButton('Back', () => {
+		menu.main.dispose();
+		openMenu('singleplayer')
+	});
 
 
 	holder.addControl(menu.main);
-
-	const rescale = (x) => {
-		create.item.width = `${100 * scale}px`;
-		create.item.height = `${18 * scale}px`;
-		create.text.fontSize = 10 * scale;
-	};
-
-	event.on('scale-change', rescale);
-
-	menu.main.onDisposeObservable.add(() => {
-		event.off('scale-change', rescale);
-	});
 }
 
 function toName(text: string): string {

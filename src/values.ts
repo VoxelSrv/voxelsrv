@@ -1,15 +1,18 @@
-import { saveSettings } from './lib/helpers/storage';
+import { clearAuthData, saveAuthData, saveSettings } from './lib/helpers/storage';
 import { isMobile, isFirefox } from 'mobile-device-detect';
 import { setScale } from './gui/main';
 import { IFormatedText } from './gui/parts/formtextblock';
-import { IServerInfo } from './gui/menu/multiplayer';
+import { protocolVersion } from 'voxelsrv-protocol/const.json';
 
-export const gameVersion = '0.2.0-beta.17.1';
+export const gameVersion = '0.2.0-beta.18';
 
-export const gameProtocol = 3;
+export const gameProtocol = protocolVersion;
 
 export const heartbeatServer = 'https://voxelsrv.pb4.eu';
 export const proxyServer = 'wss://pb4.eu:9001';
+
+//export const heartbeatServer = 'http://localhost:9001';
+//export const proxyServer = 'ws://localhost:9001';
 
 export const defaultSettings: IGameSettings = {
 	version: '0.0.0',
@@ -47,6 +50,13 @@ export const defaultSettings: IGameSettings = {
 		hide: 'O',
 		zoom: 'Z',
 	},
+
+	debugSettings: {
+		printRegistryToConsole: false,
+		printProtocolToConsole: false,
+		makeSettingsVisible: false,
+		printAuthToConsole: false,
+	},
 };
 
 export let gameSettings: IGameSettings = { ...defaultSettings, version: gameVersion };
@@ -66,24 +76,34 @@ export interface IGameSettings {
 	fpslimit: number;
 	debugInfo: boolean;
 	showFPS: boolean;
-	autoSaveInterval: number
+	autoSaveInterval: number;
 	controls: { [i: string]: string };
+	debugSettings: {
+		printRegistryToConsole: boolean;
+		printProtocolToConsole: boolean;
+		makeSettingsVisible: boolean;
+		printAuthToConsole: boolean;
+	};
 }
 
 export interface IWorldSettings {
-	gamemode: 'creative';
+	gamemode: 'creative';
 	worldsize: number;
 	generator: string;
 	version: number;
 	seed: number;
 	gameVersion: string;
 	serverVersion: string;
-	displayName?: string
-	icon?: string
+	displayName?: string;
+	icon?: string;
 }
 
-export function updateSettings(data: Object) {
-	gameSettings = { ...defaultSettings, ...data };
+export function updateSettings(data: any) {
+	const oldSettings = gameSettings;
+	gameSettings = { ...defaultSettings, ...oldSettings, ...data };
+	gameSettings.controls = { ...defaultSettings.controls, ...oldSettings.controls, ...data.controls };
+	gameSettings.debugSettings = { ...defaultSettings.debugSettings, ...oldSettings.debugSettings, ...data.debugSettings };
+
 	setScale(gameSettings.scale);
 	saveSettings(gameSettings);
 }
@@ -108,22 +128,22 @@ export const defaultValues = {
 	fogColor: [0.8, 0.9, 1],
 	blockTestDistance: 7,
 	clearColor: [0.8, 0.9, 1],
-	skyColor:[0.2, 0.3, 0.7],
+	skyColor: [0.2, 0.3, 0.7],
 	backgroundColor: '#00000077',
 	menuColor: '#11111177',
 };
 
 export function noaOpts() {
 	return {
-		debug: true,
+		debug: false,
 		showFPS: false,
 		inverseY: false,
 		inverseX: false,
 		sensitivityX: gameSettings.mouse,
 		sensitivityY: gameSettings.mouse,
 		chunkSize: 32, // Don't touch this
-		chunkAddDistance: gameSettings.viewDistance,
-		chunkRemoveDistance: gameSettings.viewDistance,
+		chunkAddDistance: [gameSettings.viewDistance, gameSettings.viewDistance],
+		chunkRemoveDistance: [gameSettings.viewDistance, gameSettings.viewDistance],
 		blockTestDistance: defaultValues.blockTestDistance,
 		tickRate: 20,
 		texturePath: '',
@@ -185,19 +205,35 @@ export function setNoa(x) {
 }
 
 let tempHost = '???';
+let tempLoginEnabled = false;
 export const hostname = window.location.hostname;
 export const parms = new URLSearchParams(window.location.search);
 
-if (hostname == '0.0.0.0' || hostname == 'localhost') tempHost = 'Localhost/DEV';
-else if (hostname == 'voxelsrv-master.pb4.eu') tempHost = 'Development';
-else if (hostname == 'voxelsrv.pb4.eu') tempHost = '';
-else if (hostname == 'pb4.eu') tempHost = '';
-else if (hostname == 'pb4.eu') tempHost = '';
-else if (hostname == 'www.newgrounds.com' || hostname == 'uploads.ungrounded.net') tempHost = 'Newgrounds'
-else if (window['electron'] != undefined) tempHost = '';
-else tempHost = 'Unofficial/Undefined rehost!';
+if (hostname == '0.0.0.0' || hostname == 'localhost') {
+	tempHost = 'Localhost/DEV';
+	tempLoginEnabled = true;
+} else if (hostname == 'voxelsrv-master.pb4.eu') {
+	tempHost = 'Development';
+	tempLoginEnabled = true;
+} else if (hostname == 'voxelsrv.pb4.eu') {
+	tempHost = '';
+	tempLoginEnabled = true;
+} else if (hostname == 'pb4.eu') {
+	tempHost = '';
+	tempLoginEnabled = true;
+} else if (hostname == 'www.newgrounds.com' || hostname == 'uploads.ungrounded.net') {
+	tempHost = 'Newgrounds';
+	tempLoginEnabled = false;
+} else if (window['electron'] != undefined) {
+	tempHost = '';
+	tempLoginEnabled = true;
+} else {
+	tempHost = 'Unofficial/Undefined rehost!';
+	tempLoginEnabled = false;
+}
 
 export let hostedOn = tempHost;
+export let useDefaultLogin = tempLoginEnabled;
 
 const splashes: IFormatedText[][] = [
 	[{ text: `It's not Minecraft clone... or is it?` }],
@@ -234,9 +270,8 @@ const splashes: IFormatedText[][] = [
 ];
 
 if (new Date().getDay() == 3) {
-	splashes.push([{ text: 'It Is Wednesday My Dudes'}])
+	splashes.push([{ text: 'It Is Wednesday My Dudes' }]);
 }
-
 
 export function getSplash() {
 	let x = Math.floor(Math.random() * splashes.length);
@@ -255,12 +290,13 @@ export const aboutText = [
 	{ text: 'MC Classic support is based on work by ' },
 	{ text: 'rom1504 and mhsjlw', color: 'lightblue', url: 'https://github.com/mhsjlw/minecraft-classic-protocol' },
 	{ text: '\nClassic server list is provided by ' },
-	{ text: "MineOnline", color: 'lightblue', url: 'https://mineonline.codie.gg/servers' },
+	{ text: 'MineOnline', color: 'lightblue', url: 'https://mineonline.codie.gg/servers' },
 ];
 
 export const singleplayerServerInfo: IServerInfo = {
 	name: 'Singleplayer World',
 	ip: 'Internal',
+	rawIP: '',
 	motd: '',
 	protocol: gameProtocol,
 	software: 'VoxelSrv',
@@ -272,6 +308,70 @@ export const singleplayerServerInfo: IServerInfo = {
 		online: 0,
 	},
 	useProxy: false,
+	useProxyProtocol: false,
+	auth: false,
+};
+
+export const singleplayerWorldTypes = ['normal', 'flat'];
+
+let serverList: { [i: string]: IServerInfo };
+let fetchTime = 0;
+
+export async function fetchServers() {
+	try {
+		serverList = await (await fetch(heartbeatServer + '/api/servers')).json();
+	} catch (e) {
+		serverList = {};
+	}
+	fetchTime = Date.now();
+	return serverList;
 }
 
-export const singleplayerWorldTypes = ['normal', 'flat']
+export async function getServerList() {
+	if (Date.now() - fetchTime == 30000) {
+		return await fetchServers();
+	}
+	return serverList;
+}
+
+export interface IServerInfo {
+	name: string;
+	ip: string;
+	rawIP: string;
+	motd: string;
+	protocol: number;
+	players: {
+		online: number;
+		max: number;
+	};
+	type: number;
+	software: string;
+	useProxy: boolean;
+	useProxyProtocol: boolean;
+	featured: boolean;
+	icon: string;
+	auth: boolean;
+}
+
+let authInfo: AuthInfo = null;
+
+export function getAuthInfo() {
+	return authInfo;
+}
+
+export function setAuthInfo(data, remember: boolean) {
+	authInfo = data;
+	if (data != null) {
+		updateSettings({ username: data.username });
+	}
+	if (remember) {
+		saveAuthData(data);
+	}
+}
+
+export function clearAuthInfo() {
+	authInfo = null;
+	clearAuthData();
+}
+
+export type AuthInfo = { valid: boolean; username: string; uuid: string; token: string };

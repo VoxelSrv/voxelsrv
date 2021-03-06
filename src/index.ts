@@ -4,32 +4,49 @@ import * as BABYLON from '@babylonjs/core/Legacy/legacy';
 import { rebindControls, setupControls } from './lib/player/controls';
 import { defineModelComp } from './lib/helpers/model';
 
-import { noaOpts, updateSettings, serverSettings, defaultFonts, setNoa, updateServerSettings, IGameSettings, defaultValues } from './values';
-import { constructScreen } from './gui/main';
+import {
+	noaOpts,
+	updateSettings,
+	serverSettings,
+	defaultFonts,
+	setNoa,
+	updateServerSettings,
+	IGameSettings,
+	defaultValues,
+	gameSettings,
+	gameVersion,
+	singleplayerWorldTypes,
+	singleplayerServerInfo,
+	setAuthInfo,
+} from './values';
+import { constructScreen, getScreen } from './gui/main';
 
-import { getSettings } from './lib/helpers/storage';
+import { getAuthData, getSettings } from './lib/helpers/storage';
 import { setupClouds, setupSky } from './lib/gameplay/sky';
 import { buildMainMenu } from './gui/menu/main';
-import { connect } from './lib/gameplay/connect';
+import { connect, setupConnection } from './lib/gameplay/connect';
 import { setupMobile } from './gui/mobile';
 import { setupGamepad } from './lib/player/gamepad';
-import { setupWorld } from './lib/gameplay/world';
+import { createInflateWorker, setupWorld } from './lib/gameplay/world';
 
-import { spawn, Worker } from 'threads';
 import { setupToasts } from './gui/parts/toastMessage';
-
-spawn(new Worker('./inflate.js')).then((x) => {
-	window['inflate'] = x;
-});
+import { createProtocolWorker } from './socket';
+import { PopupGUI } from './gui/parts/miniPopupHelper';
+import { createSingleplayerServer } from './lib/singleplayer/setup';
 
 defaultFonts.forEach((font) => document.fonts.load(`10pt "${font}"`));
 
-getSettings().then((data: IGameSettings) => {
+getSettings().then(async (data: IGameSettings) => {
 	updateSettings(data);
 	// @ts-ignore
 	const tempNoa = new Engine2(noaOpts());
 
 	const noa: Engine = tempNoa;
+	constructScreen(noa);
+
+	const loading = new PopupGUI([{ text: 'Loading...' }]);
+	loading.setCenterText([{ text: 'Starting...' }]);
+	getScreen(2).addControl(loading.main);
 
 	const canvas: HTMLCanvasElement = noa.container.canvas;
 
@@ -60,7 +77,6 @@ getSettings().then((data: IGameSettings) => {
 	setNoa(noa);
 
 	noa.ents.getPhysics(noa.playerEntity).body.airDrag = 9999;
-	constructScreen(noa);
 	setupToasts();
 	setupClouds(noa);
 	setupSky(noa);
@@ -105,42 +121,60 @@ getSettings().then((data: IGameSettings) => {
 		false
 	);
 
-	/*window.onerror = function (msg, url, lineNo, columnNo, error) {
-		alert(`${msg}\nPlease report this error at: https://github.com/VoxelSrv/voxelsrv/issues`);
-	};*/
+	loading.setCenterText([{ text: 'Creating workers...' }]);
+	await createProtocolWorker();
+	await createInflateWorker();
+	loading.setCenterText([{ text: 'Checking login data...' }]);
+	setAuthInfo(await getAuthData(), false);
+	loading.setCenterText([{ text: 'Finishing...' }]);
 
 	window['connect'] = (x) => {
 		connect(noa, x);
+	};
+
+	window['enableDebugSettings'] = () => {
+		gameSettings.debugSettings.makeSettingsVisible = true;
 	};
 
 	window['forceplay'] = () => {
 		updateServerSettings({ ingame: true });
 	};
 
-	setTimeout(() => {
-		if (isMobile) {
-			setupMobile(noa);
-			const link = document.createElement('link');
-			link.rel = 'stylesheet';
-			link.href = 'mobile.css';
-			document.head.appendChild(link);
-			document.documentElement.addEventListener('click', function () {
-				if (!document.fullscreenElement) {
-					document.documentElement.requestFullscreen();
-					screen.orientation.lock('landscape');
-				}
-			});
-		}
+	if (isMobile) {
+		setupMobile(noa);
+		const link = document.createElement('link');
+		link.rel = 'stylesheet';
+		link.href = 'mobile.css';
+		document.head.appendChild(link);
+		document.documentElement.addEventListener('click', function () {
+			if (!document.fullscreenElement) {
+				document.documentElement.requestFullscreen();
+				screen.orientation.lock('landscape');
+			}
+		});
+	}
 
-		// Default actions
-		const options = new URLSearchParams(window.location.search);
+	// Default actions
+	const options = new URLSearchParams(window.location.search);
 
-		if (!!options.get('server')) {
-			setTimeout(() => connect(noa, options.get('server')), 4000);
-		} else {
-			setTimeout(() => {
-				buildMainMenu(noa);
-			}, 50);
-		}
-	}, 1000);
+	loading.dispose();
+	if (!!options.get('server')) {
+		connect(noa, options.get('server'));
+	} if (options.get('debugWorld') != undefined) {
+		const socket = createSingleplayerServer('debugWorld', {
+			gamemode: 'creative',
+			gameVersion: gameVersion,
+			serverVersion: '',
+			worldsize: 32,
+			version: 0,
+			seed: 2021,
+			generator: singleplayerWorldTypes[0],
+			icon: 'voxelsrv',
+			displayName: 'debugWorld'
+		}, true);
+
+		setupConnection(noa, socket, {...singleplayerServerInfo, motd: 'debugWorld' });
+	} else {
+		buildMainMenu(noa);
+	}
 });

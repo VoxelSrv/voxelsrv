@@ -8,7 +8,6 @@ import { IWorldSettings } from '../../../values';
 import { OperatorPermissionHolder } from './operatorPermissionHolder';
 import patchWorldClass from './worldPatches';
 import patchServerClass from './serverPatches';
-import { MessageBuilder } from 'voxelsrv-server/dist/lib/chat';
 
 patchServerClass();
 patchWorldClass();
@@ -47,13 +46,13 @@ const emit = (type: string, data: any) => {
 
 server.on('server-started', () => {
 	socket.send('ServerStarted', {});
-	server.connectPlayer(socket);
 });
 
 server.on('server-config-update', (config: IServerConfig) => {
 	config.world.border = worldSettings.worldsize;
 	config.world.seed = worldSettings.seed;
 	config.world.generator = worldSettings.generator;
+	config.world.worldGenWorkers = 2;
 	config.viewDistance = viewDistance;
 	config.rateLimitChatMessages = false;
 	config.public = false;
@@ -66,7 +65,7 @@ server.on('server-stopped', () => {
 	socket.send('ServerStopped', { save: vol.toJSON(), settings: worldSettings });
 });
 
-self.onmessage = (e) => {
+self.onmessage = async (e) => {
 	const type = e.data.type;
 	const data = e.data.data;
 
@@ -91,6 +90,35 @@ self.onmessage = (e) => {
 			setupGamemode(server, data.gamemode);
 			startServer();
 			break;
+		case 'SingleplayerConnectPlayer':
+			server.connectPlayer(socket);
+			break;
+		case 'SingleplayerPregenerateWorld':
+			if (server.status == 'active') {
+				for (const t in server.worlds.worlds) {
+					const world = server.worlds.worlds[t];
+
+					const size = (worldSettings.worldsize * 2 + 1) * (worldSettings.worldsize * 2 + 1);
+					let n = 0;
+
+					socket.send('ServerPregenerateStatus', { done: n, size: size});
+
+					for(let x = -1 * worldSettings.worldsize; x <= worldSettings.worldsize; x++) {
+						for(let z = -1 * worldSettings.worldsize; z <= worldSettings.worldsize; z++) {
+							await world.getChunk([x, z]);
+							n++;
+							socket.send('ServerPregenerateStatus', { done: n, size: size});
+						}
+					}
+
+					socket.send('ServerPregenerateDone', {});
+
+				}
+				Object.values(server.worlds.worlds).forEach((world) => {
+					world.getChunk
+				})
+			}
+			break;
 		case 'SingleplayerViewDistance':
 			viewDistance = data.value;
 			if (server.status == 'active') {
@@ -106,8 +134,7 @@ self.onmessage = (e) => {
 			break;
 		case 'LoginResponse':
 			const data2: ILoginResponse = data;
-			data2.secret = '*localplayer';
-			data2.username = 'Player';
+			data2.uuid = 'lp-localplayer';
 			emit(type, data2);
 			break;
 		default:

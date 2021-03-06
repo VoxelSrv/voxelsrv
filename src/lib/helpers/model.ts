@@ -1,12 +1,12 @@
 import * as BABYLON from '@babylonjs/core/Legacy/legacy';
 import { Mesh } from '@babylonjs/core/Legacy/legacy';
-import { gameSettings } from '../../values';
+import { Engine } from 'noa-engine';
 import { getAsset } from './assets';
 
 const models = {};
 const templateModels: { [i: string]: BABYLON.Mesh } = {};
 
-let noa: any;
+let noa: Engine;
 
 export function defineModelComp(noa2) {
 	noa = noa2;
@@ -66,7 +66,7 @@ async function applyModelTo(
 
 	builded.nametag = addNametag(builded.main, name, noa.ents.getPositionData(eid).height, nametag);
 
-	noa.ents.addComponent(eid, 'model', builded);
+	noa.ents.addComponentAgain(eid, 'model', builded);
 
 	const hitboxMesh = BABYLON.MeshBuilder.CreateBox(
 		`hitbox-${uuid}`,
@@ -78,19 +78,28 @@ async function applyModelTo(
 		scene
 	);
 
-	hitboxMesh.setParent(builded.main);
-	hitboxMesh.setPositionWithLocalVector(new BABYLON.Vector3(0, hitbox[1] / 2, 0));
-	hitboxMesh.material = noa.rendering.makeStandardMaterial();
-	//hitboxMesh.material.wireframe = true;
-	hitboxMesh.isVisible = false;
+	if (eid != noa.playerEntity) {
+		hitboxMesh.setParent(builded.main);
+		hitboxMesh.setPositionWithLocalVector(new BABYLON.Vector3(0, hitbox[1] / 2, 0));
+		hitboxMesh.material = noa.rendering.makeStandardMaterial('');
+		//hitboxMesh.material.wireframe = true;
+		hitboxMesh.isVisible = false;
+		noa.rendering.addMeshToScene(hitboxMesh, false);
 
-	noa.rendering.addMeshToScene(hitboxMesh, false);
+		noa.entities.addComponentAgain(eid, 'mesh', {
+			mesh: builded.main,
+			offset: offset,
+			animations: models[model].animations,
+		});
+	} else {
+		const data = noa.ents.getPositionData(eid)
 
-	noa.entities.addComponent(eid, noa.entities.names.mesh, {
-		mesh: builded.main,
-		offset: offset,
-		animations: models[model].animations,
-	});
+		builded.main.setParent(noa.entities.getState(eid, 'mesh').mesh);
+		builded.main.position = new BABYLON.Vector3(0, - data.height / 2, 0)
+
+	}
+
+	noa.rendering.addMeshToScene(builded.main, false);
 }
 
 /*
@@ -123,15 +132,17 @@ async function buildModel(name, model, texture) {
 	return meshlist;
 }
 
-type AnimationsList = {[index: string]: {
-	speed: number;
-	parts: {
-		[index: string]: string
-	}
-}}
+type AnimationsList = {
+	[index: string]: {
+		speed: number;
+		parts: {
+			[index: string]: string;
+		};
+	};
+};
 
 function buildAnimations(data: AnimationsList) {
-	const builded = {}
+	const builded = {};
 	return;
 }
 
@@ -232,7 +243,6 @@ function createTemplateModel(name, model) {
 }
 
 export function addNametag(mainMesh: Mesh, name: string, height: number, visible: boolean) {
-	console.log(mainMesh, name, height, visible)
 	const scene = noa.rendering.getScene();
 
 	const font_size = 96;
@@ -268,7 +278,6 @@ export function addNametag(mainMesh: Mesh, name: string, height: number, visible
 	//Create plane and set dynamic texture as material
 	const plane = BABYLON.MeshBuilder.CreatePlane('plane', { width: planeWidth, height: planeHeight }, scene);
 	plane.material = mat;
-
 
 	// @ts-ignore
 	plane.opaque = false;

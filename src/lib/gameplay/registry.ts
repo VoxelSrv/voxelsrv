@@ -7,6 +7,7 @@
 import * as BABYLON from '@babylonjs/core/Legacy/legacy';
 import * as MATERIALS from '@babylonjs/materials';
 import type { Engine } from 'noa-engine';
+import { gameSettings } from '../../values';
 import { getAsset } from '../helpers/assets';
 
 /*
@@ -23,6 +24,10 @@ export function registerBlocks(noa: Engine, blockList) {
 
 	// Saves blocks for later lookups
 
+	if (gameSettings.debugSettings.printRegistryToConsole) {
+		console.log('Blocks', blockList);
+	}
+
 	blocks = blockList;
 
 	// Create lookup tables
@@ -36,7 +41,6 @@ export function registerBlocks(noa: Engine, blockList) {
 	noa.registry.registerMaterial('water', [0.5, 0.5, 0.8, 0.7], null, true);
 	noa.registry.registerMaterial('barrier', [0.0, 0.0, 0.0, 0.0], null, true);
 
-	console.log('Blocks: ', blockIDs);
 	const entries = Object.values(blockList);
 
 	// Create blocks from registry
@@ -130,7 +134,9 @@ export function registerBlocks(noa: Engine, blockList) {
 
 export function registerItems(noa, itemList) {
 	items = itemList;
-	console.log('Items: ', itemList);
+	if (gameSettings.debugSettings.printRegistryToConsole) {
+		console.log('Items', {...itemList});
+	}
 }
 
 /*

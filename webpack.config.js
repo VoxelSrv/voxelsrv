@@ -11,9 +11,9 @@ module.exports = (env) => ({
 		extensions: ['.tsx', '.ts', '.js', '.json'],
 		symlinks: false,
 		alias: {
-			'fs': 'memfs',
-			'readline': 'fakereadline'
-        }
+			fs: 'memfs',
+			readline: 'fakereadline',
+		},
 	},
 	module: {
 		rules: [
@@ -31,17 +31,22 @@ module.exports = (env) => ({
 		protocol: './src/lib/helpers/protocol.ts',
 		inflate: './src/lib/helpers/worldInflate.ts',
 		server: './src/lib/singleplayer/server/server.ts',
-		normalWorker: './node_modules/voxelsrv-server/dist/default/worldgen/normalWorker.js'
+		normalWorker: './node_modules/voxelsrv-server/dist/default/worldgen/normalWorker.js',
 	},
 	output: {
 		filename: '[name].js',
-		globalObject: 'globalThis'
+		globalObject: 'globalThis',
 	},
 	devServer: {
 		contentBase: buildPath,
 		inline: true,
 		host: '0.0.0.0',
 		stats: 'minimal',
+		headers: {
+			'Access-Control-Allow-Origin': '*',
+			'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, PATCH, OPTIONS',
+			'Access-Control-Allow-Headers': 'X-Requested-With, content-type, Authorization',
+		},
 	},
 	watchOptions: {
 		aggregateTimeout: 500,

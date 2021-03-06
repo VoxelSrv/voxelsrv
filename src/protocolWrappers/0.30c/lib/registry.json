@@ -102,7 +102,7 @@
 			"miningtime": 0,
 			"tool": "pickaxe",
 			"type": 0,
-			"unbreakable": true
+			"unbreakable": false
 		},
 		"grass_block": {
 			"rawid": 2,
@@ -113,7 +113,7 @@
 			"miningtime": 0,
 			"tool": "pickaxe",
 			"type": 0,
-			"unbreakable": true
+			"unbreakable": false
 		},
 		"dirt": {
 			"rawid": 3,
@@ -124,7 +124,7 @@
 			"miningtime": 0,
 			"tool": "pickaxe",
 			"type": 0,
-			"unbreakable": true
+			"unbreakable": false
 		},
 		"cobblestone": {
 			"rawid": 4,
@@ -135,7 +135,7 @@
 			"miningtime": 0,
 			"tool": "pickaxe",
 			"type": 0,
-			"unbreakable": true
+			"unbreakable": false
 		},
 		"wood_planks": {
 			"rawid": 5,
@@ -146,7 +146,7 @@
 			"miningtime": 0,
 			"tool": "pickaxe",
 			"type": 0,
-			"unbreakable": true
+			"unbreakable": false
 		},
 		"sapling": {
 			"rawid": 6,
@@ -156,8 +156,8 @@
 			"hardness": 1,
 			"miningtime": 0,
 			"tool": "pickaxe",
-			"type": 1,
-			"unbreakable": true
+			"type": 1, 
+			"unbreakable": false
 		},
 		"bedrock": {
 			"rawid": 7,
@@ -168,7 +168,7 @@
 			"miningtime": 0,
 			"tool": "pickaxe",
 			"type": 0,
-			"unbreakable": false
+			"unbreakable": true
 		},
 		"flowing_water": {
 			"rawid": 8,
@@ -179,7 +179,7 @@
 			"miningtime": 0,
 			"tool": "pickaxe",
 			"type": 0,
-			"unbreakable": false
+			"unbreakable": true
 		},
 		"stationary_water": {
 			"rawid": 9,
@@ -190,7 +190,7 @@
 			"miningtime": 0,
 			"tool": "pickaxe",
 			"type": 0,
-			"unbreakable": false
+			"unbreakable": true
 		},
 		"flowing_lava": {
 			"rawid": 10,
@@ -200,7 +200,7 @@
 			"miningtime": 0,
 			"tool": "pickaxe",
 			"type": 0,
-			"unbreakable": false
+			"unbreakable": true
 		},
 		"stationary_lava": {
 			"rawid": 11,
@@ -210,7 +210,7 @@
 			"miningtime": 0,
 			"tool": "pickaxe",
 			"type": 0,
-			"unbreakable": false
+			"unbreakable": true
 		},
 		"sand": {
 			"rawid": 12,
@@ -221,7 +221,7 @@
 			"miningtime": 0,
 			"tool": "pickaxe",
 			"type": 0,
-			"unbreakable": true
+			"unbreakable": false
 		},
 		"gravel": {
 			"rawid": 13,
@@ -232,7 +232,7 @@
 			"miningtime": 0,
 			"tool": "pickaxe",
 			"type": 0,
-			"unbreakable": true
+			"unbreakable": false
 		},
 		"gold_ore": {
 			"rawid": 14,
@@ -243,7 +243,7 @@
 			"miningtime": 0,
 			"tool": "pickaxe",
 			"type": 0,
-			"unbreakable": true
+			"unbreakable": false
 		},
 		"iron_ore": {
 			"rawid": 15,
@@ -254,7 +254,7 @@
 			"miningtime": 0,
 			"tool": "pickaxe",
 			"type": 0,
-			"unbreakable": true
+			"unbreakable": false
 		},
 		"coal_ore": {
 			"rawid": 16,
@@ -265,7 +265,7 @@
 			"miningtime": 0,
 			"tool": "pickaxe",
 			"type": 0,
-			"unbreakable": true
+			"unbreakable": false
 		},
 		"wood": {
 			"rawid": 17,
@@ -276,7 +276,7 @@
 			"miningtime": 0,
 			"tool": "pickaxe",
 			"type": 0,
-			"unbreakable": true
+			"unbreakable": false
 		},
 		"leaves": {
 			"rawid": 18,
@@ -287,7 +287,7 @@
 			"miningtime": 0,
 			"tool": "pickaxe",
 			"type": 0,
-			"unbreakable": true
+			"unbreakable": false
 		},
 		"sponge": {
 			"rawid": 19,
@@ -298,7 +298,7 @@
 			"miningtime": 0,
 			"tool": "pickaxe",
 			"type": 0,
-			"unbreakable": true
+			"unbreakable": false
 		},
 		"glass": {
 			"rawid": 20,
@@ -309,7 +309,7 @@
 			"miningtime": 0,
 			"tool": "pickaxe",
 			"type": 0,
-			"unbreakable": true
+			"unbreakable": false
 		},
 		"red_cloth": {
 			"rawid": 21,
@@ -320,7 +320,7 @@
 			"miningtime": 0,
 			"tool": "pickaxe",
 			"type": 0,
-			"unbreakable": true
+			"unbreakable": false
 		},
 		"orange_cloth": {
 			"rawid": 22,
@@ -331,7 +331,7 @@
 			"miningtime": 0,
 			"tool": "pickaxe",
 			"type": 0,
-			"unbreakable": true
+			"unbreakable": false
 		},
 		"yellow_cloth": {
 			"rawid": 23,
@@ -342,7 +342,7 @@
 			"miningtime": 0,
 			"tool": "pickaxe",
 			"type": 0,
-			"unbreakable": true
+			"unbreakable": false
 		},
 		"lime_cloth": {
 			"rawid": 24,
@@ -353,7 +353,7 @@
 			"miningtime": 0,
 			"tool": "pickaxe",
 			"type": 0,
-			"unbreakable": true
+			"unbreakable": false
 		},
 		"green_cloth": {
 			"rawid": 25,
@@ -364,7 +364,7 @@
 			"miningtime": 0,
 			"tool": "pickaxe",
 			"type": 0,
-			"unbreakable": true
+			"unbreakable": false
 		},
 		"aqua_green_cloth": {
 			"rawid": 26,
@@ -375,7 +375,7 @@
 			"miningtime": 0,
 			"tool": "pickaxe",
 			"type": 0,
-			"unbreakable": true
+			"unbreakable": false
 		},
 		"cyan_cloth": {
 			"rawid": 27,
@@ -386,7 +386,7 @@
 			"miningtime": 0,
 			"tool": "pickaxe",
 			"type": 0,
-			"unbreakable": true
+			"unbreakable": false
 		},
 		"blue_cloth": {
 			"rawid": 28,
@@ -397,7 +397,7 @@
 			"miningtime": 0,
 			"tool": "pickaxe",
 			"type": 0,
-			"unbreakable": true
+			"unbreakable": false
 		},
 		"purple_cloth": {
 			"rawid": 29,
@@ -408,7 +408,7 @@
 			"miningtime": 0,
 			"tool": "pickaxe",
 			"type": 0,
-			"unbreakable": true
+			"unbreakable": false
 		},
 		"indigo_cloth": {
 			"rawid": 30,
@@ -419,7 +419,7 @@
 			"miningtime": 0,
 			"tool": "pickaxe",
 			"type": 0,
-			"unbreakable": true
+			"unbreakable": false
 		},
 		"violet_cloth": {
 			"rawid": 31,
@@ -430,7 +430,7 @@
 			"miningtime": 0,
 			"tool": "pickaxe",
 			"type": 0,
-			"unbreakable": true
+			"unbreakable": false
 		},
 		"magenta_cloth": {
 			"rawid": 32,
@@ -441,7 +441,7 @@
 			"miningtime": 0,
 			"tool": "pickaxe",
 			"type": 0,
-			"unbreakable": true
+			"unbreakable": false
 		},
 		"pink_cloth": {
 			"rawid": 33,
@@ -452,7 +452,7 @@
 			"miningtime": 0,
 			"tool": "pickaxe",
 			"type": 0,
-			"unbreakable": true
+			"unbreakable": false
 		},
 		"black_cloth": {
 			"rawid": 34,
@@ -463,7 +463,7 @@
 			"miningtime": 0,
 			"tool": "pickaxe",
 			"type": 0,
-			"unbreakable": true
+			"unbreakable": false
 		},
 		"gray_cloth": {
 			"rawid": 35,
@@ -474,7 +474,7 @@
 			"miningtime": 0,
 			"tool": "pickaxe",
 			"type": 0,
-			"unbreakable": true
+			"unbreakable": false
 		},
 		"white_cloth": {
 			"rawid": 36,
@@ -485,7 +485,7 @@
 			"miningtime": 0,
 			"tool": "pickaxe",
 			"type": 0,
-			"unbreakable": true
+			"unbreakable": false
 		},
 		"dandelion": {
 			"rawid": 37,
@@ -496,7 +496,7 @@
 			"miningtime": 0,
 			"tool": "pickaxe",
 			"type": 1,
-			"unbreakable": true
+			"unbreakable": false
 		},
 		"rose": {
 			"rawid": 38,
@@ -507,7 +507,7 @@
 			"miningtime": 0,
 			"tool": "pickaxe",
 			"type": 1,
-			"unbreakable": true
+			"unbreakable": false
 		},
 		"brown_mushroom": {
 			"rawid": 39,
@@ -518,7 +518,7 @@
 			"miningtime": 0,
 			"tool": "pickaxe",
 			"type": 1,
-			"unbreakable": true
+			"unbreakable": false
 		},
 		"red_mushroom": {
 			"rawid": 40,
@@ -529,7 +529,7 @@
 			"miningtime": 0,
 			"tool": "pickaxe",
 			"type": 1,
-			"unbreakable": true
+			"unbreakable": false
 		},
 		"block_of_gold": {
 			"rawid": 41,
@@ -540,18 +540,18 @@
 			"miningtime": 0,
 			"tool": "pickaxe",
 			"type": 0,
-			"unbreakable": true
+			"unbreakable": false
 		},
 		"block_of_iron": {
 			"rawid": 42,
 			"id": "block_of_iron",
-			"texture": ["block/iron_block"],
+			"texture": ["block/iron_block_white"],
 			"options": {},
 			"hardness": 1,
 			"miningtime": 0,
 			"tool": "pickaxe",
 			"type": 0,
-			"unbreakable": true
+			"unbreakable": false
 		},
 		"double_slab": {
 			"rawid": 43,
@@ -562,7 +562,7 @@
 			"miningtime": 0,
 			"tool": "pickaxe",
 			"type": 0,
-			"unbreakable": true
+			"unbreakable": false
 		},
 		"slab": {
 			"rawid": 44,
@@ -573,7 +573,7 @@
 			"miningtime": 0,
 			"tool": "pickaxe",
 			"type": 0,
-			"unbreakable": true
+			"unbreakable": false
 		},
 		"brick": {
 			"rawid": 45,
@@ -584,7 +584,7 @@
 			"miningtime": 0,
 			"tool": "pickaxe",
 			"type": 0,
-			"unbreakable": true
+			"unbreakable": false
 		},
 		"tnt": {
 			"rawid": 46,
@@ -595,7 +595,7 @@
 			"miningtime": 0,
 			"tool": "pickaxe",
 			"type": 0,
-			"unbreakable": true
+			"unbreakable": false
 		},
 		"bookshelf": {
 			"rawid": 47,
@@ -606,7 +606,7 @@
 			"miningtime": 0,
 			"tool": "pickaxe",
 			"type": 0,
-			"unbreakable": true
+			"unbreakable": false
 		},
 		"moss_stone": {
 			"rawid": 48,
@@ -617,13 +617,35 @@
 			"miningtime": 0,
 			"tool": "pickaxe",
 			"type": 0,
-			"unbreakable": true
+			"unbreakable": false
 		},
 		"obsidian": {
 			"rawid": 49,
 			"id": "obsidian",
 			"texture": ["block/obsidian"],
 			"options": {},
+			"hardness": 1,
+			"miningtime": 0,
+			"tool": "pickaxe",
+			"type": 0,
+			"unbreakable": false
+		},
+		"barrier": {
+			"rawid": 256,
+			"id": "barrier",
+			"texture": [],
+			"options": { "material": "barrier" },
+			"hardness": 1,
+			"miningtime": 0,
+			"tool": "pickaxe",
+			"type": 0,
+			"unbreakable": true
+		},
+		"hard_water": {
+			"rawid": 257,
+			"id": "hard_water",
+			"texture": [],
+			"options": { "material": "water" },
 			"hardness": 1,
 			"miningtime": 0,
 			"tool": "pickaxe",

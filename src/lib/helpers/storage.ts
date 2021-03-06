@@ -88,5 +88,20 @@ export async function getSettings(): Promise<object> {
 }
 
 export async function saveSettings(data) {
-	db.main.put({ name: 'settings', data: data });
+	await db.main.put({ name: 'settings', data: data });
+}
+
+
+export async function getAuthData(): Promise<object> {
+	const x = (await db.main.where('name').equals('auth').toArray())[0];
+	if (x != undefined) return x.data;
+	return null;
+}
+
+export async function saveAuthData(data) {
+	await db.main.put({ name: 'auth', data: data });
+}
+
+export async function clearAuthData() {
+	await db.main.delete('auth');
 }

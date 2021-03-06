@@ -66,8 +66,6 @@ export class PopupGUI {
 			title.fontSize = 12 * scale;
 			title.top = scale;
 
-			panel.width = `${180 * scale}px`
-
 			subtitle.fontSize = 10 * scale;
 			subtitle.top = 14 * scale;
 		};

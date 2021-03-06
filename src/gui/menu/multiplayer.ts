@@ -4,26 +4,7 @@ import { FormTextBlock } from '../parts/formtextblock';
 import { connect } from '../../lib/gameplay/connect';
 import { Vector2 } from '@babylonjs/core';
 import { createItem } from '../parts/menu';
-import { defaultValues, heartbeatServer } from '../../values';
-
-export let servers = {};
-
-export interface IServerInfo {
-	name: string;
-	ip: string;
-	motd: string;
-	protocol: number;
-	players: {
-		online: number;
-		max: number;
-	};
-	type: number;
-	software: string;
-	useProxy: boolean;
-	featured: boolean;
-	icon: string;
-	compabilityLayer?: string;
-}
+import { defaultValues, fetchServers, heartbeatServer, IServerInfo } from '../../values';
 
 export default function buildMultiplayer(noa, openMenu) {
 	const menu = new GUI.Rectangle();
@@ -158,11 +139,8 @@ export default function buildMultiplayer(noa, openMenu) {
 		});
 		serverList.clearControls();
 
-		fetch(heartbeatServer + '/api/servers')
-			.then((response) => response.json())
-			.then((data: any) => {
-				servers = data;
-				const array = Object.values(data);
+		fetchServers().then((serverlist) => {
+				const array = Object.values(serverlist);
 				array.sort(sortServerList);
 
 				array.forEach((server: IServerInfo) => {
@@ -207,7 +185,7 @@ export default function buildMultiplayer(noa, openMenu) {
 					let click = 0;
 
 					row.main.onPointerClickObservable.add((e) => {
-						input.text = server.compabilityLayer == '0.30c' ? 'c0.30|' + (server.useProxy ? '*' : '') + server.ip : server.ip;
+						input.text = (server.useProxy ? '*' : '') + server.ip;
 						click = click + 1;
 						if (click > 1) button.onPointerClickObservable.notifyObservers(new GUI.Vector2WithInfo(new Vector2(0, 0), 0));
 

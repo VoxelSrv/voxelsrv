@@ -9,6 +9,7 @@ import { FormTextBlock } from '../parts/formtextblock';
 import buildSingleplayer from './singleplayer';
 import buildAboutScreen from './about';
 import { getWarning } from '../warnings';
+import { buildLoginOrPanel, createAccountIndicator } from './login';
 
 export let holder: GUI.Rectangle;
 
@@ -39,11 +40,15 @@ export function buildMainMenu(noa) {
 	version.shadowOffsetX = 1;
 	version.shadowOffsetY = 1;
 
+	const loginIndicator = createAccountIndicator(openMenu, holder);
+
 	holder.addControl(version);
+	holder.addControl(loginIndicator.main);
 
 	openMenu('main');
 
 	function openMenu(type: string) {
+		loginIndicator.main.isVisible = false;
 		if (!!activeMenu) activeMenu.dispose();
 		switch (type) {
 			case 'singleplayer':
@@ -55,6 +60,7 @@ export function buildMainMenu(noa) {
 				activeMenu = buildMultiplayer(noa, openMenu);
 				active = 'multiplayer';
 				document.title = 'VoxelSrv - Multiplayer Menu';
+				loginIndicator.main.isVisible = true;
 				break;
 			case 'settings':
 				activeMenu = buildSettings(noa, openMenu, holder);
@@ -66,13 +72,18 @@ export function buildMainMenu(noa) {
 				active = 'about';
 				document.title = 'VoxelSrv - About';
 				break;
+			case 'login':
+				activeMenu = buildLoginOrPanel(openMenu, holder);
+				active = 'login';
+				document.title = 'VoxelSrv - Login';
+				break;
 			default:
 				activeMenu = buildMenu();
 				active = 'main';
 				document.title = 'VoxelSrv - Main Menu';
+				loginIndicator.main.isVisible = true;
 				break;
 		}
-
 		holder.addControl(activeMenu);
 	}
 
@@ -98,6 +109,7 @@ export function buildMainMenu(noa) {
 
 		const splash = new FormTextBlock();
 		splash.isPointerBlocker = false;
+		splash.isHitTestVisible = false;
 		splash.text = getSplash();
 		splash.fontFamily = 'Lato';
 		splash.fontSize = `${9 * scale}px`;
@@ -133,7 +145,7 @@ export function buildMainMenu(noa) {
 
 		let warning: FormTextBlock = null;
 
-		let x = getWarning()
+		let x = getWarning();
 		if (x.length > 0) {
 			warning = new FormTextBlock();
 			warning.isPointerBlocker = false;
@@ -146,7 +158,7 @@ export function buildMainMenu(noa) {
 			warning.textHorizontalAlignment = 2;
 			warning.textVerticalAlignment = 0;
 			warning.color = 'red';
-	
+
 			holder.addControl(warning);
 		}
 
@@ -158,7 +170,6 @@ export function buildMainMenu(noa) {
 		scroll.thickness = 0;
 		scroll.barColor = '#ffffff44';
 		scroll.barBackground = '#00000000';
-
 
 		const items = new GUI.StackPanel();
 		items.top = `${10 * scale}px`;

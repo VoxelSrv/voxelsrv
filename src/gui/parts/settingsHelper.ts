@@ -9,11 +9,12 @@ export class SettingsGUI {
 	main: GUI.Rectangle;
 	panel: GUI.StackPanel;
 	scroll: GUI.ScrollViewer;
-	settings: object = {};
+	settings: any = {};
 	lock: boolean = false;
 	entries: { [i: string]: { gui: any; type: string; updateName: () => void } } = {};
+	downPanel: GUI.StackPanel;
 
-	constructor(id: string, nameText: IFormatedText[], backHander: BackHandler) {
+	constructor(id: string, nameText: IFormatedText[]) {
 		this.main = new GUI.Rectangle();
 		this.main.thickness = 0;
 		this.main.horizontalAlignment = 2;
@@ -50,18 +51,11 @@ export class SettingsGUI {
 
 		this.panel = settings;
 
-		const back = createItem();
-		back.item.verticalAlignment = 1;
-		back.text.text = [{ text: 'Back', color: 'white', font: 'Lato' }];
+		const panel = new GUI.StackPanel()
+		panel.verticalAlignment = 1;
 
-		back.item.onPointerClickObservable.add(() => {
-			if (!this.lock) {
-				backHander(id, this.settings);
-				this.main.dispose();
-			}
-		});
-
-		this.main.addControl(back.item);
+		this.main.addControl(panel)
+		this.downPanel = panel;
 
 		const rescale = (x) => {
 			if (window.innerHeight > 230 * scale) this.main.height = `${230 * scale}px`;
@@ -73,10 +67,6 @@ export class SettingsGUI {
 
 			scroll.top = `${18 * scale}px`;
 			scroll.width = `${210 * scale}px`;
-
-			back.item.width = `${100 * scale}px`;
-			back.item.height = `${18 * scale}px`;
-			back.text.fontSize = 10 * scale;
 		};
 
 		event.on('scale-change', rescale);
@@ -111,8 +101,8 @@ export class SettingsGUI {
 		return slider;
 	}
 
-	createInput(id: string, name: string, value: string, placeholder: string, mobileText: string) {
-		const input = createInput();
+	createInput(id: string, name: string, value: string, placeholder: string, mobileText: string, password: boolean = false) {
+		const input = createInput(password);
 		input.name.text = name;
 		input.input.placeholderText = placeholder;
 		input.input.text = value;
@@ -139,7 +129,6 @@ export class SettingsGUI {
 
 		item.text.text = [{ text: nameUpdater(selected), color: 'white', font: 'Lato' }];
 		item.item.onPointerClickObservable.add(() => {
-			console.log(selected, possibleValues.length);
 			selected = selected + 1;
 
 			if (selected >= possibleValues.length) {
@@ -260,10 +249,14 @@ export class SettingsGUI {
 		return item;
 	}
 
-	createItem(id: string, name: string) {
+	createItem(id: string, name: string, click?: () => any) {
 		const item = createItem(200, 11);
 		item.text.text = [{ text: name, color: 'white', font: 'Lato' }];
 		this.panel.addControl(item.item);
+
+		if (click) {
+			item.item.onPointerClickObservable.add(click);
+		}
 
 		this.entries[id] = { gui: item, type: 'item', updateName: () => {} };
 
@@ -276,8 +269,17 @@ export class SettingsGUI {
 			this.entries[id].updateName();
 		}
 	}
-}
 
-export type BackHandler = (id: string, settings: { [index: string]: any }) => void;
+
+	createSettingButton(name: string, callback: () => any) {
+		const item = createItem(150, 10, 14);
+		item.text.text = [{ text: name, color: 'white', font: 'Lato' }];
+		this.downPanel.addControl(item.item);
+
+		item.item.onPointerClickObservable.add(callback)		
+
+		return item;
+	}
+}
 
 export type NameUpdater = (value: any) => string;

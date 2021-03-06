@@ -1,24 +1,46 @@
-import { defaultSettings, defaultValues, gameSettings, serverSettings, updateSettings } from '../../values';
+import { defaultSettings, gameSettings, getAuthInfo, serverSettings, updateSettings } from '../../values';
 import { isSingleplayer, socketSend } from '../../lib/gameplay/connect';
-import { BackHandler, SettingsGUI } from '../parts/settingsHelper';
+import { SettingsGUI } from '../parts/settingsHelper';
 import * as GUI from '@babylonjs/gui/';
 import { rebindControls } from '../../lib/player/controls';
-import { re } from 'mathjs';
 import { isMobile } from 'mobile-device-detect';
+import { checkAndLoadChunks } from '../../lib/gameplay/world';
 
 export default function buildSettings(noa, openMenu, holder: GUI.Rectangle) {
-	const backHander: BackHandler = (id: string, settings: any) => {
+	const main = new SettingsGUI('main', [{ text: 'Settings' }]);
+
+	const auth = getAuthInfo();
+
+	const nickname = main.createInput('nickname', 'Nickname', auth?.username || gameSettings.nickname, `Write your nickname`, 'Enter your nickname');
+	if (auth != null) {
+		nickname.input.addKey = false;
+		nickname.input.onKeyboardEventProcessedObservable.add((x) => {
+			nickname.input.text = auth.username;
+		});
+	}
+
+	main.createSlider('scale', (v) => `GUI scale: ${v}`, gameSettings.scale, 2, 5, 1);
+	main.createSlider('fov', (v) => `FOV: ${v}`, gameSettings.fov, 20, 120, 1);
+	main.createSlider('viewDistance', (v) => `View Distance: ${v}`, gameSettings.viewDistance, 2, 16, 1);
+	main.createSelectable('showFPS', (v) => `FPS Counter: ${disEn(v)}`, gameSettings.showFPS ? 1 : 0, [false, true]);
+	main.createSelectable('debugInfo', (v) => `Debug information: ${disEn(v)}`, gameSettings.debugInfo ? 1 : 0, [false, true]);
+	main.createSettingButton('Back', () => {
+		const settings = main.settings;
+
 		updateSettings({
 			nickname: settings.nickname,
 			scale: settings.scale,
 			viewDistance: settings.viewDistance,
 			fov: settings.fov,
 			debugInfo: settings.debugInfo == 1,
-			showFPS: settings.showFPS == 1
+			showFPS: settings.showFPS == 1,
 		});
 
-		noa.world.chunkAddDistance = settings.viewDistance;
-		noa.world.chunkRemoveDistance = settings.viewDistance + 0.5;
+		const pos = noa.ents.getPosition(noa.playerEntity);
+
+		noa.world.chunkAddDistance = [settings.viewDistance, settings.viewDistance];
+		noa.world.chunkRemoveDistance = [settings.viewDistance + 0.5, settings.viewDistance + 0.5];
+		checkAndLoadChunks(noa, Math.floor(pos[0] / 32), Math.floor(pos[1] / 32), Math.floor(pos[2] / 32));
 
 		if (isSingleplayer()) {
 			socketSend('SingleplayerViewDistance', { value: settings.viewDistance });
@@ -28,49 +50,21 @@ export default function buildSettings(noa, openMenu, holder: GUI.Rectangle) {
 			noa.rendering.getScene().cameras[0].fov = (settings.fov * Math.PI) / 180;
 		}
 
+		main.main.dispose();
 		openMenu('main');
-	};
+	});
 
-	const main = new SettingsGUI('main', [{ text: 'Settings' }], backHander);
-	main.createInput('nickname', 'Nickname', gameSettings.nickname, `Write your nickname`, 'Enter your nickname');
-	main.createSlider('scale', (v) => `GUI scale: ${v}`, gameSettings.scale, 2, 5, 1);
-	main.createSlider('fov', (v) => `FOV: ${v}`, gameSettings.fov, 20, 120, 1);
-	main.createSlider('viewDistance', (v) => `View Distance: ${v}`, gameSettings.viewDistance, 2, 16, 1);
-	main.createSelectable('showFPS', (v) => `FPS Counter: ${disEn(v)}`, gameSettings.showFPS ? 1 : 0, [false, true]);
-	main.createSelectable('debugInfo', (v) => `Debug information: ${disEn(v)}`, gameSettings.debugInfo ? 1 : 0, [false, true]);
+	main.createItem('account', 'Account settings...', () => {
+		openMenu('login');
+	});
 
-	const controlsButton = main.createItem('controls', 'Controls...');
-
-	controlsButton.item.onPointerClickObservable.add(() => {
+	main.createItem('controls', 'Controls...', () => {
 		main.main.isVisible = false;
 
-		const controlsBack = (id, settings) => {
-			const controls = { ...gameSettings.controls };
-
-			for (const i in settings) {
-				if (i.startsWith('key-')) {
-					controls[i.substring(4)] = settings[i];
-				}
-			}
-
-			updateSettings({
-				mouse: settings.mouse,
-				gamepad: settings.gamepad == 1,
-				controls: controls,
-			});
-
-			rebindControls(noa, controls);
-
-			noa.camera.sensitivityX = settings.mouse;
-			noa.camera.sensitivityY = settings.mouse;
-
-			main.main.isVisible = true;
-		};
-
-		const controls = new SettingsGUI('main', [{ text: 'Controls...' }], controlsBack);
+		const controls = new SettingsGUI('main', [{ text: 'Controls...' }]);
 		controls.createSlider('mouse', (v) => `Mouse sensitivity: ${v}`, gameSettings.mouse, 1, 80, 1);
 		controls.createSelectable('gamepad', (v) => `Gamepad support: ${disEn(v)}`, gameSettings.gamepad ? 1 : 0, [false, true]);
-		
+
 		if (!isMobile) {
 			controls.createLabel('keybinds', 'Keybinds');
 			const reset = controls.createItem('reset-keys', 'Restore default keybinds');
@@ -91,7 +85,74 @@ export default function buildSettings(noa, openMenu, holder: GUI.Rectangle) {
 		}
 
 		holder.addControl(controls.main);
+
+		controls.createSettingButton('Back', () => {
+			const controllist = { ...gameSettings.controls };
+
+			for (const i in controls.settings) {
+				if (i.startsWith('key-')) {
+					controllist[i.substring(4)] = controls.settings[i];
+				}
+			}
+
+			updateSettings({
+				mouse: controls.settings.mouse,
+				gamepad: controls.settings.gamepad == 1,
+				controls: controllist,
+			});
+
+			rebindControls(noa, controllist);
+
+			noa.camera.sensitivityX = controls.settings.mouse;
+			noa.camera.sensitivityY = controls.settings.mouse;
+			controls.main.dispose();
+			main.main.isVisible = true;
+		});
 	});
+
+	if (gameSettings.debugSettings.makeSettingsVisible) {
+		const controlsButton = main.createItem('debug', 'Debug [☣]');
+
+		controlsButton.item.onPointerClickObservable.add(() => {
+			main.main.isVisible = false;
+
+			const typeMap = {};
+
+			const debug = new SettingsGUI('debug', [{ text: 'Debug [☣]' }]);
+
+			for (const action in gameSettings.debugSettings) {
+				typeMap[action] = typeof gameSettings.debugSettings[action];
+
+				switch (typeMap[action]) {
+					case 'boolean':
+						debug.createSelectable(action, (v) => `${action}: ${disEn(v)}`, gameSettings.debugSettings[action] ? 1 : 0, [false, true]);
+						break;
+					default:
+						console.log(`Can't create field for ${action} (${typeMap[action]})`);
+				}
+			}
+
+			debug.createSettingButton('Back', () => {
+				const debugSettings = { ...gameSettings.debugSettings };
+
+				for (const i in debug.settings) {
+					switch (typeMap[i]) {
+						case 'boolean':
+							debugSettings[i] = debug.settings[i] == 1;
+							break;
+					}
+				}
+				updateSettings({
+					debugSettings: debugSettings,
+				});
+
+				debug.main.dispose();
+				main.main.isVisible = true;
+			});
+
+			holder.addControl(debug.main);
+		});
+	}
 
 	return main.main;
 }
