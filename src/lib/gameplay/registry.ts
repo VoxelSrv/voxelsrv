@@ -30,6 +30,7 @@ export function registerBlocks(noa: Engine, blockList) {
 
 	blocks = blockList;
 
+
 	// Create lookup tables
 	const list = Object.values(blockList);
 	list.forEach((x: any) => {

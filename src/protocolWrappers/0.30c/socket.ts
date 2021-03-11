@@ -20,6 +20,8 @@ import {
 import { IPlayerTeleport, IWorldChunkLoad, UpdateTextBoard } from 'voxelsrv-protocol/js/server';
 import { socket } from '../../lib/gameplay/connect';
 import { ProxyHandler } from '../../lib/gameplay/proxyHandler';
+import { IFormatedText } from '../../gui/parts/formtextblock';
+import { number } from 'mathjs';
 
 const colormap = {
 	'1': 'blue',
@@ -89,6 +91,24 @@ function replaceAll(text: string, toRep: string, out: string): string {
 	return x1;
 }
 
+function parseText(message: string): IFormatedText[] {
+	const text: string[] = message.split(/(&[0-9a-fA-F])/);
+
+	const msg = [{ text: '', color: 'white' }];
+	let x = 0;
+	for (x = 0; x < text.length; x++) {
+		if (text[x] == undefined) continue;
+		else if (text[x][0] == '&' && /([kmobnr])/.test(text[x][1])) continue;
+		else if (text[x][0] == '&' && /([0-9a-fA-F])/.test(text[x][1])) {
+			msg.push({ text: '', color: colormap[text[x][1]] });
+		} else {
+			msg[msg.length - 1].text = msg[msg.length - 1].text + text[x];
+		}
+	}
+
+	return msg;
+}
+
 const movement = {
 	airJumps: 0,
 	airMoveMult: 0.5,
@@ -114,6 +134,7 @@ const floor = new ndarray(new Uint16Array(32768).fill(256), [32, 32, 32]);
 export default function connectToClassic30Server(proxyHandler: ProxyHandler) {
 	const classic = new Client();
 	let inGame = false;
+	let sendMessage = true;
 	console.log('Using classic protocol');
 
 	proxyHandler.serverListener = async (data) => {
@@ -145,7 +166,7 @@ export default function connectToClassic30Server(proxyHandler: ProxyHandler) {
 		z: 0,
 	};
 	let canMove = false;
-	let worldPackets = [];
+	let worldPackets: Array<IWorldChunkLoad & { tmp?: number }> = [];
 	const entities = {};
 	let playerData = {
 		x: 0,
@@ -191,14 +212,16 @@ export default function connectToClassic30Server(proxyHandler: ProxyHandler) {
 	});
 
 	function updateTab() {
-		let message = [];
+		let message = '';
 		Object.values(entities).forEach((x: any) => {
-			message.push({ text: x.name + '\n', color: 'white' });
+			message = x.name + '\n';
 		});
 
-		message.push({ text: proxyHandler.loginData.username, color: 'white' });
+		const out = parseText(message);
 
-		proxyHandler.socket.receive('UpdateTextBoard', { message: message, time: Date.now(), type: UpdateTextBoard.Type.TAB });
+		out.push({ text: proxyHandler.loginData.username, color: 'white' });
+
+		proxyHandler.socket.receive('UpdateTextBoard', { message: out, time: Date.now(), type: UpdateTextBoard.Type.TAB });
 	}
 
 	proxyHandler.onClient('ActionInventoryClick', (data: IActionInventoryClick) => {
@@ -314,21 +337,7 @@ export default function connectToClassic30Server(proxyHandler: ProxyHandler) {
 	proxyHandler.onClient('ActionClickEntity', (data: IActionClickEntity) => {});
 
 	classic.on('message', (d) => {
-		const text: string[] = d.message.split(/(&[0-9a-fA-F])/);
-
-		const msg = [{ text: '', color: 'white' }];
-		let x = 0;
-		for (x = 0; x < text.length; x++) {
-			if (text[x] == undefined) continue;
-			else if (text[x][0] == '&' && /([kmobnr])/.test(text[x][1])) continue;
-			else if (text[x][0] == '&' && /([0-9a-fA-F])/.test(text[x][1])) {
-				msg.push({ text: '', color: colormap[text[x][1]] });
-			} else {
-				msg[msg.length - 1].text = msg[msg.length - 1].text + text[x];
-			}
-		}
-
-		proxyHandler.socket.receive('ChatMessage', { message: msg });
+		proxyHandler.socket.receive('ChatMessage', { message: parseText(d.message) });
 	});
 
 	classic.on('spawn_player', (d) => {
@@ -350,6 +359,22 @@ export default function connectToClassic30Server(proxyHandler: ProxyHandler) {
 
 			playerData = { x: d.z / 32, y: d.y / 32, z: d.x / 32, rotation: 0, pitch: 0 };
 
+			const cX = Math.floor(d.z / 1024);
+			const cZ = Math.floor(d.x / 1024);
+
+			let c: IWorldChunkLoad & { tmp?: number };
+			let dx: number, dz: number;
+
+			for (c of worldPackets) {
+				dx = c.x - cX;
+				dz = c.z - cZ;
+				c.tmp = 10 * (dx * dx + dz * dz);
+			}
+
+			worldPackets.sort((a, b) => b.tmp - a.tmp);
+
+			socket.noa.ents.getPhysics(socket.noa.playerEntity).body.airDrag = 999;
+
 			worldPackets.forEach((p) => proxyHandler.socket.receive('WorldChunkLoad', p));
 
 			proxyHandler.socket.receive('PlayerEntity', {
@@ -358,12 +383,6 @@ export default function connectToClassic30Server(proxyHandler: ProxyHandler) {
 				skin: 'skins:' + proxyHandler.loginData.uuid,
 			});
 			inGame = true;
-
-			const data: IPlayerTeleport = {
-				x: d.z / 32,
-				y: d.y / 32,
-				z: d.x / 32,
-			};
 
 			canMove = true;
 		} else {
@@ -555,17 +574,17 @@ export default function connectToClassic30Server(proxyHandler: ProxyHandler) {
 				}
 			}
 		}
-		classic.send('message', { message: 'This user connected to this server with VoxelSrv' });
+		if (sendMessage) {
+			classic.send('message', { message: 'This user connected to this server with VoxelSrv' });
+			sendMessage = false;
+		}
 
 		const buffer = Buffer.from(border.data.buffer, border.data.byteOffset);
 		const fBuffer = Buffer.from(floor.data.buffer, floor.data.byteOffset);
 
-		for (let x = -1; x <= worldSize.z + 1; x++) {
-			for (let z = -1; z <= worldSize.x + 1; z++) {
-				await new Promise((resolve) => {
-					setTimeout(() => resolve(null), 50);
-				});
-				if (x < 0 || x >= worldSize.z || z < 0 || z >= worldSize.x) {
+		for (let x = -2; x <= k2 + 2; x++) {
+			for (let z = -2; z <= i2 + 2; z++) {
+				if (x < 0 || x >= k2 || z < 0 || z >= i2) {
 					const data: IWorldChunkLoad = {
 						x: x,
 						y: 0,
@@ -598,6 +617,5 @@ export default function connectToClassic30Server(proxyHandler: ProxyHandler) {
 				}
 			}
 		}
-		socket.noa.ents.getPhysics(socket.noa.playerEntity).body.airDrag = -1;
 	});
 }

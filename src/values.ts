@@ -4,7 +4,8 @@ import { setScale } from './gui/main';
 import { IFormatedText } from './gui/parts/formtextblock';
 import { protocolVersion } from 'voxelsrv-protocol/const.json';
 
-export const gameVersion = '0.2.0-beta.18';
+export const gameVersion = '0.2.0-beta.19';
+export const debug = false;
 
 export const gameProtocol = protocolVersion;
 
@@ -135,7 +136,7 @@ export const defaultValues = {
 
 export function noaOpts() {
 	return {
-		debug: false,
+		debug: debug,
 		showFPS: false,
 		inverseY: false,
 		inverseX: false,
@@ -205,35 +206,26 @@ export function setNoa(x) {
 }
 
 let tempHost = '???';
-let tempLoginEnabled = false;
 export const hostname = window.location.hostname;
 export const parms = new URLSearchParams(window.location.search);
 
 if (hostname == '0.0.0.0' || hostname == 'localhost') {
 	tempHost = 'Localhost/DEV';
-	tempLoginEnabled = true;
 } else if (hostname == 'voxelsrv-master.pb4.eu') {
 	tempHost = 'Development';
-	tempLoginEnabled = true;
 } else if (hostname == 'voxelsrv.pb4.eu') {
 	tempHost = '';
-	tempLoginEnabled = true;
 } else if (hostname == 'pb4.eu') {
 	tempHost = '';
-	tempLoginEnabled = true;
 } else if (hostname == 'www.newgrounds.com' || hostname == 'uploads.ungrounded.net') {
 	tempHost = 'Newgrounds';
-	tempLoginEnabled = false;
 } else if (window['electron'] != undefined) {
 	tempHost = '';
-	tempLoginEnabled = true;
 } else {
 	tempHost = 'Unofficial/Undefined rehost!';
-	tempLoginEnabled = false;
 }
 
 export let hostedOn = tempHost;
-export let useDefaultLogin = tempLoginEnabled;
 
 const splashes: IFormatedText[][] = [
 	[{ text: `It's not Minecraft clone... or is it?` }],
@@ -257,7 +249,7 @@ const splashes: IFormatedText[][] = [
 	[{ text: `Includes bugs` }],
 	[{ text: `Checkout on github!` }],
 	[{ text: `+ 5 new DLC characters` }],
-	[{ text: `TODO: Add accounts` }],
+	[{ text: `Undefined` }],
 	[{ text: `Does anyone read these?` }],
 	[{ text: `Created by Patbox` }],
 	[{ text: `Classical gameplay` }],
@@ -283,7 +275,7 @@ export const aboutText = [
 	{ text: 'Patbox', url: 'https://github.com/Patbox', color: 'lightblue' },
 	{ text: '\nBuild on top of ' },
 	{ text: 'Noa Engine by Andy Hall', color: 'lightblue', url: 'https://github.com/andyhall/noa' },
-	{ text: '\nUsed textures: ' },
+	{ text: '\nUsed textures and sounds: ' },
 	{ text: 'PixelPerfection', color: 'lightblue', url: 'https://github.com/Athemis/PixelPerfectionCE' },
 	{ text: ' by XSSheep and others' },
 	{ text: '\n\n\n' },

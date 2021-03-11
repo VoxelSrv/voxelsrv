@@ -1,6 +1,6 @@
 {
 	"name": "voxelsrv",
-	"version": "0.2.0-beta.12",
+	"version": "0.2.0-beta.19",
 	"description": "Simple voxel game",
 	"main": "",
 	"scripts": {
@@ -18,9 +18,9 @@
 	"author": "Patbox <patbox4@outlook.com> (https://pb4.eu)",
 	"license": "MIT",
 	"dependencies": {
-		"@babylonjs/core": "^5.0.0-alpha.12",
-		"@babylonjs/gui": "^5.0.0-alpha.12",
-		"@babylonjs/materials": "^5.0.0-alpha.12",
+		"@babylonjs/core": "^5.0.0-alpha.14",
+		"@babylonjs/gui": "^5.0.0-alpha.14",
+		"@babylonjs/materials": "^5.0.0-alpha.14",
 		"@types/css-font-loading-module": "^0.0.4",
 		"@types/mathjs": "^6.0.11",
 		"@types/readable-stream": "^2.3.9",
@@ -46,7 +46,7 @@
 		"open-simplex-noise": "^2.4.0",
 		"pako": "^1.0.11",
 		"protobufjs": "^6.10.2",
-		"protodef": "^1.9.0",
+		"protodef": "^1.10.0",
 		"readable-stream": "^3.6.0",
 		"sanitize-filename": "^1.6.3",
 		"threads": "^1.6.3",
@@ -55,13 +55,13 @@
 		"voxel-physics-engine": "^0.10.0",
 		"voxelsrv-protocol": "github:VoxelSrv/protocol#v3",
 		"voxelsrv-server": "github:VoxelSrv/voxelsrv-server",
-		"ws": "^7.4.3"
+		"ws": "^7.4.4"
 	},
 	"devDependencies": {
 		"@babel/types": "^7.13.0",
 		"@types/ws": "^7.4.0",
 		"threads-plugin": "^1.4.0",
-		"ts-loader": "^8.0.17",
+		"ts-loader": "^8.0.18",
 		"typescript": "^4.2.3",
 		"webpack": "^4.46.0",
 		"webpack-cli": "^3.3.12",

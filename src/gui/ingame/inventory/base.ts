@@ -84,10 +84,13 @@ export function getBaseInventory(noa: Engine, socket: BaseSocket) {
 	tempslot.container.isPointerBlocker = false;
 	tempslot.count.isPointerBlocker = false;
 	tempslot.item.isPointerBlocker = false;
+	tempslot.item.isHitTestVisible = false;
+	tempslot.container.isHitTestVisible = false;
+	tempslot.count.isHitTestVisible = false;
 
 	const tempSlotUpdate = (data) => {
-		tempslot.container.left = data.x + 10;
-		tempslot.container.top = data.y + 10;
+		tempslot.container.left = data.x;
+		tempslot.container.top = data.y;
 	};
 
 	ui.onPointerMoveObservable.add(tempSlotUpdate);

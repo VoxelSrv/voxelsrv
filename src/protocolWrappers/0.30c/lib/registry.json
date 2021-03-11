@@ -156,7 +156,7 @@
 			"hardness": 1,
 			"miningtime": 0,
 			"tool": "pickaxe",
-			"type": 1, 
+			"type": 1,
 			"unbreakable": false
 		},
 		"bedrock": {
@@ -568,7 +568,10 @@
 			"rawid": 44,
 			"id": "slab",
 			"texture": ["block/smooth_stone", "block/smooth_stone_slab_side"],
-			"options": {},
+			"options": {
+				"customColision": [{ "base": [0, 0, 0], "max": [1, 0.5, 1] }],
+				"solid": false
+			},
 			"hardness": 1,
 			"miningtime": 0,
 			"tool": "pickaxe",
