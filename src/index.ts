@@ -40,7 +40,6 @@ getSettings().then(async (data: IGameSettings) => {
 	updateSettings(data);
 	// @ts-ignore
 	const tempNoa = new Engine2(noaOpts());
-
 	const noa: Engine = tempNoa;
 	constructScreen(noa);
 
@@ -65,7 +64,7 @@ getSettings().then(async (data: IGameSettings) => {
 		}
 	});
 
-	rebindControls(noa, data.controls);
+	rebindControls(noa, gameSettings.controls);
 
 	noa.world.maxChunksPendingCreation = Infinity;
 
