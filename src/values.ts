@@ -4,8 +4,8 @@ import { setScale } from './gui/main';
 import { IFormatedText } from './gui/parts/formtextblock';
 import { protocolVersion } from 'voxelsrv-protocol/const.json';
 
-export const gameVersion = '0.2.0-beta.19.1';
-export const debug = false;
+export const gameVersion = '0.2.0-beta.20';
+export const debug = true;
 
 export const gameProtocol = protocolVersion;
 

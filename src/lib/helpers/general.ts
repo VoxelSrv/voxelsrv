@@ -1,3 +1,5 @@
+import { IFormatedText } from "../../gui/parts/formtextblock";
+
 export function downloadBlob(blob: Blob, name: string) {
 	const blobUrl = URL.createObjectURL(blob);
 	const link = document.createElement('a');
@@ -12,4 +14,11 @@ export function downloadBlob(blob: Blob, name: string) {
 		})
 	);
 	document.body.removeChild(link);
+}
+
+
+export function stringifyText(text: IFormatedText[]): string {
+	let st = '';
+	text.forEach((x) => st += x.text)
+	return st;
 }

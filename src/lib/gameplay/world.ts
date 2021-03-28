@@ -27,10 +27,10 @@ export async function setChunk(data: IWorldChunkLoad) {
 	if (data.compressed) {
 		// Decompress
 		let x = 32 * 32 * 32 * height;
-		data.data = await inflate(data.data, x);
+		data.blockData = await inflate(data.blockData, x);
 	}
 
-	let array = new Uint16Array(data.data.buffer, data.data.byteOffset);
+	let array = new Uint16Array(data.blockData.buffer, data.blockData.byteOffset);
 
 	// Creates chunk, used for breaking it into 32x32x32 ones
 	const chunk = new ndarray(array, [32, 32 * height, 32]);

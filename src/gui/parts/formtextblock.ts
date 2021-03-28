@@ -10,15 +10,9 @@ import { Control } from '@babylonjs/gui/2D/controls/control';
 import { Nullable } from '@babylonjs/core/types';
 import { Vector2 } from '@babylonjs/core/Maths';
 import { PointerInfoBase } from '@babylonjs/core';
+import { IChatComponentType } from 'voxelsrv-protocol/js/client';
 
-export interface IFormatedText {
-	text: string;
-	color?: string;
-	font?: string;
-	underline?: boolean;
-	linethrough?: boolean;
-	url?: string;
-}
+export type IFormatedText = IChatComponentType;
 
 interface IRefText {
 	text: string;
@@ -276,7 +270,6 @@ export class FormTextBlock extends Control {
 			if (txt.text == undefined) return;
 			if (txt.ref.font == undefined) txt.ref.font = defaultFont;
 
-
 			context.font = `${this.fontSize} ${txt.ref.font}`;
 			context.fillStyle = txt.ref.color || defaultFillStyle;
 			const measure = context.measureText(txt.text);
@@ -307,7 +300,14 @@ export class FormTextBlock extends Control {
 			context.strokeStyle = defaultStrokeStyle;
 			context.lineWidth = defaultLineWitdh;
 
-			const txtArea = { x1: this._currentMeasure.left + x, x2: this._currentMeasure.left + x + measure.width, y1: y, y2: y - this.fontSizeInPixels, text: txt.text, ref: txt.ref };
+			const txtArea = {
+				x1: this._currentMeasure.left + x,
+				x2: this._currentMeasure.left + x + measure.width,
+				y1: y,
+				y2: y - this.fontSizeInPixels,
+				text: txt.text,
+				ref: txt.ref,
+			};
 			newTextAreas.push(txtArea);
 
 			x = x + measure.width;
@@ -347,7 +347,7 @@ export class FormTextBlock extends Control {
 				for (let y = 1; y < x.length; y++) {
 					textList.push([{ text: x[y], ref: val }]);
 				}
-			} else textList[textList.length - 1].push({text: val.text, ref: val});
+			} else textList[textList.length - 1].push({ text: val.text, ref: val });
 		});
 
 		for (var _line of textList) {
@@ -398,7 +398,7 @@ export class FormTextBlock extends Control {
 
 		var lineWidth = 0;
 
-		context.font = `${this.fontSize} ${line[0].ref.font}`;
+		context.font = `${this?.fontSize} ${line[0]?.ref?.font}`;
 		let metrics = context.measureText(textOnly);
 		context.font = defaultFont;
 

@@ -1,6 +1,6 @@
 import { getScreen, scale, event } from '../../main';
 import * as GUI from '@babylonjs/gui/';
-import { ActionInventoryClick } from 'voxelsrv-protocol/js/client';
+import { ActionInventoryClick, InventoryType, MouseClickType } from 'voxelsrv-protocol/js/client';
 
 import { ItemSlot, createSlot, updateSlot } from '../../parts/itemSlot';
 import { defaultValues } from '../../../values';
@@ -74,19 +74,19 @@ export function openCrafting(noa: Engine, socket: BaseSocket) {
 		}
 
 		container.onPointerClickObservable.add((e) => {
-			let click = ActionInventoryClick.Type.LEFT;
+			let click = MouseClickType.LEFT;
 			switch (e.buttonIndex) {
 				case 0:
-					click = ActionInventoryClick.Type.LEFT;
+					click = MouseClickType.LEFT;
 					break;
 				case 1:
-					click = ActionInventoryClick.Type.MIDDLE;
+					click = MouseClickType.MIDDLE;
 					break;
 				case 2:
-					click = ActionInventoryClick.Type.RIGHT;
+					click = MouseClickType.RIGHT;
 					break;
 			}
-			socket.send('ActionInventoryClick', { slot: x, type: click, inventory: ActionInventoryClick.TypeInv.HOOK });
+			socket.send('ActionInventoryClick', { slot: x, type: click, inventory: InventoryType.HOOK });
 		});
 		container.onPointerEnterObservable.add((e) => {
 			container.background = '#ffffff22';

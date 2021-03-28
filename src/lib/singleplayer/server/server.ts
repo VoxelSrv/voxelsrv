@@ -38,9 +38,13 @@ socket.send = (type: string, data: Object) => {
 
 const emit = (type: string, data: any) => {
 	if (socket.listeners[type] != undefined) {
-		socket.listeners[type].forEach((func) => {
-			func(data);
-		});
+		if (socket.listeners[type] != undefined) {
+			socket.listeners[type] = socket.listeners[type].filter((event) => {
+				event.callback(data);
+				
+				return !event.remove;
+			});
+		}
 	}
 };
 

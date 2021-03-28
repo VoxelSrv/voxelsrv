@@ -1,11 +1,10 @@
 import { ILoginResponse } from 'voxelsrv-protocol/js/client';
 import { IAuthRequest } from 'voxelsrv-protocol/js/proxy-client';
-import { IAuthResponce, IProxyInfo } from 'voxelsrv-protocol/js/proxy-server';
+import { IAuthResponce, ILoginRequest } from 'voxelsrv-protocol/js/proxy-server';
 
 import { proxyVersion } from 'voxelsrv-protocol/const.json';
 import { ProxySocket } from '../../socket';
 import connectToClassic30Server from '../../protocolWrappers/0.30c/socket';
-import { ILoginRequest } from 'voxelsrv-protocol/js/server';
 import { gameProtocol } from '../../values';
 
 export class ProxyHandler {
@@ -28,7 +27,7 @@ export class ProxyHandler {
 	async receiveServerMessage(type: string, data: any) {
 		switch (type) {
 			case 'ProxyInfo':
-				const unmapped: IProxyInfo = data;
+				const unmapped: ILoginRequest = data;
 				const remapped: ILoginRequest = {
 					name: unmapped.name,
 					protocol: gameProtocol,
@@ -51,13 +50,13 @@ export class ProxyHandler {
 				}
 				break;
 			case 'Disconnect':
-				this.socket.receive('PlayerKick', { reason: data.reason });
+				this.socket.receive('PlayerKick', { reason: [{ text: data.reason }] });
 				this.socket.close();
 				break;
 			case 'Data':
-				this.serverListener(data.message)
+				this.serverListener(data.message);
 				break;
-			}
+		}
 	}
 
 	receiveClientMessage(type: string, data: any) {
@@ -87,7 +86,7 @@ export class ProxyHandler {
 			if (data.type == 'mc0.30c') {
 				connectToClassic30Server(this);
 			} else {
-				this.socket.receive('PlayerKick', {reason: `Unsupported protocol translation: ${data.type}`})
+				this.socket.receive('PlayerKick', { reason: [{ text: `Unsupported protocol translation: ${data.type}` }] });
 				this.socket.close();
 			}
 		} else {

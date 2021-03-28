@@ -10,11 +10,12 @@ import { getUI } from '../../gui/main';
 import { pauseScreen } from '../../gui/menu/pause';
 import { tabContainer } from '../../gui/tab';
 import { debug, dot } from '../../gui/ingame/debug';
-import { ActionInventoryClick, ActionInventoryClose } from 'voxelsrv-protocol/js/client';
+import { ActionInventoryClick, ActionInventoryClose, ContainerType, InventoryType, MouseClickType } from 'voxelsrv-protocol/js/client';
 import type { Engine } from 'noa-engine';
 import { closeCrafting, craftingInventory } from '../../gui/ingame/inventory/crafting';
 import { chestInventory, closeChest } from '../../gui/ingame/inventory/chest';
 import { isMobile } from 'mobile-device-detect';
+import { Container } from 'noa-engine/types/lib/container';
 
 const screenshot = require('canvas-screenshot');
 
@@ -78,7 +79,7 @@ export function setupControls(noa: any) {
 
 	noa.blockTargetIdCheck = function (id: number) {
 		if (blockIDmap[id] != undefined && id != 0 && blocks[blockIDmap[id]] != undefined) {
-			if (blocks[blockIDmap[id]].options.fluid == true) return false;
+			if (blocks[blockIDmap[id]]?.fluid == true) return false;
 			return true;
 		} else return false;
 	};
@@ -90,17 +91,17 @@ export function setupControls(noa: any) {
 
 		const entClick = castRay();
 		if (!!entClick) {
-			socketSend('ActionClickEntity', { type: 'left', uuid: entClick[0], distance: entClick[1] });
-			socketSend('ActionClick', { type: 'left', x: 0, y: 0, z: 0, onBlock: false });
+			socketSend('ActionClickEntity', { type: MouseClickType.LEFT, uuid: entClick[0], distance: entClick[1] });
+			socketSend('ActionClick', { type: MouseClickType.LEFT, x: 0, y: 0, z: 0, onBlock: false });
 			return;
 		}
 		if (noa.targetedBlock) {
 			//startBreakingBlock(noa.targetedBlock.position, noa.targetedBlock.blockID)
 			const pos = noa.targetedBlock.position;
-			socketSend('ActionClick', { type: 'left', x: pos[0], y: pos[1], z: pos[2], onBlock: true });
+			socketSend('ActionClick', { type: MouseClickType.LEFT, x: pos[0], y: pos[1], z: pos[2], onBlock: true });
 			socketSend('ActionBlockBreak', { x: pos[0], y: pos[1], z: pos[2], finished: true });
 			return;
-		} else socketSend('ActionClick', { type: 'left', x: 0, y: 0, z: 0, onBlock: false });
+		} else socketSend('ActionClick', { type: MouseClickType.LEFT, x: 0, y: 0, z: 0, onBlock: false });
 	});
 
 	noa.inputs.up.on('fire', function () {
@@ -114,20 +115,20 @@ export function setupControls(noa: any) {
 		if (!serverSettings.ingame || !testIsIn(noa)) return;
 		const entClick = castRay();
 		if (!!entClick) {
-			socketSend('ActionClickEntity', { type: 'right', uuid: entClick[0], distance: entClick[1] });
-			socketSend('ActionClick', { type: 'right', x: 0, y: 0, z: 0, onBlock: false });
+			socketSend('ActionClickEntity', { type: MouseClickType.RIGHT, uuid: entClick[0], distance: entClick[1] });
+			socketSend('ActionClick', { type: MouseClickType.RIGHT, x: 0, y: 0, z: 0, onBlock: false });
 			return;
 		}
 
 		if (noa.targetedBlock != undefined) {
 			const pos = noa.targetedBlock.adjacent;
 			const pos2 = noa.targetedBlock.position;
-			socketSend('ActionClick', { type: 'right', x: pos2[0], y: pos2[1], z: pos2[2], onBlock: true });
+			socketSend('ActionClick', { type: MouseClickType.RIGHT, x: pos2[0], y: pos2[1], z: pos2[2], onBlock: true });
 			if (noa.ents.isTerrainBlocked(pos[0], pos[1], pos[2]) == false) {
 				socketSend('ActionBlockPlace', { x: pos[0], y: pos[1], z: pos[2], x2: pos2[0], y2: pos2[1], z2: pos2[2] });
 			}
 			return;
-		} else socketSend('ActionClick', { type: 'right', x: 0, y: 0, z: 0, onBlock: false });
+		} else socketSend('ActionClick', { type: MouseClickType.RIGHT, x: 0, y: 0, z: 0, onBlock: false });
 	});
 
 	// pick block on middle fire (MMB/Q)
@@ -139,7 +140,7 @@ export function setupControls(noa: any) {
 			const slot = inventoryHasItem(item, 1);
 			const sel = noa.ents.getState(eid, 'inventory').selected;
 			if (slot != -1 && slot < 9) {
-				socketSend('ActionInventoryClick', { slot: slot, inventory: ActionInventoryClick.TypeInv.MAIN, type: ActionInventoryClick.Type.SELECT });
+				socketSend('ActionInventoryClick', { slot: slot, inventory: InventoryType.MAIN, type: MouseClickType.SELECT });
 				noa.ents.getState(eid, 'inventory').selected = slot;
 			} else if (slot != -1) socketSend('ActionInventoryPick', { slot: slot, slot2: sel, block: noa.targetedBlock.blockID });
 		}
@@ -161,17 +162,17 @@ export function setupControls(noa: any) {
 		if (!!inventory) {
 			closeInventory();
 			noa.container.canvas.requestPointerLock();
-			socketSend('ActionInventoryClose', { inventory: ActionInventoryClose.Type.MAIN });
+			socketSend('ActionInventoryClose', { inventory: ContainerType.PLAYER });
 		} else if (!!craftingInventory) {
 			closeCrafting();
 			noa.container.canvas.requestPointerLock();
-			socketSend('ActionInventoryClose', { inventory: ActionInventoryClose.Type.CRAFTING });
+			socketSend('ActionInventoryClose', { inventory: ContainerType.CRAFTING });
 		} else if (!!chestInventory) {
 			closeChest();
 			noa.container.canvas.requestPointerLock();
-			socketSend('ActionInventoryClose', { inventory: ActionInventoryClose.Type.CHEST });
+			socketSend('ActionInventoryClose', { inventory: ContainerType.CHEST });
 		} else {
-			socketSend('ActionInventoryOpen', { inventory: ActionInventoryClose.Type.MAIN });
+			socketSend('ActionInventoryOpen', { inventory: ContainerType.PLAYER });
 			openInventory(noa, socket)
 			document.exitPointerLock();
 		}
@@ -213,16 +214,16 @@ export function setupControls(noa: any) {
 
 		if (!!inventory) {
 			closeInventory();
-			socketSend('ActionInventoryClose', { inventory: ActionInventoryClose.Type.MAIN });
+			socketSend('ActionInventoryClose', { inventory: ContainerType.PLAYER });
 			return;
 		} else if (!!craftingInventory) {
 			closeCrafting();
-			socketSend('ActionInventoryClose', { inventory: ActionInventoryClose.Type.CRAFTING});
+			socketSend('ActionInventoryClose', { inventory: ContainerType.CRAFTING});
 			return;
 		} else if (!!chestInventory) {
 			closeChest();
 			noa.container.canvas.requestPointerLock();
-			socketSend('ActionInventoryClose', { inventory: ActionInventoryClose.Type.CHEST });
+			socketSend('ActionInventoryClose', { inventory: ContainerType.CHEST });
 			return;
 		}
 
@@ -312,14 +313,14 @@ export function setupControls(noa: any) {
 			pickedID = pickedID + change;
 			if (pickedID >= gameSettings.hotbarsize) pickedID = 0;
 			else if (pickedID < 0) pickedID = 8;
-			socketSend('ActionInventoryClick', { slot: pickedID, type: ActionInventoryClick.Type.SELECT, inventory: ActionInventoryClick.TypeInv.MAIN });
+			socketSend('ActionInventoryClick', { slot: pickedID, type: MouseClickType.SELECT, inventory: InventoryType.MAIN });
 			noa.ents.getState(eid, 'inventory').selected = pickedID;
 		}
 
 		if (noa.inputs.state.jump) {
 			const pos = noa.ents.getPosition(eid);
 			const block = blocks[blockIDmap[noa.getBlock(Math.floor(pos[0]), Math.floor(pos[1]), Math.floor(pos[2]))]];
-			if (block != undefined && block.options.fluid == true) {
+			if (block != undefined && block.fluid == true) {
 				noa.ents.getPhysicsBody(eid).applyImpulse([0, 1, 0]);
 			}
 		}
@@ -334,7 +335,7 @@ export function setupControls(noa: any) {
 			const num = parseInt(e.key);
 			let pickedID = noa.ents.getState(eid, 'inventory').selected;
 			pickedID = num - 1;
-			socketSend('ActionInventoryClick', { slot: pickedID, type: ActionInventoryClick.Type.SELECT, inventory: ActionInventoryClick.TypeInv.MAIN });
+			socketSend('ActionInventoryClick', { slot: pickedID, type: MouseClickType.SELECT, inventory: InventoryType.MAIN });
 			noa.ents.getState(eid, 'inventory').selected = pickedID;
 		}
 	});

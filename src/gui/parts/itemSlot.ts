@@ -1,5 +1,6 @@
 import { items } from "../../lib/gameplay/registry";
 import * as GUI from '@babylonjs/gui/';
+import { Item } from "voxelsrv-protocol/js/client";
 
 export type ItemSlot = {
 	item: GUI.Image;
@@ -44,8 +45,8 @@ export function createSlot(scale: number): ItemSlot {
 	return slot;
 }
 
-export function updateSlot(guiSlot, invItem): boolean {
-	if (invItem != null && invItem.id != undefined) {
+export function updateSlot(guiSlot, invItem: Item): boolean {
+	if (invItem != null && invItem.id != undefined && invItem.id != '') {
 		guiSlot.item.alpha = 1;
 		guiSlot.count.alpha = 1;
 		const item = items[invItem.id];

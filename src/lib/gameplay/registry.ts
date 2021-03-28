@@ -5,8 +5,8 @@
  */
 
 import * as BABYLON from '@babylonjs/core/Legacy/legacy';
-import * as MATERIALS from '@babylonjs/materials';
 import type { Engine } from 'noa-engine';
+import { BlockDef } from 'voxelsrv-protocol/js/client';
 import { gameSettings } from '../../values';
 import { getAsset } from '../helpers/assets';
 
@@ -19,7 +19,7 @@ export let items = {};
 export let blockIDs = {};
 export let blockIDmap = {};
 
-export function registerBlocks(noa: Engine, blockList) {
+export function registerBlocks(noa: Engine, blockList: BlockDef[]) {
 	const scene = noa.rendering.getScene();
 
 	// Saves blocks for later lookups
@@ -28,103 +28,109 @@ export function registerBlocks(noa: Engine, blockList) {
 		console.log('Blocks', blockList);
 	}
 
-	blocks = blockList;
-
-
 	// Create lookup tables
-	const list = Object.values(blockList);
-	list.forEach((x: any) => {
-		blockIDs[x.id] = x.rawid;
-		blockIDmap[x.rawid] = x.id;
+	blockList.forEach((x) => {
+		blocks[x.id] = x;
+		blockIDs[x.id] = x.numId;
+		blockIDmap[x.numId] = x.id;
 	});
 
-	// Temponary
-	noa.registry.registerMaterial('water', [0.5, 0.5, 0.8, 0.7], null, true);
-	noa.registry.registerMaterial('barrier', [0.0, 0.0, 0.0, 0.0], null, true);
-
-	const entries = Object.values(blockList);
-
 	// Create blocks from registry
-	entries.forEach(function (item: any) {
+	blockList.forEach((block) => {
 		try {
-			createBlock(item.rawid, item.id, item.type, item.texture, item.options, item.hardness, item.miningtime, item.tool);
+			createBlock(block);
 		} catch (e) {
-			console.log(e);
+			console.error(e, block);
 		}
 	});
 
-	function createBlock(id, name, type, texture, options, hardness, miningtime, tool) {
-		if (type == 0) {
+	function createBlock(block: BlockDef) {
+		if (block.type == BlockDef.Type.BLOCK) {
 			let mat: any;
 
-			let txtTransparent = options.opaque == false ? true : false;
-			let color: number[] = options.color != undefined ? Object.values(options.color) : [0, 0, 0];
+			let txtTransparent = !block.opaque ?? false;
+			let color: number[] = block.color ?? [0, 0, 0];
 
-			if (texture == undefined) texture = [''];
-
-			if (texture.length == 1 && options.material == undefined) {
-				noa.registry.registerMaterial(name, color, texture[0] != '' ? getAsset(texture[0], 'texture') : null, txtTransparent);
-				mat = name;
-			} else if (options.material == undefined) {
+			if (block.textures.length == 0) {
+				noa.registry.registerMaterial(block.id, color, null, false);
+				mat = block.id;
+			} else if (block.textures.length == 1 && (block.material == undefined || block.material.length == 0)) {
+				noa.registry.registerMaterial(block.id, color, block.textures[0] != '' ? getAsset(block.textures[0], 'texture') : null, txtTransparent);
+				mat = block.id;
+			} else if (block.material == undefined || block.material.length == 0) {
 				mat = new Array();
-				for (let x = 0; x < texture.length; x++) {
-					noa.registry.registerMaterial(name + x, color, texture[x] != '' ? getAsset(texture[x], 'texture') : null, txtTransparent);
-					mat.push(name + x);
+				for (let x = 0; x < block.textures.length; x++) {
+					noa.registry.registerMaterial(block.id + x, color, block.textures[x] != '' ? getAsset(block.textures[x], 'texture') : null, txtTransparent);
+					mat.push(block.id + x);
 				}
 			} else {
-				mat = options.material;
+				mat = block.material.length != 0 ? (block.material.length == 1 ? block.material[0] : block.material) : undefined;
 			}
-			const finOpts = options;
-			finOpts.material = mat;
-			noa.registry.registerBlock(id, finOpts);
-		} else if (type == 1) {
-			const mesh = makePlantSpriteMesh(noa, scene, texture[0], name);
-			const finOpts = options;
-			finOpts.blockMesh = mesh;
-			noa.registry.registerBlock(id, finOpts);
-		} else if (type == 2) {
-			const mesh = makeCactusMesh(noa, scene, [texture[0], texture[1]], name);
-			const finOpts = options;
-			finOpts.blockMesh = mesh;
-			noa.registry.registerBlock(id, finOpts);
-		} else if (type == 4) {
+
+			const finOpts = {
+				material: mat,
+				opaque: block.opaque ?? true,
+				fluid: block.fluid ?? false,
+				solid: block.solid ?? true,
+				fluidDensity: block.fluidDensity ?? 0,
+				viscosity: block.viscosity ?? 0,
+			};
+			noa.registry.registerBlock(block.numId, finOpts);
+		} else if (block.type == BlockDef.Type.CROSS) {
+			const mesh = makePlantSpriteMesh(noa, scene, block.textures?.[0] ?? '', block.id);
+			const finOpts = {
+				material: block.material.length != 0 ? (block.material.length == 1 ? block.material[0] : block.material) : undefined,
+				opaque: block.opaque ?? true,
+				fluid: block.fluid ?? false,
+				solid: block.solid ?? true,
+				fluidDensity: block.fluidDensity ?? 0,
+				viscosity: block.viscosity ?? 0,
+				blockMesh: mesh,
+			};
+			noa.registry.registerBlock(block.numId, finOpts);
+		} else if (block.type == BlockDef.Type.TRANSPARENT) {
 			let matl;
 
-			if (texture.length == 1 && options.material == undefined) {
-				const mat = noa.rendering.makeStandardMaterial(name);
+			if (block.textures.length == 1 && block.material.length == 0) {
+				const mat = noa.rendering.makeStandardMaterial(block.id);
 
 				let tex: any;
 
-				tex = new BABYLON.Texture(getAsset(texture[0], 'texture'), scene, true, true, BABYLON.Texture.NEAREST_SAMPLINGMODE);
+				tex = new BABYLON.Texture(getAsset(block.textures[0], 'texture'), scene, true, true, BABYLON.Texture.NEAREST_SAMPLINGMODE);
 
 				mat.diffuseTexture = tex;
 				mat.opacityTexture = mat.diffuseTexture;
 				mat.backFaceCulling = true;
-				noa.registry.registerMaterial(name, null, null, false, mat);
-				matl = name;
-			} else if (options.material == undefined) {
+				noa.registry.registerMaterial(block.id, null, null, false, mat);
+			} else if (block.material.length == 0) {
 				matl = new Array();
-				for (let x = 0; x < texture.length; x++) {
-					const mat = noa.rendering.makeStandardMaterial(name);
+				for (let x = 0; x < block.textures.length; x++) {
+					const mat = noa.rendering.makeStandardMaterial(block.id);
 
 					let tex: any;
 
-					tex = new BABYLON.Texture(getAsset(texture[0], 'texture'), scene, true, true, BABYLON.Texture.NEAREST_SAMPLINGMODE);
+					tex = new BABYLON.Texture(getAsset(block.textures[x], 'texture'), scene, true, true, BABYLON.Texture.NEAREST_SAMPLINGMODE);
 
 					mat.diffuseTexture = tex;
 					mat.opacityTexture = mat.diffuseTexture;
 					mat.backFaceCulling = true;
 
-					noa.registry.registerMaterial(name + x, null, null, false, mat);
-					mat.push(name + x);
+					noa.registry.registerMaterial(block.id + x, null, null, false, mat);
+					mat.push(block.id + x);
 				}
 			}
 
-			const finOpts = options;
-			finOpts.material = matl;
+			const finOpts = {
+				opaque: block.opaque ?? true,
+				fluid: block.fluid ?? false,
+				solid: block.solid ?? true,
+				fluidDensity: block.fluidDensity ?? 0,
+				viscosity: block.viscosity ?? 0,
+				material: matl,
+			};
 
 			//finOpts.blockMesh = mesh;
-			noa.registry.registerBlock(id, finOpts);
+			noa.registry.registerBlock(block.numId, finOpts);
 		}
 	}
 }
@@ -136,7 +142,7 @@ export function registerBlocks(noa: Engine, blockList) {
 export function registerItems(noa, itemList) {
 	items = itemList;
 	if (gameSettings.debugSettings.printRegistryToConsole) {
-		console.log('Items', {...itemList});
+		console.log('Items', { ...itemList });
 	}
 }
 
@@ -162,88 +168,4 @@ function makePlantSpriteMesh(noa, scene, url, name) {
 	clone.rotation.y += 1.62;
 
 	return BABYLON.Mesh.MergeMeshes([mesh, clone], true);
-}
-
-/*
- * Creates cactus mesh. It's little broken rn. Todo: replace it with custom model support
- */
-
-function makeCactusMesh(noa, scene: BABYLON.Scene, url: string[], name: string) {
-	const mesh = {};
-
-	let matname = name || 'mat';
-
-	const mat: BABYLON.StandardMaterial = noa.rendering.makeStandardMaterial(matname);
-	const mat2: BABYLON.StandardMaterial = noa.rendering.makeStandardMaterial(matname);
-
-	mat.backFaceCulling = false;
-	mat2.backFaceCulling = false;
-
-	const top = getAsset(url[0], 'texture');
-	const side = getAsset(url[1], 'texture');
-
-	mat.diffuseTexture = new BABYLON.Texture(side, scene, true, true, BABYLON.Texture.NEAREST_LINEAR); //new BABYLON.CubeTexture(side, scene, [], false, [side, top, side, side, top, side]);
-	mat.diffuseTexture.hasAlpha = true;
-
-	mat2.diffuseTexture = new BABYLON.Texture(top, scene, true, true, BABYLON.Texture.NEAREST_LINEAR); //new BABYLON.CubeTexture(side, scene, [], false, [side, top, side, side, top, side]);
-	mat2.diffuseTexture.hasAlpha = true;
-
-	for (let x = 0; x < 6; x++) {
-		mesh[x] = BABYLON.Mesh.CreatePlane('sprite-' + matname, 1, scene);
-		mesh[x].material = mat;
-		let offset: any;
-		switch (x) {
-			case 0:
-				offset = BABYLON.Matrix.Translation(0, 0.5, 0.435);
-				mesh[x].rotation.y = 1.57;
-				break;
-			case 1:
-				offset = BABYLON.Matrix.Translation(0, 0.5, -0.435);
-				mesh[x].rotation.y = 1.57;
-				break;
-			case 2:
-				offset = BABYLON.Matrix.Translation(0, 0.5, 0.435);
-				break;
-			case 3:
-				offset = BABYLON.Matrix.Translation(0, 0.5, -0.435);
-				break;
-			case 4:
-				offset = BABYLON.Matrix.Translation(0, 0, -1);
-				mesh[x].rotation.x = 1.57;
-				break;
-			case 5:
-				offset = BABYLON.Matrix.Translation(0, 0, 0);
-				mesh[x].rotation.x = 1.57;
-				break;
-		}
-
-		mesh[x].bakeTransformIntoVertices(offset);
-	}
-
-	const newmesh = BABYLON.Mesh.MergeMeshes(Object.values(mesh), true, true, undefined, true, false);
-
-	for (let x = 0; x < 6; x++) {
-		switch (x) {
-			case 0:
-				newmesh.subMeshes[x].materialIndex = 1;
-				break;
-			case 1:
-				newmesh.subMeshes[x].materialIndex = 1;
-				break;
-			case 2:
-				newmesh.subMeshes[x].materialIndex = 0;
-				break;
-			case 3:
-				newmesh.subMeshes[x].materialIndex = 0;
-				break;
-			case 4:
-				newmesh.subMeshes[x].materialIndex = 0;
-				break;
-			case 5:
-				newmesh.subMeshes[x].materialIndex = 0;
-				break;
-		}
-	}
-
-	return newmesh;
 }

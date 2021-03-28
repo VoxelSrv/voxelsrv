@@ -16,6 +16,7 @@ import {
 	IActionClickEntity,
 	ActionInventoryClick,
 	IActionInventoryPick,
+	MouseClickType,
 } from 'voxelsrv-protocol/js/client';
 import { IPlayerTeleport, IWorldChunkLoad, UpdateTextBoard } from 'voxelsrv-protocol/js/server';
 import { socket } from '../../lib/gameplay/connect';
@@ -142,7 +143,7 @@ export default function connectToClassic30Server(proxyHandler: ProxyHandler) {
 	};
 
 	classic.on('error', (e) => {
-		proxyHandler.socket.receive('PlayerKick', { reason: '' + e });
+		proxyHandler.socket.receive('PlayerKick', { reason: [{ text: '' + e }] });
 	});
 
 	classic.on('send', (data) => {
@@ -225,7 +226,7 @@ export default function connectToClassic30Server(proxyHandler: ProxyHandler) {
 	}
 
 	proxyHandler.onClient('ActionInventoryClick', (data: IActionInventoryClick) => {
-		if (data.type == ActionInventoryClick.Type.SELECT) {
+		if (data.type == MouseClickType.SELECT) {
 			inventory.selected = data.slot;
 		} else {
 			let temp1 = inventory.tempslot;
@@ -504,7 +505,7 @@ export default function connectToClassic30Server(proxyHandler: ProxyHandler) {
 	});
 
 	classic.on('disconnect_player', (d) => {
-		proxyHandler.socket.receive('PlayerKick', { reason: d.disconnect_reason });
+		proxyHandler.socket.receive('PlayerKick', { reason: [{ text: d.disconnect_reason }] });
 		socket.close();
 	});
 
@@ -565,7 +566,7 @@ export default function connectToClassic30Server(proxyHandler: ProxyHandler) {
 						x: k,
 						y: j,
 						z: i,
-						data: Buffer.from(chunk.data.buffer, chunk.data.byteOffset),
+						blockData: Buffer.from(chunk.data.buffer, chunk.data.byteOffset),
 						compressed: false,
 						height: 1,
 					};
@@ -589,7 +590,7 @@ export default function connectToClassic30Server(proxyHandler: ProxyHandler) {
 						x: x,
 						y: 0,
 						z: z,
-						data: buffer,
+						blockData: buffer,
 						compressed: false,
 						height: 16,
 					};
@@ -605,7 +606,7 @@ export default function connectToClassic30Server(proxyHandler: ProxyHandler) {
 					x: x,
 					y: -1,
 					z: z,
-					data: fBuffer,
+					blockData: fBuffer,
 					compressed: false,
 					height: 1,
 				};

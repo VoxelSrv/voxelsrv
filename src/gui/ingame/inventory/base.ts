@@ -1,6 +1,6 @@
 import { getScreen, scale, event } from '../../main';
 import * as GUI from '@babylonjs/gui/';
-import { ActionInventoryClick } from 'voxelsrv-protocol/js/client';
+import { ActionInventoryClick, InventoryType, MouseClickType } from 'voxelsrv-protocol/js/client';
 
 import { ItemSlot, createSlot, updateSlot } from '../../parts/itemSlot';
 import { BaseSocket } from '../../../socket';
@@ -50,19 +50,19 @@ export function getBaseInventory(noa: Engine, socket: BaseSocket) {
 			container.zIndex = 50;
 			container.left = `${-18 * scale * 4 + 18 * scale * (y % 9)}px`;
 			container.onPointerClickObservable.add((e) => {
-				let click = ActionInventoryClick.Type.LEFT;
+				let click = MouseClickType.LEFT;
 				switch (e.buttonIndex) {
 					case 0:
-						click = ActionInventoryClick.Type.LEFT;
+						click = MouseClickType.LEFT;
 						break;
 					case 1:
-						click = ActionInventoryClick.Type.MIDDLE;
+						click = MouseClickType.MIDDLE;
 						break;
 					case 2:
-						click = ActionInventoryClick.Type.RIGHT;
+						click = MouseClickType.RIGHT;
 						break;
 				}
-				socket.send('ActionInventoryClick', { slot: y + 27 * page, type: click, inventory: ActionInventoryClick.TypeInv.MAIN });
+				socket.send('ActionInventoryClick', { slot: y + 27 * page, type: click, inventory: InventoryType.MAIN });
 			});
 
 			container.onPointerEnterObservable.add((e) => {
@@ -101,19 +101,19 @@ export function getBaseInventory(noa: Engine, socket: BaseSocket) {
 		container.zIndex = 40;
 		container.left = `${-18 * scale * 4 + 18 * scale * x}px`;
 		container.onPointerClickObservable.add((e) => {
-			let click = ActionInventoryClick.Type.LEFT;
+			let click = MouseClickType.LEFT;
 			switch (e.buttonIndex) {
 				case 0:
-					click = ActionInventoryClick.Type.LEFT;
+					click = MouseClickType.LEFT;
 					break;
 				case 1:
-					click = ActionInventoryClick.Type.MIDDLE;
+					click = MouseClickType.MIDDLE;
 					break;
 				case 2:
-					click = ActionInventoryClick.Type.RIGHT;
+					click = MouseClickType.RIGHT;
 					break;
 			}
-			socket.send('ActionInventoryClick', { slot: x, type: click, inventory: ActionInventoryClick.TypeInv.MAIN });
+			socket.send('ActionInventoryClick', { slot: x, type: click, inventory: InventoryType.MAIN });
 		});
 
 		container.onPointerEnterObservable.add((e) => {

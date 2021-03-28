@@ -1,5 +1,7 @@
 import * as BABYLON from '@babylonjs/core/Legacy/legacy';
 import type { Engine } from 'noa-engine';
+import { InventoryType } from 'voxelsrv-protocol/js/client';
+import { IPlayerSpawn } from 'voxelsrv-protocol/js/server';
 
 
 /*
@@ -8,11 +10,14 @@ import type { Engine } from 'noa-engine';
  *
  */
 
-export function setupPlayerEntity(noa: Engine, invData: object, arrData: object, movement: object): void {
+export function setupPlayerEntity(noa: Engine, data: IPlayerSpawn): void {
 	const eid = noa.playerEntity;
 	const dat = noa.entities.getPositionData(eid);
 
 	const scene = noa.rendering.getScene();
+
+	dat.height = data.entity.height || 1.8;
+	dat.width = data.entity.witdh || 0.8;
 
 	const w = dat.width;
 	const h = dat.height;
@@ -25,19 +30,15 @@ export function setupPlayerEntity(noa: Engine, invData: object, arrData: object,
 
 	const move = noa.entities.getMovement(eid);
 
-	if (!!movement) {
-		Object.entries(movement).forEach((s) => {
+	if (!!data.movement) {
+		Object.entries(data.movement).forEach((s) => {
 			move[s[0]] = s[1];
 		});
 	}
 
 	// Create inventory, move it to global entities js in future
 
-	if (invData != undefined) noa.ents.addComponentAgain(eid, 'inventory', invData);
-
-	if (arrData != undefined) noa.ents.getState(eid, 'inventory').armor = arrData;
-
-	noa.ents.getState(eid, 'inventory').crafting = { 1: {}, 2: {}, 3: {}, 4: {} };
+	if (data.inventory != undefined) noa.ents.addComponentAgain(eid, 'inventory', data.inventory);
 
 	noa.entities.addComponentAgain(eid, "mesh", {
 		mesh: new BABYLON.Mesh('main', scene),

@@ -71,11 +71,11 @@ export class MPSocket extends BaseSocket {
 		};
 
 		this.socket.onerror = () => {
-			setTimeout(() => this.emit('PlayerKick', { reason: `Can't connect to ${server}` }), 500);
+			setTimeout(() => this.emit('PlayerKick', { reason: [{ text: `Can't connect to ${server}` }] }), 500);
 		};
 
 		this.socket.onclose = () => {
-			setTimeout(() => this.emit('PlayerKick', { reason: `Connection closed!` }), 500);
+			setTimeout(() => this.emit('PlayerKick', { reason: [{ text: `Connection closed!` }] }), 500);
 		};
 
 		this.socket.onmessage = async (data) => {
@@ -115,11 +115,11 @@ export class ProxySocket extends BaseSocket {
 		};
 
 		this.socket.onerror = () => {
-			setTimeout(() => this.emit('PlayerKick', { reason: `Can't connect to ${handler.server} (proxy ${proxy})` }), 500);
+			setTimeout(() => this.emit('PlayerKick', { reason: [{ text: `Can't connect to ${handler.server} (proxy ${proxy})` }] }), 500);
 		};
 
 		this.socket.onclose = () => {
-			setTimeout(() => this.emit('PlayerKick', { reason: `Connection closed! (proxy ${proxy})` }), 500);
+			setTimeout(() => this.emit('PlayerKick', { reason: [{ text: `Connection closed! (proxy ${proxy})` }] }), 500);
 		};
 
 		this.socket.onmessage = async (data) => {
@@ -160,7 +160,7 @@ export class ProxySocket extends BaseSocket {
 export class VirtualSocket extends BaseSocket {
 	toClient: EventEmitter;
 	toServer: EventEmitter;
-	attachedData: any
+	attachedData: any;
 
 	closed: boolean = false;
 
@@ -177,13 +177,13 @@ export class VirtualSocket extends BaseSocket {
 		this.toClient.on('error', (e: string) => {
 			if (this.closed) return;
 			this.closed = true;
-			setTimeout(() => this.toClient.emit('PlayerKick', { reason: e }), 500);
+			setTimeout(() => this.toClient.emit('PlayerKick', { reason: [{ text: e }] }), 500);
 		});
 
 		this.toClient.on('close', () => {
 			if (this.closed) return;
 			this.closed = true;
-			setTimeout(() => this.toClient.emit('PlayerKick', { reason: `Connection closed!` }), 500);
+			setTimeout(() => this.toClient.emit('PlayerKick', { reason: [{ text: `Connection closed!` }] }), 500);
 		});
 	}
 

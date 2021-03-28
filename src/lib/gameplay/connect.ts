@@ -63,8 +63,7 @@ import {
 	IWorldChunksRemoveAll,
 	IWorldChunkIsLoaded,
 	IPlayerOpenInventory,
-	PlayerOpenInventory,
-	IRegistryUpdate,
+	IPlayerSpawn,
 } from 'voxelsrv-protocol/js/server';
 import { Engine as BabylonEngine, Scene } from '@babylonjs/core';
 import { setAssetServer } from '../helpers/assets';
@@ -75,6 +74,7 @@ import { getScreen } from '../../gui/main';
 import { addToast, toastColors } from '../../gui/parts/toastMessage';
 import { ProxyHandler } from './proxyHandler';
 import { Engine } from 'noa-engine';
+import { ContainerType, InventoryType } from 'voxelsrv-protocol/js/client';
 
 export let socket: BaseSocket | null = null;
 let chunkInterval: any = null;
@@ -222,7 +222,7 @@ export function setupConnection(noax, socketx: BaseSocket, serverInfo: IServerIn
 
 			const disc = new PopupGUI([{ text: socket.singleplayer ? '' : 'Disconnected!' }]);
 
-			disc.setCenterText([{ text: data.reason }]);
+			disc.setCenterText(data.reason ?? [{ text: 'Unknown reason' }]);
 			if (!socket.singleplayer) {
 				disc.createItem('Reconnect', () => {
 					disc.dispose();
@@ -317,11 +317,10 @@ export function setupConnection(noax, socketx: BaseSocket, serverInfo: IServerIn
 		let entityIgnore: string = '';
 
 		socket.on('PlayerEntity', (data: IPlayerEntity) => {
-			console.log('Ignoring player-entity: ' + data.uuid);
 			entityIgnore = data.uuid;
 			if (entityList[data.uuid] != undefined && noa != undefined) noa.ents.deleteEntity(entityList[data.uuid]);
 			delete entityList[data.uuid];
-			applyModel(noa.playerEntity, data.uuid, data.model || 'player', data.texture || 'skins:' + uuid, 1.85, false, '', [0, 0, 0]);
+			applyModel(noa.playerEntity, data.uuid, data.model || 'player', data.texture || 'skins:' + uuid, 1.85, false, [], [0, 0, 0]);
 		});
 
 		scene.fogMode = defaultValues.fogMode;
@@ -338,7 +337,7 @@ export function setupConnection(noax, socketx: BaseSocket, serverInfo: IServerIn
 
 		if (!firstLogin) return;
 
-		socket.on('LoginSuccess', (dataPlayer: ILoginSuccess) => {
+		socket.on('LoginSuccess', (dataLogin: ILoginSuccess) => {
 			noa.ents.getPhysics(noa.playerEntity).body.airDrag = 9999;
 			connScreen.main.isVisible = false;
 
@@ -349,316 +348,343 @@ export function setupConnection(noax, socketx: BaseSocket, serverInfo: IServerIn
 			} else {
 				document.title = `VoxelSrv - Playing on ${socket.server}`;
 			}
-			registerBlocks(noa, JSON.parse(dataPlayer.blocksDef));
-			registerItems(noa, JSON.parse(dataPlayer.itemsDef));
+			registerBlocks(noa, dataLogin.blocksDef);
+			registerItems(noa, dataLogin.itemsDef);
 
-			setupPlayerEntity(noa, JSON.parse(dataPlayer.inventory), JSON.parse(dataPlayer.armor), JSON.parse(dataPlayer.movement));
+			socket.on('PlayerSpawn', (dataPlayer: IPlayerSpawn) => {
+				setupPlayerEntity(noa, dataPlayer);
 
-			cloudMesh.dispose();
-			setupClouds(noa);
-			skyMesh.dispose();
-			setupSky(noa);
+				cloudMesh.dispose();
+				setupClouds(noa);
+				skyMesh.dispose();
+				setupSky(noa);
 
-			noa.ents.setPosition(noa.playerEntity, dataPlayer.xPos, dataPlayer.yPos, dataPlayer.zPos);
+				entityIgnore = dataPlayer.entity.uuid;
+				if (entityList[dataPlayer.entity.uuid] != undefined && noa != undefined) noa.ents.deleteEntity(entityList[dataPlayer.entity.uuid]);
+				delete entityList[dataPlayer.entity.uuid];
+				applyModel(
+					noa.playerEntity,
+					dataPlayer.entity.uuid,
+					dataPlayer.entity.model || 'player',
+					dataPlayer.entity.texture || 'skins:' + uuid,
+					dataPlayer.entity.height + 0.05,
+					false,
+					[],
+					[0, 0, 0]
+				);
 
-			let checker = setInterval(() => {
-				if (noa.world.playerChunkLoaded) {
-					noa.ents.getPhysics(noa.playerEntity).body.airDrag = -1;
-					clearInterval(checker);
+				noa.ents.setPosition(noa.playerEntity, dataPlayer.xPos, dataPlayer.yPos, dataPlayer.zPos);
+
+				let checker = setInterval(() => {
+					if (noa.world.playerChunkLoaded) {
+						noa.ents.getPhysics(noa.playerEntity).body.airDrag = -1;
+						clearInterval(checker);
+					}
+				}, 1);
+
+				if (dataPlayer.movement) {
+					const moveState = noa.ents.getMovement(noa.playerEntity);
+					for (const x in dataPlayer.movement) {
+						moveState[x] = dataPlayer.movement[x];
+					}
 				}
-			}, 1);
 
-			if (!firstLogin) return;
-			firstLogin = false;
+				{
+					const inv = noa.ents.getState(noa.playerEntity, 'inventory');
 
-			destroyGuis();
-			clearStorage();
+					inv.items = dataPlayer.inventory.main ?? {};
+					inv.crafting = dataPlayer.inventory.crafting ?? {};
+					inv.armor = dataPlayer.inventory.armor ?? {};
+					inv.size = dataPlayer.inventory.size ?? 45;
+				}
 
-			setupGuis(noa, socket, dataPlayer, dataLogin);
+				if (!firstLogin) return;
+				firstLogin = false;
 
-			if (isMobile) {
-				showMobileControls(false);
-			}
+				destroyGuis();
+				clearStorage();
 
-			socket.on('RegistryUpdate', (data: IRegistryUpdate) => {
-				registerBlocks(noa, JSON.parse(data.blocksDef));
-				registerItems(noa, JSON.parse(data.itemsDef));
-			});
+				setupGuis(noa, socket, dataPlayer, dataLogin);
 
-			socket.on('WorldChunkLoad', (data: IWorldChunkLoad) => {
-				setChunk(data);
-			});
+				if (isMobile) {
+					showMobileControls(false);
+				}
 
-			socket.on('WorldChunkUnload', (data: IWorldChunkUnload) => {
-				const height = data.height > 0 ? data.height : 1;
-				for (let x = 0; x <= height; x++) removeChunk(`${data.x}|${data.y + x}|${data.z}`);
-			});
-
-			socket.on('WorldChunksRemoveAll', (data: IWorldChunksRemoveAll) => {
-				if (data.confirm) clearStorage();
-			});
-
-			socket.on('WorldChunkIsLoaded', (data: IWorldChunkIsLoaded) => {
-				socket.send('WorldChunkIsLoadedResponce', { x: data.x, y: data.y, z: data.z, loaded: chunkExist([data.x, data.y, data.z].join('|')) });
-			});
-
-			socket.on('WorldMultiBlockUpdate', (data: IWorldMultiBlockUpdate) => {
-				Object.values(data.blocks).forEach((block) => {
-					noa.setBlock(block.id, block.x, block.y, block.z);
-					chunkSetBlock(block.id, block.x, block.y, block.z, 100);
+				socket.on('WorldChunkLoad', (data: IWorldChunkLoad) => {
+					setChunk(data);
 				});
-			});
 
-			socket.on('WorldBlockUpdate', (data: IWorldBlockUpdate) => {
-				noa.setBlock(data.id, data.x, data.y, data.z);
-				chunkSetBlock(data.id, data.x, data.y, data.z, 100);
-			});
+				socket.on('WorldChunkUnload', (data: IWorldChunkUnload) => {
+					const height = data.height > 0 ? data.height : 1;
+					for (let x = 0; x <= height; x++) removeChunk(`${data.x}|${data.y + x}|${data.z}`);
+				});
 
-			socket.on('EnvironmentFogUpdate', (data: IEnvironmentFogUpdate) => {
-				if (data.mode != undefined) scene.fogMode = data.mode;
-				if (data.start != undefined) scene.fogStart = data.start;
-				if (data.end != undefined) scene.fogEnd = data.end;
-				if (data.density != undefined) scene.fogDensity = data.density;
-				if ((data.colorRed != undefined, data.colorGreen != undefined, data.colorBlue != undefined))
-					scene.fogColor = new BABYLON.Color3(data.colorRed, data.colorGreen, data.colorBlue);
-			});
+				socket.on('WorldChunksRemoveAll', (data: IWorldChunksRemoveAll) => {
+					if (data.confirm) clearStorage();
+				});
 
-			socket.on('EnvironmentSkyUpdate', (data: IEnvironmentSkyUpdate) => {
-				if ((data.colorRed != undefined, data.colorGreen != undefined, data.colorBlue != undefined))
-					scene.clearColor = new BABYLON.Color4(data.colorRed, data.colorGreen, data.colorBlue, 1);
-				if ((data.colorRedTop != undefined, data.colorGreenTop != undefined, data.colorBlueTop != undefined))
+				socket.on('WorldChunkIsLoaded', (data: IWorldChunkIsLoaded) => {
+					socket.send('WorldChunkIsLoadedResponce', { x: data.x, y: data.y, z: data.z, loaded: chunkExist([data.x, data.y, data.z].join('|')) });
+				});
+
+				socket.on('WorldMultiBlockUpdate', (data: IWorldMultiBlockUpdate) => {
+					Object.values(data.blocks).forEach((block) => {
+						noa.setBlock(block.id, block.x, block.y, block.z);
+						chunkSetBlock(block.id, block.x, block.y, block.z, 100);
+					});
+				});
+
+				socket.on('WorldBlockUpdate', (data: IWorldBlockUpdate) => {
+					noa.setBlock(data.id, data.x, data.y, data.z);
+					chunkSetBlock(data.id, data.x, data.y, data.z, 100);
+				});
+
+				socket.on('EnvironmentFogUpdate', (data: IEnvironmentFogUpdate) => {
+					if (data.mode != undefined) scene.fogMode = data.mode;
+					if (data.start != undefined) scene.fogStart = data.start;
+					if (data.end != undefined) scene.fogEnd = data.end;
+					if (data.density != undefined) scene.fogDensity = data.density;
+					if ((data.colorRed != undefined, data.colorGreen != undefined, data.colorBlue != undefined))
+						scene.fogColor = new BABYLON.Color3(data.colorRed, data.colorGreen, data.colorBlue);
+				});
+
+				socket.on('EnvironmentSkyUpdate', (data: IEnvironmentSkyUpdate) => {
+					if ((data.colorRed != undefined, data.colorGreen != undefined, data.colorBlue != undefined))
+						scene.clearColor = new BABYLON.Color4(data.colorRed, data.colorGreen, data.colorBlue, 1);
+					if ((data.colorRedTop != undefined, data.colorGreenTop != undefined, data.colorBlueTop != undefined))
+						// @ts-ignore
+						skyMesh.material.emissiveColor = new BABYLON.Color3(data.colorRedTop, data.colorGreenTop, data.colorBlueTop);
 					// @ts-ignore
-					skyMesh.material.emissiveColor = new BABYLON.Color3(data.colorRedTop, data.colorGreenTop, data.colorBlueTop);
-				// @ts-ignore
-				skyMesh.material.diffuseColor = skyMesh.material.emissiveColor;
-				if (data.clouds != undefined) cloudMesh.isVisible = data.clouds;
-			});
+					skyMesh.material.diffuseColor = skyMesh.material.emissiveColor;
+					if (data.clouds != undefined) cloudMesh.isVisible = data.clouds;
+				});
 
-			socket.on('PlayerInventory', function (data: IPlayerInventory) {
-				const inv = JSON.parse(data.inventory);
-				if (data.type == 'armor') {
-					noa.ents.getState(noa.playerEntity, 'inventory').armor = inv;
-				} else if (data.type == 'hook') {
-					noa.ents.getState(noa.playerEntity, 'inventory').hook = inv;
-				} else {
-					noa.ents.getState(noa.playerEntity, 'inventory').items = inv.items;
-					noa.ents.getState(noa.playerEntity, 'inventory').tempslot = inv.tempslot;
-				}
-			});
+				socket.on('PlayerInventory', function (data: IPlayerInventory) {
+					const inv = noa.ents.getState(noa.playerEntity, 'inventory');
 
-			socket.on('PlayerSlotUpdate', function (data: IPlayerSlotUpdate) {
-				const item = JSON.parse(data.data);
-				const inv = noa.ents.getState(noa.playerEntity, 'inventory');
+					inv.items = data.main ?? inv.items;
+					inv.crafting = data.crafting ?? inv.crafting;
+					inv.armor = data.armor ?? inv.armor;
+					inv.size = data.size ?? inv.size;
+				});
 
-				if (data.type == 'temp') inv.tempslot = item;
-				else if (data.type == 'main') inv.items[data.slot] = item;
-				else if (data.type == 'armor') inv.armor.items[data.slot] = item;
-				else if (data.type == 'crafting') inv.crafting[data.slot] = item;
-				else if (data.type == 'hook') inv.hook.items[data.slot] = item;
-			});
+				socket.on('PlayerSlotUpdate', function (data: IPlayerSlotUpdate) {
+					const inv = noa.ents.getState(noa.playerEntity, 'inventory');
 
-			socket.on('PlayerSetBlockReach', (data: IPlayerSetBlockReach) => {
-				noa.blockTestDistance = data.value;
-			});
+					if (data.type == InventoryType.TEMP) inv.tempslot = data.item ?? null;
+					else if (data.type == InventoryType.MAIN) inv.items[data.slot] = data.item ?? null;
+					else if (data.type == InventoryType.ARMOR) inv.armor.items[data.slot] = data.item ?? null;
+					else if (data.type == InventoryType.CRAFT) inv.crafting[data.slot] = data.item ?? null;
+					else if (data.type == InventoryType.HOOK) inv.hook.items[data.slot] = data.item ?? null;
+				});
 
-			socket.on('PlayerOpenInventory', (data: IPlayerOpenInventory) => {
-				if (data.type == PlayerOpenInventory.Type.MAIN) noa.inputs.down.emit('inventory');
-				else if (data.type == PlayerOpenInventory.Type.CRAFTING) {
-					const inv = JSON.parse(data.data);
+				socket.on('PlayerSetBlockReach', (data: IPlayerSetBlockReach) => {
+					noa.blockTestDistance = data.value;
+				});
 
-					noa.ents.getState(noa.playerEntity, 'inventory').hook = inv;
+				socket.on('PlayerOpenInventory', (data: IPlayerOpenInventory) => {
+					const inv = noa.ents.getState(noa.playerEntity, 'inventory');
+					if (data.type == ContainerType.PLAYER) {
+						inv.items = data.items ?? inv.items;
+						inv.size = data.size ?? inv.size;
+						noa.inputs.down.emit('inventory');
+					} else if (data.type == ContainerType.CRAFTING) {
+						inv.hook = {
+							size: data.size,
+							items: data.items,
+						};
 
-					openCrafting(noa, socket);
-				}
-			});
-
-			socket.on('ChatMessage', (data: IChatMessage) => {
-				addMessage(data.message);
-			});
-
-			socket.on('UpdateTextBoard', (data: IUpdateTextBoard) => {
-				if (data.type == UpdateTextBoard.Type.TAB) setTab(data.message);
-			});
-
-			socket.on('PlayerTeleport', function (data: IPlayerTeleport) {
-				noa.ents.setPosition(noa.playerEntity, data.x, data.y, data.z);
-			});
-
-			socket.on('PlayerUpdateMovement', (data: IPlayerUpdateMovement) => {
-				const move = noa.ents.getMovement(noa.playerEntity);
-				move[data.key] = data.value;
-			});
-
-			socket.on('PlayerUpdatePhysics', (data: IPlayerUpdatePhysics) => {
-				const move = noa.ents.getPhysicsBody(noa.playerEntity);
-				move[data.key] = data.value;
-			});
-
-			socket.on('PlayerApplyImpulse', (data: IPlayerApplyImpulse) => {
-				noa.ents.getPhysicsBody(noa.playerEntity).applyImpulse([data.x, data.y, data.z]);
-			});
-
-			socket.on('EntityCreate', async (data: IEntityCreate) => {
-				if (entityIgnore != data.uuid) {
-					const entData = JSON.parse(data.data);
-					entityList[data.uuid] = noa.ents.add(Object.values(entData.position), 1, 2, null, null, false, true);
-					applyModel(entityList[data.uuid], data.uuid, entData.model, entData.texture, entData.offset, entData.nametag, entData.name, entData.hitbox);
-					noa.ents.getState(entityList[data.uuid], 'position').newPosition = noa.ents.getState(entityList[data.uuid], 'position').position;
-				}
-			});
-
-			socket.on('EntityNameUpdate', (data: IEntityNameUpdate) => {
-				const model = noa.ents.getState(entityList[data.uuid], 'model');
-				model.nametag.dispose();
-				model.nametag = addNametag(model.main, data.name, noa.ents.getPositionData(entityList[data.uuid]).height, data.visible);
-			});
-
-			socket.on('EntityRemove', (data: IEntityRemove) => {
-				if (entityList[data.uuid] != undefined) noa.ents.deleteEntity(entityList[data.uuid]);
-				delete entityList[data.uuid];
-			});
-
-			socket.on('EntityMove', (data: IEntityMove) => {
-				if (entityList[data.uuid] != undefined) {
-					var pos = [data.x, data.y, data.z];
-					noa.ents.getState(entityList[data.uuid], 'position').newPosition = pos;
-					noa.ents.getState(entityList[data.uuid], 'position').rotation = data.rotation * 2;
-					noa.ents.getState(entityList[data.uuid], 'position').pitch = data.pitch * 2;
-				}
-			});
-
-			socket.on('EntityHeldItem', (data: IEntityHeldItem) => {});
-			socket.on('EntityArmor', (data: IEntityArmor) => {});
-
-			socket.on('SoundPlay', (data: ISoundPlay) => {
-				playSound(data.sound, data.volume, data.x != undefined ? [data.x, data.y, data.z] : null, noa);
-			});
-
-			const pos = noa.ents.getState(noa.playerEntity, 'position');
-			let lastPos = [];
-			let lastRot = 0;
-			let lastPitch = 0;
-
-			let ping = 0;
-			let h5rge = 0;
-
-			moveEvent = () => {
-				if (h5rge == 0) {
-					const rot = noa.camera.heading;
-					const pitch = noa.camera.pitch;
-					if (vec3.dist(lastPos, pos.position) > 0.15 || lastRot != rot || lastPitch != pitch) {
-						lastPos = [...pos.position];
-						lastPitch = pitch;
-						lastRot = rot;
-						socket.send('ActionMoveLook', { x: pos.position[0], y: pos.position[1], z: pos.position[2], rotation: rot, pitch: pitch });
-					} else if (vec3.dist(lastPos, pos.position) > 0.15) {
-						lastPos = [...pos.position];
-						socket.send('ActionMove', { x: pos.position[0], y: pos.position[1], z: pos.position[2] });
-					} else if (lastRot != rot || lastPitch != pitch) {
-						lastPitch = pitch;
-						lastRot = rot;
-						socket.send('ActionLook', { rotation: rot, pitch: pitch });
-					}
-					h5rge = 2;
-				}
-
-				h5rge = h5rge - 1;
-
-				ping = ping + 1;
-
-				if (ping >= 120) {
-					socket.send('Ping', { time: Date.now() });
-					ping = 0;
-				}
-			};
-
-			noa.on('tick', moveEvent);
-
-			entityEvent = async function () {
-				const playerModel = noa.ents.getState(noa.playerEntity, 'model');
-				const playerPos = noa.ents.getState(noa.playerEntity, 'position');
-
-				if (playerModel != undefined) {
-					const value = noa.camera.zoomDistance != 0;
-					playerModel.main.visibility = value;
-					var children = playerModel.main.getChildMeshes(false);
-
-					let i;
-					for (i = 0; i < children.length; i++) {
-						children[i].visibility = value;
-					}
-
-					if (value) {
-						updateAnimationOfModel(playerModel, playerPos, noa.camera.getTargetPosition(), playerModel.main);
-						playerModel.main.rotation.y = noa.camera.heading;
-						playerModel.models.head.rotation.x = noa.camera.pitch;
-
-					}
-				}
-
-				Object.values(entityList).forEach(async function (id: number) {
-					const pos = noa.ents.getState(id, 'position');
-					const newPos = pos.newPosition;
-					const mainMesh = noa.ents.getState(id, 'mesh');
-					const model = noa.ents.getState(id, 'model');
-					if (mainMesh != undefined && newPos != undefined && pos.position != undefined) {
-						let move = vec3.create();
-						vec3.lerp(move, pos.position, newPos, 12 / engine.getFps());
-						noa.ents.setPosition(id, move[0], move[1], move[2]);
-						updateAnimationOfModel(model, pos, newPos, mainMesh.mesh);
+						openCrafting(noa, socket);
 					}
 				});
-			};
 
-			function updateAnimationOfModel(model, pos, newPos, mainMesh) {
-				const posx = pos.position;
+				socket.on('ChatMessage', (data: IChatMessage) => {
+					addMessage(data.message);
+				});
 
-				let move = vec3.create();
-				vec3.lerp(move, posx, newPos, 12 / engine.getFps());
-				const rot = pos.rotation ? pos.rotation : 0;
-				const pitch = pos.pitch ? pos.pitch : 0;
-				const pos2da = [newPos[0], 0, newPos[2]];
-				const pos2db = [posx[0], 0, posx[2]];
+				socket.on('UpdateTextBoard', (data: IUpdateTextBoard) => {
+					if (data.type == UpdateTextBoard.Type.TAB) setTab(data.message);
+				});
 
-				if (model.x == undefined) {
-					model.x = 0;
-					model.y = 0;
-					model.z = false;
+				socket.on('PlayerTeleport', function (data: IPlayerTeleport) {
+					noa.ents.setPosition(noa.playerEntity, data.x, data.y, data.z);
+				});
+
+				socket.on('PlayerUpdateMovement', (data: IPlayerUpdateMovement) => {
+					const move = noa.ents.getMovement(noa.playerEntity);
+					move[data.key] = data.value;
+				});
+
+				socket.on('PlayerUpdatePhysics', (data: IPlayerUpdatePhysics) => {
+					const move = noa.ents.getPhysicsBody(noa.playerEntity);
+					move[data.key] = data.value;
+				});
+
+				socket.on('PlayerApplyImpulse', (data: IPlayerApplyImpulse) => {
+					noa.ents.getPhysicsBody(noa.playerEntity).applyImpulse([data.x, data.y, data.z]);
+				});
+
+				socket.on('EntityCreate', async (data: IEntityCreate) => {
+					if (entityIgnore != data.uuid) {
+						console.log(data)
+						entityList[data.uuid] = noa.ents.add([data.x, data.y, data.z], data.hitbox[0], data.hitbox[1], null, null, false, true);
+						applyModel(entityList[data.uuid], data.uuid, data.model, data.texture, data.hitbox[1] + 0.05, data.nametag, data.name, data.hitbox);
+						noa.ents.getState(entityList[data.uuid], 'position').newPosition = noa.ents.getState(entityList[data.uuid], 'position').position;
+					}
+				});
+
+				socket.on('EntityNameUpdate', (data: IEntityNameUpdate) => {
+					const model = noa.ents.getState(entityList[data.uuid], 'model');
+					model.nametag.dispose();
+					model.nametag = addNametag(model.main, data.name, noa.ents.getPositionData(entityList[data.uuid]).height, data.visible);
+				});
+
+				socket.on('EntityRemove', (data: IEntityRemove) => {
+					if (entityList[data.uuid] != undefined) noa.ents.deleteEntity(entityList[data.uuid]);
+					delete entityList[data.uuid];
+				});
+
+				socket.on('EntityMove', (data: IEntityMove) => {
+					if (entityList[data.uuid] != undefined) {
+						var pos = [data.x, data.y, data.z];
+						noa.ents.getState(entityList[data.uuid], 'position').newPosition = pos;
+						noa.ents.getState(entityList[data.uuid], 'position').rotation = data.rotation * 2;
+						noa.ents.getState(entityList[data.uuid], 'position').pitch = data.pitch * 2;
+					}
+				});
+
+				socket.on('EntityHeldItem', (data: IEntityHeldItem) => {});
+				socket.on('EntityArmor', (data: IEntityArmor) => {});
+
+				socket.on('SoundPlay', (data: ISoundPlay) => {
+					playSound(data.sound, data.volume, data.x != undefined ? [data.x, data.y, data.z] : null, noa);
+				});
+
+				const pos = noa.ents.getState(noa.playerEntity, 'position');
+				let lastPos = [];
+				let lastRot = 0;
+				let lastPitch = 0;
+
+				let ping = 0;
+				let h5rge = 0;
+
+				moveEvent = () => {
+					if (h5rge == 0) {
+						const rot = noa.camera.heading;
+						const pitch = noa.camera.pitch;
+						if (vec3.dist(lastPos, pos.position) > 0.15 || lastRot != rot || lastPitch != pitch) {
+							lastPos = [...pos.position];
+							lastPitch = pitch;
+							lastRot = rot;
+							socket.send('ActionMoveLook', { x: pos.position[0], y: pos.position[1], z: pos.position[2], rotation: rot, pitch: pitch });
+						} else if (vec3.dist(lastPos, pos.position) > 0.15) {
+							lastPos = [...pos.position];
+							socket.send('ActionMove', { x: pos.position[0], y: pos.position[1], z: pos.position[2] });
+						} else if (lastRot != rot || lastPitch != pitch) {
+							lastPitch = pitch;
+							lastRot = rot;
+							socket.send('ActionLook', { rotation: rot, pitch: pitch });
+						}
+						h5rge = 2;
+					}
+
+					h5rge = h5rge - 1;
+
+					ping = ping + 1;
+
+					if (ping >= 120) {
+						socket.send('Ping', { time: Date.now() });
+						ping = 0;
+					}
+				};
+
+				noa.on('tick', moveEvent);
+
+				entityEvent = async function () {
+					const playerModel = noa.ents.getState(noa.playerEntity, 'model');
+					const playerPos = noa.ents.getState(noa.playerEntity, 'position');
+
+					if (playerModel != undefined) {
+						const value = noa.camera.zoomDistance != 0;
+						playerModel.main.visibility = value;
+						var children = playerModel.main.getChildMeshes(false);
+
+						let i;
+						for (i = 0; i < children.length; i++) {
+							children[i].visibility = value;
+						}
+
+						if (value) {
+							updateAnimationOfModel(playerModel, playerPos, noa.camera.getTargetPosition(), playerModel.main);
+							playerModel.main.rotation.y = noa.camera.heading;
+							playerModel.models.head.rotation.x = noa.camera.pitch;
+						}
+					}
+
+					Object.values(entityList).forEach(async function (id: number) {
+						const pos = noa.ents.getState(id, 'position');
+						const newPos = pos.newPosition;
+						const mainMesh = noa.ents.getState(id, 'mesh');
+						const model = noa.ents.getState(id, 'model');
+						if (mainMesh != undefined && newPos != undefined && pos.position != undefined) {
+							let move = vec3.create();
+							vec3.lerp(move, pos.position, newPos, 12 / engine.getFps());
+							noa.ents.setPosition(id, move[0], move[1], move[2]);
+							updateAnimationOfModel(model, pos, newPos, mainMesh.mesh);
+						}
+					});
+				};
+
+				function updateAnimationOfModel(model, pos, newPos, mainMesh) {
+					const posx = pos.position;
+
+					let move = vec3.create();
+					vec3.lerp(move, posx, newPos, 12 / engine.getFps());
+					const rot = pos.rotation ? pos.rotation : 0;
+					const pitch = pos.pitch ? pos.pitch : 0;
+					const pos2da = [newPos[0], 0, newPos[2]];
+					const pos2db = [posx[0], 0, posx[2]];
+
+					if (model.x == undefined) {
+						model.x = 0;
+						model.y = 0;
+						model.z = false;
+					}
+
+					let sin = Math.sin(model.x);
+					if (vec3.dist(pos2da, pos2db) > 0.05) {
+						model.y = vec3.dist(pos2da, pos2db) / 5;
+						model.x = model.x + model.y;
+						if (Math.abs(sin) > 0.95) model.z = true;
+						else if (Math.abs(sin) < 0.05) model.z = false;
+					} else {
+						const sin2 = parseFloat(sin.toFixed(1));
+						if (sin2 != 0 && !model.z) model.x = model.x - 0.05;
+						if (sin2 != 0 && model.z) model.x = model.x + 0.05;
+					}
+
+					model.models.left_arm.rotation.x = -sin;
+					model.models.right_arm.rotation.x = sin;
+					model.models.right_leg.rotation.x = -sin;
+					model.models.left_leg.rotation.x = sin;
+
+					if (!mainMesh.rotation.y) mainMesh.rotation.y = 0;
+
+					const oldRot = mainMesh.rotation.y;
+
+					if (rot / 2 - oldRot > 5) mainMesh.rotation.y = rot / 2;
+					else mainMesh.rotation.y = (rot / 2 + oldRot) / 2;
+
+					model.models.head.rotation.x = pitch / 2;
+
+					if (model.nametag != undefined) {
+						model.nametag.rotation.y = noa.camera.heading - mainMesh.rotation.y;
+						model.nametag.rotation.x = noa.camera.pitch;
+					}
 				}
 
-				let sin = Math.sin(model.x);
-				if (vec3.dist(pos2da, pos2db) > 0.05) {
-					model.y = vec3.dist(pos2da, pos2db) / 5;
-					model.x = model.x + model.y;
-					if (Math.abs(sin) > 0.95) model.z = true;
-					else if (Math.abs(sin) < 0.05) model.z = false;
-				} else {
-					const sin2 = parseFloat(sin.toFixed(1));
-					if (sin2 != 0 && !model.z) model.x = model.x - 0.05;
-					if (sin2 != 0 && model.z) model.x = model.x + 0.05;
-				}
-
-				model.models.left_arm.rotation.x = -sin;
-				model.models.right_arm.rotation.x = sin;
-				model.models.right_leg.rotation.x = -sin;
-				model.models.left_leg.rotation.x = sin;
-
-				if (!mainMesh.rotation.y) mainMesh.rotation.y = 0;
-
-				const oldRot = mainMesh.rotation.y;
-
-				if (rot / 2 - oldRot > 5) mainMesh.rotation.y = rot / 2;
-				else mainMesh.rotation.y = (rot / 2 + oldRot) / 2;
-
-				model.models.head.rotation.x = pitch / 2;
-
-				if (model.nametag != undefined) {
-					model.nametag.rotation.y = noa.camera.heading - mainMesh.rotation.y;
-					model.nametag.rotation.x = noa.camera.pitch;
-				}
-			}
-
-			noa.on('beforeRender', entityEvent);
+				noa.on('beforeRender', entityEvent);
+			});
 		});
 	});
 }

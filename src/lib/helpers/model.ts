@@ -1,7 +1,11 @@
 import * as BABYLON from '@babylonjs/core/Legacy/legacy';
 import { Mesh } from '@babylonjs/core/Legacy/legacy';
 import { Engine } from 'noa-engine';
+import { FormTextBlock, IFormatedText } from '../../gui/parts/formtextblock';
 import { getAsset } from './assets';
+import { stringifyText } from './general';
+import * as GUI from '@babylonjs/gui/';
+
 
 const models = {};
 const templateModels: { [i: string]: BABYLON.Mesh } = {};
@@ -28,7 +32,7 @@ export async function applyModel(
 	texture: string,
 	offset: number,
 	nametag: boolean,
-	name: string,
+	name: IFormatedText[],
 	hitbox: number[]
 ) {
 	const scene = noa.rendering.getScene();
@@ -54,7 +58,7 @@ async function applyModelTo(
 	model: string,
 	data: object,
 	texture: string,
-	name: string,
+	name: IFormatedText[],
 	nametag: boolean,
 	eid: number,
 	uuid: string,
@@ -229,7 +233,6 @@ function createTemplateModel(name, model) {
 
 			var mat = noa.rendering.makeStandardMaterial('modelmaterial-' + mdata.name + '-' + y);
 			part[y].material = mat;
-
 			part[y].opaque = false;
 		}
 		const mesh = BABYLON.Mesh.MergeMeshes(part, true, true, undefined, true, true);
@@ -242,7 +245,7 @@ function createTemplateModel(name, model) {
 	return main;
 }
 
-export function addNametag(mainMesh: Mesh, name: string, height: number, visible: boolean) {
+export function addNametag(mainMesh: Mesh, name: IFormatedText[], height: number, visible: boolean) {
 	const scene = noa.rendering.getScene();
 
 	const font_size = 96;
@@ -261,19 +264,23 @@ export function addNametag(mainMesh: Mesh, name: string, height: number, visible
 	const temp = new BABYLON.DynamicTexture('DynamicTexture', 64, scene, false);
 	const tmpctx = temp.getContext();
 	tmpctx.font = font;
-	const DTWidth = tmpctx.measureText(name).width + 8;
+	const DTWidth = tmpctx.measureText(stringifyText(name)).width + 8;
 
 	//Calculate width the plane has to be
 	const planeWidth = DTWidth * ratio;
 
 	//Create dynamic texture and write the text
-	const dynamicTexture = new BABYLON.DynamicTexture('DynamicTexture', { width: DTWidth, height: DTHeight }, scene, false);
+	const dynamicTexture = new GUI.AdvancedDynamicTexture('DynamicTexture', DTWidth, DTHeight , scene, false);
 	const mat = noa.rendering.makeStandardMaterial('nametag');
 	mat.diffuseTexture = dynamicTexture;
 	mat.emissiveTexture = mat.diffuseTexture;
 	mat.diffuseTexture.hasAlpha = true;
 	mat.opacityTexture = mat.diffuseTexture;
-	dynamicTexture.drawText(name, null, null, font, '#eeeeee', '#00000066', true);
+	//dynamicTexture.drawText(name, null, null, font, '#eeeeee', '#00000066', true);
+	const text = new FormTextBlock('', name);
+	text.fontStyle = font;
+	text.color = 'white';
+	dynamicTexture.addControl(text);
 
 	//Create plane and set dynamic texture as material
 	const plane = BABYLON.MeshBuilder.CreatePlane('plane', { width: planeWidth, height: planeHeight }, scene);

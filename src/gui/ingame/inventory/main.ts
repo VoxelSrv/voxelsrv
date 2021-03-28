@@ -1,6 +1,6 @@
 import { getScreen, scale, event } from '../../main';
 import * as GUI from '@babylonjs/gui/';
-import { ActionInventoryClick } from 'voxelsrv-protocol/js/client';
+import { ActionInventoryClick, InventoryType, MouseClickType } from 'voxelsrv-protocol/js/client';
 
 import { ItemSlot, createSlot, updateSlot } from '../../parts/itemSlot';
 import { defaultValues } from '../../../values';
@@ -64,19 +64,19 @@ export function openInventory(noa: Engine, socket: BaseSocket) {
 		container.verticalAlignment = 0;
 		container.top = `${18 * scale * x}px`;
 		container.onPointerClickObservable.add((e) => {
-			let click = ActionInventoryClick.Type.LEFT;
+			let click = MouseClickType.LEFT;
 			switch (e.buttonIndex) {
 				case 0:
-					click = ActionInventoryClick.Type.LEFT;
+					click = MouseClickType.LEFT;
 					break;
 				case 1:
-					click = ActionInventoryClick.Type.MIDDLE;
+					click = MouseClickType.MIDDLE;
 					break;
 				case 2:
-					click = ActionInventoryClick.Type.RIGHT;
+					click = MouseClickType.RIGHT;
 					break;
 			}
-			socket.send('ActionInventoryClick', { slot: x, type: click, inventory: ActionInventoryClick.TypeInv.ARMOR });
+			socket.send('ActionInventoryClick', { slot: x, type: click, inventory: InventoryType.ARMOR });
 		});
 
 		container.onPointerEnterObservable.add((e) => {
@@ -118,19 +118,19 @@ export function openInventory(noa: Engine, socket: BaseSocket) {
 		}
 
 		container.onPointerClickObservable.add((e) => {
-			let click = ActionInventoryClick.Type.LEFT;
+			let click = MouseClickType.LEFT;
 			switch (e.buttonIndex) {
 				case 0:
-					click = ActionInventoryClick.Type.LEFT;
+					click = MouseClickType.LEFT;
 					break;
 				case 1:
-					click = ActionInventoryClick.Type.MIDDLE;
+					click = MouseClickType.MIDDLE;
 					break;
 				case 2:
-					click = ActionInventoryClick.Type.RIGHT;
+					click = MouseClickType.RIGHT;
 					break;
 			}
-			socket.send('ActionInventoryClick', { slot: x, type: click, inventory: ActionInventoryClick.TypeInv.CRAFTING });
+			socket.send('ActionInventoryClick', { slot: x, type: click, inventory: InventoryType.CRAFT });
 		});
 		container.onPointerEnterObservable.add((e) => {
 			container.background = '#ffffff22';
@@ -150,7 +150,7 @@ export function openInventory(noa: Engine, socket: BaseSocket) {
 		const inv = getInv();
 
 		for (let x = 0; x < 4; x++) {
-			const status = updateSlot(armorSlots[x], inv.armor.items[x]);
+			const status = updateSlot(armorSlots[x], inv.armor[x]);
 			if (status == false) {
 				armorSlots[x].count.alpha = 0;
 				let txt: string;
