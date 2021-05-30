@@ -55,7 +55,7 @@
 		"voxel-physics-engine": "^0.10.0",
 		"voxelsrv-protocol": "github:VoxelSrv/protocol#v3",
 		"voxelsrv-server": "github:VoxelSrv/voxelsrv-server",
-		"ws": "^7.4.4"
+		"ws": "^7.4.6"
 	},
 	"devDependencies": {
 		"@babel/types": "^7.13.0",
