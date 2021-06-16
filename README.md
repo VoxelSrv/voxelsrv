@@ -1,4 +1,7 @@
 ![VoxelSrv](https://i.imgur.com/FuXKPpw.png)
+
+Currently being rewritten in https://github.com/VoxelSrv/voxelsrv
+
 # VoxelSrv
 VoxelSrv is a voxel game inspired by Minecraft, where you can build, mine and ~~craft~~ (not implemented yet).
 This game is still in early development, so many features might be not implemented yet!
